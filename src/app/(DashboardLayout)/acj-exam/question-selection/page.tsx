@@ -111,7 +111,7 @@ export default function StationManagement() {
   const theme = useTheme();
   const router = useRouter();
   const searchRouter = useSearchParams();
-  const [PrepXID, setPrepXID] = useState(new Date().getTime())
+  const [PrepXID, setPrepXID] = useState(new Date().getTime());
   const examId: any = searchRouter.get("examid");
   const [loading, setLoading] = useState(false);
   const [bookletId, setBookletId] = useState("1");
@@ -198,7 +198,6 @@ export default function StationManagement() {
     limit: 10,
   });
 
-
   const handleSaveAsDraft = async () => {
     setIsLoading(true);
     toast({ type: "success", message: "Draft saved successfully." });
@@ -223,9 +222,7 @@ export default function StationManagement() {
     };
   };
 
-
   const removeKeepInReportQuestion = async (selectedAssignQuestionId: any) => {
-
     const bodyData = {
       ExamID: examId,
       ExamQuestionID: selectedAssignQuestionId,
@@ -259,8 +256,47 @@ export default function StationManagement() {
               QuestionTextID: `Question-${id}`,
               QuestionTopicName: "Radiology",
               QuestionTypeFor: "msq",
-            }))
+            })),
           });
+
+          // assigne questions to exams in localStorage
+          try {
+            const isBrowser = typeof window !== "undefined";
+            if (isBrowser) {
+              const existingExams = window.localStorage.getItem("exams");
+              const exams = existingExams ? JSON.parse(existingExams) : [];
+
+              // find the exam
+              const examIndex = exams.findIndex(
+                (exam: any) => exam.ExamID == examId
+              );
+              if (examIndex !== -1) {
+                // create question data
+                const questionData = selectedQuestionIds.map((id: any) => ({
+                  ExamQuestionID: id,
+                  BookletID: `Booklet ${bookletId}`,
+                  QuestionID: id,
+                  CourseTypeName: "ACJ",
+                  ExamQuestionStatus: 1,
+                  QuestionTextID: `Question-${id}`,
+                  QuestionTopicName: "Radiology",
+                  QuestionTypeFor: "msq",
+                }));
+
+                // add questions to the exams array in localhost
+                exams[examIndex].questions = questionData;
+                exams[examIndex].totalQuestions = questionData.length;
+                exams[examIndex].lastQuestionAssignedDate =
+                  new Date().toISOString();
+
+                // update local storage
+                window.localStorage.setItem("exams", JSON.stringify(exams));
+              }
+            }
+          } catch (e) {
+            console.log("Error saving questions to localStorage:", e);
+          }
+
           // getAllSelectedQuestion();
         }
         setIsLoading(false);
@@ -269,7 +305,6 @@ export default function StationManagement() {
         console.log("error: ", error);
       })
       .finally(() => setIsLoading(false));
-
   };
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -415,8 +450,10 @@ export default function StationManagement() {
           setSelectedCheckboxes([]);
           setSelectedQuestionData((prev: any) => {
             return {
-              results: prev.results.filter((question: any) => !finalArray.includes(question.ExamQuestionID)),
-            }
+              results: prev.results.filter(
+                (question: any) => !finalArray.includes(question.ExamQuestionID)
+              ),
+            };
           });
           // getAllSelectedQuestion();
           // getAllSelectQuestion();
@@ -488,7 +525,7 @@ export default function StationManagement() {
       const isCsvFile = file.type === "text/csv" || file.name.endsWith(".csv");
       const isXLSXFile =
         file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
         file.name.endsWith(".xlsx");
       if (!isCsvFile && !isXLSXFile) {
         setIsLoading(false);
@@ -687,8 +724,9 @@ export default function StationManagement() {
                 gap={"15px"}
                 position={"relative"}
                 sx={{
-                  border: `1px solid ${theme.palette.mode === "dark" ? "transparent" : "#738A9633"
-                    }`,
+                  border: `1px solid ${
+                    theme.palette.mode === "dark" ? "transparent" : "#738A9633"
+                  }`,
                   borderRadius: "5px",
                   "&:has(input:disabled)": {
                     background: theme.palette.secondary.disableFieldColor,
@@ -978,10 +1016,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "StationRankIDASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "StationRankIDASC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() => handleOrderBy("StationRankID", "ASC")}
                         >
                           <CaretupIcon />
@@ -996,10 +1035,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "StationRankIDDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "StationRankIDDESC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() => handleOrderBy("StationRankID", "DESC")}
                         >
                           <CaretupIcon className="arrow-down" />
@@ -1060,10 +1100,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "BookletIDASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "BookletIDASC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() => handleOrderBy("BookletID", "ASC")}
                         >
                           <CaretupIcon />
@@ -1078,10 +1119,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "BookletIDDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "BookletIDDESC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() => handleOrderBy("BookletID", "DESC")}
                         >
                           <CaretupIcon className="arrow-down" />
@@ -1142,10 +1184,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "QuestionTypeForASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "QuestionTypeForASC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() =>
                             handleOrderBy("QuestionTypeFor", "ASC")
                           }
@@ -1162,10 +1205,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "QuestionTypeForDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "QuestionTypeForDESC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() =>
                             handleOrderBy("QuestionTypeFor", "DESC")
                           }
@@ -1222,10 +1266,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "QuestionTypeNameASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "QuestionTypeNameASC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() =>
                             handleOrderBy("QuestionTypeName", "ASC")
                           }
@@ -1242,10 +1287,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "QuestionTypeNameDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "QuestionTypeNameDESC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() =>
                             handleOrderBy("QuestionTypeName", "DESC")
                           }
@@ -1303,10 +1349,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "QuestionTypeNameASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "QuestionTypeNameASC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() =>
                             handleOrderBy("QuestionTypeName", "ASC")
                           }
@@ -1323,10 +1370,11 @@ export default function StationManagement() {
                         }}
                       >
                         <span
-                          className={`${checkorderBy === "QuestionTypeNameDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
+                          className={`${
+                            checkorderBy === "QuestionTypeNameDESC"
+                              ? "sortActiveTitle"
+                              : ""
+                          }`}
                           onClick={() =>
                             handleOrderBy("QuestionTypeName", "DESC")
                           }
@@ -1513,7 +1561,9 @@ export default function StationManagement() {
 
                           <MenuItem
                             onClick={() =>
-                              removeKeepInReportQuestion(selectedAssignQuestionId)
+                              removeKeepInReportQuestion(
+                                selectedAssignQuestionId
+                              )
                             }
                           >
                             Remove & keep in report
@@ -1715,8 +1765,9 @@ export default function StationManagement() {
                       <Table
                         sx={{
                           borderRadius: "4px",
-                          border: `1px solid ${theme.palette.mode === "light" ? "#000" : "#FFF"
-                            }`,
+                          border: `1px solid ${
+                            theme.palette.mode === "light" ? "#000" : "#FFF"
+                          }`,
                           borderCollapse: "collapse",
                           borderSpacing: "0px",
                           fontSize: "12px",
@@ -1727,10 +1778,12 @@ export default function StationManagement() {
                             bgcolor: "#C9E3F9",
                           },
                           "& td": {
-                            borderRight: `1px solid ${theme.palette.mode === "light" ? "#000" : "#FFF"
-                              }`,
-                            borderBottom: `1px solid ${theme.palette.mode === "light" ? "#000" : "#FFF"
-                              }`,
+                            borderRight: `1px solid ${
+                              theme.palette.mode === "light" ? "#000" : "#FFF"
+                            }`,
+                            borderBottom: `1px solid ${
+                              theme.palette.mode === "light" ? "#000" : "#FFF"
+                            }`,
                             minWidth: "33.3%",
                             width: "33.3%",
                             p: "14px 10px",

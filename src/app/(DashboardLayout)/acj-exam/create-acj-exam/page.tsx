@@ -9,12 +9,9 @@ import {
   Grid,
   Select,
   Popover,
-  CardContent,
   MenuItem,
   FormHelperText,
   Typography,
-  IconButton,
-  Menu,
   Table,
   TableBody,
   TableCell,
@@ -33,18 +30,12 @@ import CustomFormLabel from "@/app/(DashboardLayout)/components/forms/theme-elem
 import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
 import { useTheme } from "@mui/material/styles";
 
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import TextField from "@mui/material/TextField";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import {
-  IconDots,
-  IconDotsVertical,
-  IconTrashFilled,
-} from "@tabler/icons-react";
+
 import { getExamTypeList } from "../../../../services/examType/examTypeAPI";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -56,19 +47,7 @@ import Loading from "../../loading";
 import { useRouter, useSearchParams } from "next/navigation";
 import CommonPopup from "../../../../utils/commonpopup/index";
 import React from "react";
-import { countries } from "../countryName";
-import {
-  CaretupIcon,
-  CornerDownArrowIcon,
-  PlusIcon,
-  StepFiveIcon,
-  StepFourIcon,
-  StepOneIcon,
-  StepThreeIcon,
-  StepTwoIcon,
-  ThrashIcon,
-  TrashIcon,
-} from "@/components/Icons";
+import { CaretupIcon, CornerDownArrowIcon } from "@/components/Icons";
 import {
   calenderTextField,
   checkboxLabelStyle,
@@ -86,45 +65,20 @@ import {
   secondaryButon,
 } from "@/utils/commonstyles";
 import ExamWizardSteps from "@/components/ExamWizardSteps";
-import {
-  timezones,
-  booklet,
-  courseCycle,
-  attemptAllow,
-  gradeCalculation,
-  additionallyDropDown,
-  pagingData,
-} from "../dropDowns";
+import { booklet, gradeCalculation } from "../dropDowns";
 import { getCampusList } from "@/services/station/stationAPI";
 import { createNewExam } from "../../../../services/newExamFlow/newExamFlowAPI";
-import { bgcolor, width } from "@mui/system";
+
 import {
   exampTypeSlugAllowed,
   mockExamSlug,
   quizzExamSlug,
   selfAssessmentExamSlug,
 } from "../constant";
-import {
-  getCourseLmsList,
-  getImportInLmscourse,
-} from "@/services/adminCourseDashboard/adminCourseDashboard";
+import { getCourseLmsList } from "@/services/adminCourseDashboard/adminCourseDashboard";
 import { PAGINATION } from "@/utils/Constants";
 
 const { DEFAULT_PAGE } = PAGINATION;
-
-const BCrumb = [
-  {
-    to: "/",
-    title: "Home",
-  },
-  {
-    to: "/Exam-Management",
-    title: "Exam Management",
-  },
-  {
-    title: "Create New Session",
-  },
-];
 
 const MockexamLocationTypeData = [
   { selectid: 2, title: "On Site" },
@@ -147,7 +101,8 @@ export default function CreateIMockExam() {
   const [selectedShiftDue, setSelectedShiftDue] = useState("AM");
   const [dateValue2Due, setDateValue2Due] = useState<Dayjs | null>(null);
   const [startDue, setStartDue] = useState<any | null>("10:00 AM");
-  const [numberOfQuestionError, setNumberOfQuestionError] = useState<any>(false);
+  const [numberOfQuestionError, setNumberOfQuestionError] =
+    useState<any>(false);
   const [examType, setExamType] = useState<any>();
   const [examTypeData, setExamTypeData] = useState<any>();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -166,11 +121,7 @@ export default function CreateIMockExam() {
   const [anchorEl, setAnchorEl] = useState<any>(false);
   const [openPopoverId, setOpenPopoverId] = useState<string | null>();
   const open = Boolean(anchorEl);
-  const id = open ? "time-popover" : undefined;
   const textFieldRef = useRef<HTMLDivElement | null>(null);
-  const availabilityFieldRef = useRef<HTMLDivElement | null>(null);
-  const dueFieldRef = useRef<HTMLDivElement | null>(null);
-  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
 
   const [anchorElForStartTime, setAnchorElForStartTime] =
     useState<HTMLElement | null>(null);
@@ -189,7 +140,8 @@ export default function CreateIMockExam() {
   const [timeZone, setTimeZone] = useState("America/Toronto");
   const [isStartTimePopoverOpen, setIsStartTimePopoverOpen] = useState(false);
   const [isDueTimePopoverOpen, setIsDueTimePopoverOpen] = useState(false);
-  const [mockOnlineAutoPublish, setMockOnlineAutoPublish] = useState<any>(false);
+  const [mockOnlineAutoPublish, setMockOnlineAutoPublish] =
+    useState<any>(false);
   const [isEvolution, setIsEvolution] = useState<any>();
   type CheckedItems = {
     [key: string]: boolean;
@@ -201,40 +153,6 @@ export default function CreateIMockExam() {
   );
 
   const ampm = ["AM", "PM"];
-
-  const availabilityTimeChange = (type: string, value: string | number) => {
-    switch (type) {
-      case "hour":
-        setStartHour(value);
-        break;
-      case "minute":
-        setStartMinute(value);
-        break;
-      case "ampm":
-        setStartampm(value);
-        setIsStartTimePopoverOpen(false);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const dueTimeChange = (type: string, value: string | number) => {
-    switch (type) {
-      case "hour":
-        setDueHour(value);
-        break;
-      case "minute":
-        setDueMinute(value);
-        break;
-      case "ampm":
-        setDueampm(value);
-        setIsDueTimePopoverOpen(false);
-        break;
-      default:
-        break;
-    }
-  };
 
   const handleTimeChange = (
     key: string,
@@ -284,23 +202,6 @@ export default function CreateIMockExam() {
     setOpenPopoverId(null);
   };
 
-  const availabilityClose = () => {
-    // setAnchorEl((prev) => ({ ...prev, [rowId]: null }));
-    // setOpenPopover(null);
-    setIsStartTimePopoverOpen(false);
-    setAnchorElForStartTime(null);
-  };
-
-  const dueClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElForDueTime(event.currentTarget);
-    setIsDueTimePopoverOpen(true);
-  };
-
-  const dueClose = () => {
-    setIsDueTimePopoverOpen(false);
-    setAnchorElForDueTime(null);
-  };
-
   const [checkedItems, setCheckedItems] = useState<CheckedItems>({});
   const [countryData, setCountryData] = useState<any>();
   const [locationData, setLocationData] = useState<any>();
@@ -335,17 +236,17 @@ export default function CreateIMockExam() {
     return yup.object().shape({
       ExamName: yup.string().required("Exam name is required"),
       ExamTypeID: yup.string().required("Exam type is required"),
-      // CountryID:
-      //   examTypeSlug != mockExamSlug
-      //     ? yup.number().required("Coutry is required")
-      //     : yup.number().notRequired(),
-      // TimeZoneID:
-      //   examTypeSlug != mockExamSlug
-      //     ? yup.string().required("Timezone is required")
-      //     : yup.string().notRequired(),
       PrepXExamAFKACJOSCECourse: yup
-        .number()
-        .required("Exam course is required"),
+        .mixed()
+        .test(
+          "course-id-or-array",
+          "Exam course is required",
+          (value) =>
+            value !== undefined &&
+            value !== null &&
+            (typeof value === "number" ||
+              (Array.isArray(value) && value.length > 0))
+        ),
       ExamNumberofBookletsID:
         examTypeSlug == mockExamSlug
           ? yup.number().required("Number of booklets is required")
@@ -353,26 +254,6 @@ export default function CreateIMockExam() {
       ExamTimeLimit: yup.string().required("Exam limit is required"),
       ExamQuizStart: yup.string().required("Exam start is required"),
       ExamTimeLimitExpires: yup.string().required("Exam expire is required"),
-      // ExamNumberofAttempts: isUnlimited
-      //   ? yup.string().notRequired()
-      //   : ExamQuizStart == mockExamSlug
-      //     ? yup
-      //       .string()
-      //       .test(
-      //         "is-one-attempt",
-      //         "Only 1 attempt is allowed for mock exams",
-      //         (value) => value === "1"
-      //       )
-      //     : yup
-      //       .string()
-      //       .test(
-      //         "is-positive-integer",
-      //         "Number of attempts must be a positive integer",
-      //         (value) => {
-      //           const numValue = Number(value);
-      //           return numValue > 0 && Number.isInteger(numValue);
-      //         }
-      //       ),
       ExamOverallGradeCalculationID: yup
         .string()
         .required("Overall grade is required"),
@@ -380,63 +261,47 @@ export default function CreateIMockExam() {
       ExamBookletDuration:
         examTypeSlug == "mock"
           ? yup
-            .number()
-            .required("Booklet duration is required")
-            .test(
-              "is-greater-than-zero",
-              "Booklet duration must be greater than 0",
-              (value): boolean => {
-                if (value === undefined || value === null) {
-                  return true;
+              .number()
+              .required("Booklet duration is required")
+              .test(
+                "is-greater-than-zero",
+                "Booklet duration must be greater than 0",
+                (value): boolean => {
+                  if (value === undefined || value === null) {
+                    return true;
+                  }
+                  const numValue = Number(value);
+                  return numValue > 0;
                 }
-                const numValue = Number(value);
-                return numValue > 0;
-              }
-            )
+              )
           : yup.number(),
 
       ExamBreakDuration:
         examTypeSlug == "mock"
           ? yup.number().required("Break duration is required")
-          : // .test(
-          //   "is-greater-than-zero",
-          //   "Number of questions must be greater than 0",
-          //   (value): boolean => {
-          //     if (value === undefined || value === null) {
-          //       return true; // Required validation will handle empty cases
-          //     }
-          //     const numValue = Number(value);
-          //     return numValue > 0;
-          //   }
-          // )
-          yup.number(),
+          : yup.number(),
 
       ExamNumberofQuestions:
         examTypeSlug == "mock"
           ? yup
-            .number()
-            .required("Number of questions is required")
-            .test(
-              "is-greater-than-zero",
-              "Number of questions must be greater than 0",
-              (value): boolean => {
-                if (value === undefined || value === null) {
-                  return true;
+              .number()
+              .required("Number of questions is required")
+              .test(
+                "is-greater-than-zero",
+                "Number of questions must be greater than 0",
+                (value): boolean => {
+                  if (value === undefined || value === null) {
+                    return true;
+                  }
+                  const numValue = Number(value);
+                  return numValue > 0;
                 }
-                const numValue = Number(value);
-                return numValue > 0;
-              }
-            )
+              )
           : yup.number(),
 
       ExamAvailabilityDate: yup
         .string()
         .required("Exam availability is required"),
-
-      // ExamDueDate:
-      //   examTypeSlug != "mock" || examTypeSlug == undefined
-      //     ? yup.string().required("Exam due is required")
-      //     : yup.string(),
     });
   };
 
@@ -521,8 +386,6 @@ export default function CreateIMockExam() {
         const updatedTimestamp = localDate.valueOf();
         values.ExamDueDate = updatedTimestamp;
       }
-      // values.CountryID = selectedCountry1;
-      //values.TimeZoneID = selectedTimeZone.CountryWiseTimeZoneID;
 
       values.CountryID = 32;
       values.TimeZoneID = 248;
@@ -560,10 +423,7 @@ export default function CreateIMockExam() {
       ExamCourseType: "",
       CSTimeOfExam: "",
       CSTimeOfExamDue: "",
-      // CountryID: "",
-      // TimeZoneID: "",
     },
-    // validationSchema,
     validationSchema: getValidationSchema(examType?.ExamTypeSlug, isUnlimited),
     onSubmit: async (values: any) => {
       if (numberOfQuestionError) {
@@ -574,51 +434,21 @@ export default function CreateIMockExam() {
         values.ExamTimeLimit = 0;
       }
 
-      // const isValid = validateFields(values, rows, examType);
-      // if (!isValid) {
-      //   setIsLoading(false);
-      //   return; // Exit if validation fails
-      // }
-      values.CountryID = 32;
-      values.TimeZoneID = 248;
+      const isValid = validateFields(values, rows, examType);
+      if (!isValid) {
+        setIsLoading(false);
+        return; // Exit if validation fails
+      }
       values.ExamCourseType = examCourse;
       values.ExamNumberofQuestions = values.ExamNumberofQuestions || 1000;
 
-      // if (startHour && startMinute && startampm && availabilityDateValue) {
-      //   const date = moment(availabilityDateValue.valueOf()).tz(timeZone, true);
-      //   let hour = startHour;
-      //   if (startampm === "PM" && hour < 12) {
-      //     hour += 12;
-      //   } else if (startampm === "AM" && hour === 12) {
-      //     hour = 0;
-      //   }
-
-      //   if (!availabilityDateValue || !moment.tz.zone(timeZone)) {
-      //     console.log("Invalid date or time zone");
-      //   } else {
-      //     const date = moment(availabilityDateValue.valueOf()).tz(
-      //       timeZone,
-      //       true
-      //     );
-      //     console.log("format time zone");
-      //     console.log(date.format()); // Should output a valid date string
-      //   }
-
-      //   console.log("============date", date);
-
-      //   const localDate = date.tz(timeZone).startOf("day");
-      //   localDate.hour(hour);
-      //   localDate.minute(startMinute);
-      //   localDate.second(0);
-      //   const updatedTimestamp = localDate.valueOf();
-      //   console.log("updatedTimestamp", updatedTimestamp);
-      //   values.ExamAvailabilityDate = updatedTimestamp;
-      // }
-
-      //if (selectedHour && selectedMinute && selectedShift && dateValue2) {
-      if (selectedHour && selectedMinute && selectedShift && availabilityDateValue) {
+      if (
+        selectedHour &&
+        selectedMinute &&
+        selectedShift &&
+        availabilityDateValue
+      ) {
         // Set the timezone correctly and clone the dateValue2 to avoid mutating it
-        //const date = moment(dateValue2.valueOf()).tz(timeZone, true);
         const date = moment(availabilityDateValue.valueOf()).tz(timeZone, true);
         // Adjust hour based on the AM/PM shift
         let hour = +selectedHour;
@@ -642,9 +472,6 @@ export default function CreateIMockExam() {
 
       try {
         if (values.ExamQuizStart == 2) {
-          //delete values.CountryID;
-          //  delete values.TimeZoneID;
-
           const MomentExamAvailabilityDate = moment(
             values.ExamAvailabilityDate
           );
@@ -656,24 +483,12 @@ export default function CreateIMockExam() {
 
           values.ExamDueDate = Edd.valueOf();
         } else {
-          // if (dueHour && dueMinute && dueampm && dueDateValue) {
-          //   const date = moment(dueDateValue.valueOf()).tz(timeZone, true);
-          //   let hour = dueHour;
-          //   if (dueampm === "PM" && hour < 12) {
-          //     hour += 12;
-          //   } else if (dueampm === "AM" && hour === 12) {
-          //     hour = 0;
-          //   }
-          //   const localDate = date.tz(timeZone).startOf("day");
-          //   localDate.hour(hour);
-          //   localDate.minute(dueMinute);
-          //   localDate.second(0);
-
-          //   const updatedTimestamp = localDate.valueOf();
-          //   values.ExamDueDate = updatedTimestamp;
-          // }
-
-          if (selectedHourDue && selectedMinuteDue && selectedShiftDue && dueDateValue) {
+          if (
+            selectedHourDue &&
+            selectedMinuteDue &&
+            selectedShiftDue &&
+            dueDateValue
+          ) {
             // Set the timezone correctly and clone the dateValue2 to avoid mutating it
             const date = moment(dueDateValue.valueOf()).tz(timeZone, true);
             // Adjust hour based on the AM/PM shift
@@ -704,14 +519,39 @@ export default function CreateIMockExam() {
           values.ExamNumberofAttempts = 1;
         }
 
+        console.log("values", values);
         const result = await createNewExam(values);
-        console.log("createNewExam result: ", result);
+
+        console.log("result", result);
+
         if (result?.success) {
           debugger;
           toast({
             type: "success",
             message: "Exam has been created successfully.",
           });
+          try {
+            const isBrowser = typeof window !== "undefined";
+            if (isBrowser) {
+              const existing = window.localStorage.getItem("exams");
+              const exams = existing ? JSON.parse(existing) : [];
+              const examToSave = {
+                ...result.data,
+                CreatedOn: result?.data?.CreatedOn ?? Date.now(),
+                StartDateTime: values?.ExamAvailabilityDate ?? null,
+                ExamDateTime: values?.ExamAvailabilityDate ?? null,
+                EndDateTime: values?.ExamDueDate ?? null,
+                DueDateTime: values?.ExamDueDate ?? null,
+              };
+              const next = Array.isArray(exams)
+                ? [...exams, examToSave]
+                : [examToSave];
+
+              window.localStorage.setItem("exams", JSON.stringify(next));
+            }
+          } catch (e) {
+            //  local S torage errors
+          }
           router.push(
             `/acj-exam/question-selection?examid=${result?.data?.ExamID}`
           );
@@ -732,11 +572,7 @@ export default function CreateIMockExam() {
   //Calling to get exam type list API
   const getAllExamTypeList = async () => {
     setIsLoading(true);
-    const bodyData = {
-      limit: 100000000000000000,
-      page: DEFAULT_PAGE,
-    };
-    await getExamTypeList(bodyData)
+    await getExamTypeList()
       .then((result) => {
         if (result?.success) {
           const filteredData = result.data?.results.filter((examType: any) =>
@@ -794,7 +630,9 @@ export default function CreateIMockExam() {
 
   const handleMinuteChangeDue = (event: any) => {
     setSelectedMinuteDue(event.target.value);
-    setStartDue(selectedHourDue + ":" + event.target.value + " " + selectedShiftDue);
+    setStartDue(
+      selectedHourDue + ":" + event.target.value + " " + selectedShiftDue
+    );
     formik.setFieldValue(
       "CSTimeOfExamDue",
       selectedHourDue + ":" + event.target.value + " " + selectedShiftDue
@@ -803,7 +641,9 @@ export default function CreateIMockExam() {
 
   const handleShiftChangeDue = (event: any) => {
     setSelectedShiftDue(event.target.value);
-    setStartDue(selectedHourDue + ":" + selectedMinuteDue + " " + event.target.value);
+    setStartDue(
+      selectedHourDue + ":" + selectedMinuteDue + " " + event.target.value
+    );
     formik.setFieldValue(
       "CSTimeOfExamDue",
       selectedHourDue + ":" + selectedMinuteDue + " " + event.target.value
@@ -812,7 +652,9 @@ export default function CreateIMockExam() {
 
   const handleHourChangeDue = (event: any) => {
     setSelectedHourDue(event.target.value);
-    setStartDue(event.target.value + ":" + selectedMinuteDue + " " + selectedShiftDue);
+    setStartDue(
+      event.target.value + ":" + selectedMinuteDue + " " + selectedShiftDue
+    );
     formik.setFieldValue(
       "CSTimeOfExamDue",
       event.target.value + ":" + selectedMinuteDue + " " + selectedShiftDue
@@ -830,10 +672,6 @@ export default function CreateIMockExam() {
     }
   };
 
-  /**
-   * @ Function Name      : getAllLocation getCourseCycleList
-   * @ Function Purpose   : getting locations details
-   */
   const getAllLocation = async () => {
     setIsLoading(true);
     const bodyData = {
@@ -853,19 +691,12 @@ export default function CreateIMockExam() {
       });
   };
 
-  /**
-   * @ Function Name      : getAllExaminationCycle
-   * @ Function Purpose   : getting examination cycle details
-   */
   const getAllExaminationCourse = async () => {
     setIsLoading(true);
     const bodyData = {
       limit: 10000000,
       page: DEFAULT_PAGE,
-      // searchedKey: ["CourseTypeSlug"],
-      // search: examCourse,
     };
-    // await getCourseOfferingList(bodyData)
     await getCourseLmsList(bodyData)
       .then((result) => {
         if (result?.success) {
@@ -994,37 +825,6 @@ export default function CreateIMockExam() {
     }
   };
 
-  const countryHandleChangeManage = (event: any) => {
-    const selectedCountryID = event.target.value;
-    formik.setFieldValue("CountryID", selectedCountryID);
-    const selectedCountry = originalCountryData.find(
-      (country: any) => country.CountryID === selectedCountryID
-    );
-    if (selectedCountry) {
-      const filteredTimezones = originalCountryData
-        .filter((country: any) => country.CountryID === selectedCountryID)
-        .map((country: any) => ({
-          CountryWiseTimeZoneID: country.CountryWiseTimeZoneID,
-          Timezone: country.Timezone,
-          GoogleTimezone: country.GoogleTimezone,
-        }));
-      setFilteredTimeZone(filteredTimezones);
-      setSelectedCountry1(event.target.value);
-      setCountryName(selectedCountry?.CountryName);
-      // setSelectedCountry1(selectedCountry);
-      // setSelectedRowId(event.target.id);
-    }
-  };
-
-  const TimeZoneHandleSelected = (event: any) => {
-    setSelectedTimeZone(event.target.value);
-    setTimeZone(event.target.value.Timezone);
-    formik.setFieldValue(
-      "TimeZoneID",
-      event.target.value.CountryWiseTimeZoneID
-    );
-    // setSelectedRowId(event.target.id);
-  };
   // Handle change for exam type
   const handleChangeDropDown = (event: any) => {
     setExamType(event);
@@ -1092,19 +892,12 @@ export default function CreateIMockExam() {
 
   const handleChangeDropDownLocationTypeData = (event: any, prop: any) => {
     if (event?.target?.value == 1) {
-      // setIsTimeLimit(true);
-      // setIsUnlimited(false);
       formik.setFieldValue("ExamSetTimeLimit", 1);
       formik.setFieldValue("ExamNumberofAttempts", "");
       formik.setFieldValue("ExamQuizStart", 1);
-      // formik.setFieldValue("ExamTimeLimit", 1);
-      // formik.setFieldValue("ExamNumberofBookletsID", 1);
       formik.setFieldValue("ExamPaging", 1);
-      // formik.setFieldValue("ExamTimeLimitExpires", 0);
       formik.setFieldValue("ExamAdditionallyID", 1);
       formik.setFieldValue("ExamOverallGradeCalculationID", 1);
-      // formik.setFieldValue("ExamBookletDuration", 0);
-      // formik.setFieldValue("ExamNumberofQuestions", 0);
       formik.setFieldValue("ExamEvaluationFeedback", 0);
       setMockOnlineAutoPublish(true);
       setIsEvolution(0);
@@ -1144,7 +937,6 @@ export default function CreateIMockExam() {
     }
     const draftValues = { ...formik.values };
     // const isValid = validateFields(draftValues, rows, examType);
-    // if (!isValid) return; // If validation fails, stop execution
     try {
       // const result = await createNewExam(draftValues);
       const result = {
@@ -1268,12 +1060,6 @@ export default function CreateIMockExam() {
     );
   };
 
-  // Handle change for exam type
-  // const handleChangeExamCycleDropDown = (event: any) => {
-  //   setExamCycle(event.target.value);
-  //   formik.setFieldValue("ExamCycleID", event.target.value);
-  // };
-
   const handleChangeExamCourseDropDown = (value: any) => {
     let createCourseArray = value ? [value] : [];
     if (!createCourseArray || createCourseArray.length == 0) {
@@ -1284,8 +1070,12 @@ export default function CreateIMockExam() {
         (course: any) => course
       );
       setSelectedExamCourse(selectedCourseIds?.[0]);
-      console.log('selectedCourseIds?.lmscourseid: ', [selectedCourseIds?.[0]?.lmscourseid]);
-      formik.setFieldValue("PrepXExamAFKACJOSCECourse", [selectedCourseIds?.[0]?.lmscourseid]);
+      console.log("selectedCourseIds?.lmscourseid: ", [
+        selectedCourseIds?.[0]?.lmscourseid,
+      ]);
+      formik.setFieldValue("PrepXExamAFKACJOSCECourse", [
+        selectedCourseIds?.[0]?.lmscourseid,
+      ]);
 
       // setOpenAutocomplete(false);
     }
@@ -1310,11 +1100,6 @@ export default function CreateIMockExam() {
     setDueDateValue(newValue);
     setDateValue2Due(newValue);
     formik.setFieldValue("ExamDueDate", newValue?.valueOf());
-    // if (newValue) {
-    //   const endOfDay = newValue.endOf("day"); // Sets the time to 11:59:59 pm
-    //   setDueDateValue(endOfDay);
-    //   formik.setFieldValue("ExamDueDate", endOfDay.valueOf());
-    // }
   };
 
   const quizStart = (value: any) => {
@@ -1566,43 +1351,7 @@ export default function CreateIMockExam() {
                     }}
                     sx={commonAutocompleteStyle}
                   />
-                  {/* <CustomSelect
-                    id="standard-select-currency"
-                    value={examType}
-                    onChange={handleChangeDropDown}
-                    fullWidth
-                    renderInput={(params: any) => (
-                      <CustomTextField
-                        {...params}
-                        placeholder="Select Your Location"
-                        aria-label="Select-Your-Location"
-                      />
-                    )}
-                    displayEmpty
-                    sx={commonSelectFieldStyle}
-                    MenuProps={{
-                      style: {
-                        maxHeight: 350,
-                      },
-                      PaperProps: {
-                        sx: commonDropdownMenuStyle,
-                      },
-                    }}
-                  >
-                    <MenuItem defaultValue="" disabled>
-                     Select your exam type
-                    </MenuItem>
-                    {examTypeData?.map((option: any) => (
-                      <MenuItem
-                        key={option.ExamTypeID}
-                        value={option}
-                        data-station={option.ExamTypeDefaultStation}
-                        data-waitstation={option.ExamTypeDefaultWaitStation}
-                      >
-                        {option.ExamTypeName}
-                      </MenuItem>
-                    ))}
-                  </CustomSelect> */}
+
                   {formik.touched.ExamTypeID && formik.errors.ExamTypeID && (
                     <FormHelperText
                       error
@@ -1635,7 +1384,9 @@ export default function CreateIMockExam() {
                     options={examinationCourse || []} // Ensure options are always an array
                     value={selectedExamCourse ?? null} // Ensure value is null when undefined
                     autoHighlight
-                    getOptionLabel={(option: any) => (option?.lmscoursename ? option.lmscoursename : "")} // Handle undefined case
+                    getOptionLabel={(option: any) =>
+                      option?.lmscoursename ? option.lmscoursename : ""
+                    } // Handle undefined case
                     renderOption={(props, option) => (
                       <li {...props} key={option?.ID ?? Math.random()}>
                         {option?.lmscoursename ?? ""}
@@ -1665,53 +1416,7 @@ export default function CreateIMockExam() {
                     }}
                     sx={commonAutocompleteStyle}
                   />
-                  {/* <CustomSelect
-                      id="standard-select-currency"
-                      value={examCycle}
-                      onChange={handleChangeExamCycleDropDown}
-                      fullWidth
-                      renderInput={(params: any) => (
-                        <CustomTextField
-                          {...params}
-                          placeholder="Select Your Location"
-                          aria-label="Select-Your-Location"
-                        />
-                      )}
-                      sx={{
-                        [`& .MuiChip-filled`]: {
-                          padding: "0",
-                          fontWeight: 500,
-                          fontSize: "14px",
-                          backgroundColor: "rgba(0, 0, 0, 0.05)",
-                        },
-                        [`& .MuiAutocomplete-inputRoot`]: {
-                          padding: "5px 10px",
-                          // backgroundColor: "rgba(0, 255, 0, 1)",
-                        },
-                        "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                          {
-                            border:
-                              "1px solid rgba(115, 138, 150, 0.5) !important",
-                          },
-                      }}
-                      MenuProps={{
-                        style: {
-                          maxHeight: 400,
-                        },
-                      }}
-                    >
-                      <MenuItem defaultValue="" disabled>
-                        Select Type
-                      </MenuItem>
-                      {examinationCycle?.map((option: any) => (
-                        <MenuItem
-                          key={option.CourseCycleID}
-                          value={option.CourseCycleID}
-                        >
-                          {option.CourseCycleNumber}
-                        </MenuItem>
-                      ))}
-                    </CustomSelect> */}
+
                   {formik.touched.PrepXExamAFKACJOSCECourse &&
                     formik.errors.PrepXExamAFKACJOSCECourse && (
                       <FormHelperText
@@ -1719,7 +1424,7 @@ export default function CreateIMockExam() {
                         id="standard-weight-helper-text-email-login"
                       >
                         {typeof formik.errors.PrepXExamAFKACJOSCECourse ===
-                          "string"
+                        "string"
                           ? formik.errors.PrepXExamAFKACJOSCECourse
                           : "An error occurred"}
                       </FormHelperText>
@@ -1782,7 +1487,6 @@ export default function CreateIMockExam() {
                     sx={commonFieldLabelStyle}
                   >
                     Short Description{" "}
-                    {/* <span style={{ color: "#FC4B6C" }}>*</span> */}
                   </Typography>
                   <CustomTextField
                     id="outlined-multiline-static"
@@ -1962,7 +1666,7 @@ export default function CreateIMockExam() {
                         id="standard-weight-helper-text-email-login"
                       >
                         {typeof formik.errors.ExamNumberofBookletsID ===
-                          "string"
+                        "string"
                           ? formik.errors.ExamNumberofBookletsID
                           : "An error occurred"}
                       </FormHelperText>
@@ -2056,11 +1760,15 @@ export default function CreateIMockExam() {
                     const value = e.target.value;
                     // Allow only positive numbers
                     if (value == "") {
-                      setNumberOfQuestionError(false)
+                      setNumberOfQuestionError(false);
                     }
                     if (/^[1-9]\d*$/.test(value) || value === "") {
                       formik.handleChange(e);
-                      if (formik.values.ExamNumberofBookletsID == 2 && value && parseInt(value) % 2 === 0) {
+                      if (
+                        formik.values.ExamNumberofBookletsID == 2 &&
+                        value &&
+                        parseInt(value) % 2 === 0
+                      ) {
                         formik.setFieldError("ExamNumberofQuestions", ""); // Clear the error when even number is entered
                       }
                     }
@@ -2072,18 +1780,23 @@ export default function CreateIMockExam() {
                       value &&
                       parseInt(value) % 2 !== 0
                     ) {
-                      setNumberOfQuestionError(true)
+                      setNumberOfQuestionError(true);
                       // alert("Please enter an even number."); // Optional: Inform the user
-                    }
-                    else {
-                      setNumberOfQuestionError(false)
+                    } else {
+                      setNumberOfQuestionError(false);
                     }
                   }}
                 />
-                {numberOfQuestionError && <span style={{ color: "#FC4B6C" }}><FormHelperText
-                  error
-                  id="standard-weight-helper-text-email-login"
-                >(Please enter the even number only)</FormHelperText></span>}
+                {numberOfQuestionError && (
+                  <span style={{ color: "#FC4B6C" }}>
+                    <FormHelperText
+                      error
+                      id="standard-weight-helper-text-email-login"
+                    >
+                      (Please enter the even number only)
+                    </FormHelperText>
+                  </span>
+                )}
                 {formik.touched.ExamNumberofQuestions &&
                   formik.errors.ExamNumberofQuestions && (
                     <FormHelperText
@@ -2097,7 +1810,7 @@ export default function CreateIMockExam() {
                             id="standard-weight-helper-text-email-login"
                           >
                             {typeof formik.errors.ExamNumberofQuestions ===
-                              "string"
+                            "string"
                               ? formik.errors.ExamNumberofQuestions
                               : "An error occurred"}
                           </FormHelperText>
@@ -2120,9 +1833,9 @@ export default function CreateIMockExam() {
                 md={6}
                 sx={{
                   "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                  {
-                    border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                  },
+                    {
+                      border: "1px solid rgba(115, 138, 150, 0.5) !important",
+                    },
                 }}
               >
                 <Typography
@@ -2150,7 +1863,7 @@ export default function CreateIMockExam() {
                     )}
                     PopperProps={{
                       sx: {
-                        ...commonDatepickerStyle
+                        ...commonDatepickerStyle,
                       },
                     }}
                   />
@@ -2177,7 +1890,8 @@ export default function CreateIMockExam() {
                         component={"p"}
                         sx={commonFieldLabelStyle}
                       >
-                        Availability time <span style={{ color: "#FC4B6C" }}>*</span>
+                        Availability time{" "}
+                        <span style={{ color: "#FC4B6C" }}>*</span>
                       </Typography>
                       <Stack
                         direction={"row"}
@@ -2268,7 +1982,6 @@ export default function CreateIMockExam() {
                           formik.errors.CSTimeOfExam
                         }
                       />
-
                     </Box>
                   </Grid>
                   <Stack pt={"35px"} ml={"20px"}>
@@ -2293,9 +2006,9 @@ export default function CreateIMockExam() {
                   md={6}
                   sx={{
                     "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                    {
-                      border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                    },
+                      {
+                        border: "1px solid rgba(115, 138, 150, 0.5) !important",
+                      },
                   }}
                 >
                   <Typography
@@ -2323,7 +2036,7 @@ export default function CreateIMockExam() {
                       )}
                       PopperProps={{
                         sx: {
-                          ...commonDatepickerStyle
+                          ...commonDatepickerStyle,
                         },
                       }}
                     />
@@ -2340,178 +2053,7 @@ export default function CreateIMockExam() {
                     </FormHelperText>
                   )}
                 </Grid>
-                {/* <Grid
-                  item
-                  xs={6}
-                  md={6}
-                  sx={{
-                    "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                      {
-                        border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                      },
-                  }}
-                >
-                  <Stack
-                    direction={"row"}
-                    alignItems={"flex-start"}
-                    gap={"10px"}
-                  >
-                    <Stack flex={1}>
-                      <Typography
-                        variant="paragraph3"
-                        component={"p"}
-                        sx={commonFieldLabelStyle}
-                      >
-                        Due time
-                        <span style={{ color: "#FC4B6C" }}>*</span>
-                      </Typography>
-
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <TextField
-                          ref={dueFieldRef}
-                          value={`${dueHour || "--"}:${dueMinute || "--"} ${
-                            dueampm || ""
-                          }`}
-                          fullWidth
-                          onClick={dueClick}
-                          sx={calenderTextField}
-                        />
-                        <Popover
-                          open={isDueTimePopoverOpen}
-                          anchorEl={anchorElForDueTime}
-                          onClose={dueClose}
-                          anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "left",
-                          }}
-                          transformOrigin={{
-                            vertical: "top",
-                            horizontal: "left",
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              padding: 2,
-                              width: 300,
-                            }}
-                          >
-                            <Grid container spacing={2}>
-                              <Grid item xs={4}>
-                                <Select
-                                  fullWidth
-                                  variant="outlined"
-                                  value={dueHour}
-                                  onChange={(event) => {
-                                    dueTimeChange("hour", event.target.value);
-                                  }}
-                                  displayEmpty
-                                  sx={commonSelectFieldStyle}
-                                  MenuProps={{
-                                    style: {
-                                      maxHeight: 350,
-                                    },
-                                    PaperProps: {
-                                      sx: commonDropdownMenuStyle,
-                                    },
-                                  }}
-                                >
-                                  <MenuItem value="" disabled>
-                                    Hour
-                                  </MenuItem>
-                                  {hours.map((hour) => (
-                                    <MenuItem key={hour} value={hour}>
-                                      {hour.toString().padStart(2, "0")}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </Grid>
-                              <Grid item xs={4}>
-                                <Select
-                                  fullWidth
-                                  variant="outlined"
-                                  value={dueMinute}
-                                  onChange={(event) => {
-                                    dueTimeChange("minute", event.target.value);
-                                  }}
-                                  displayEmpty
-                                  sx={commonSelectFieldStyle}
-                                  MenuProps={{
-                                    style: {
-                                      maxHeight: 350,
-                                    },
-                                    PaperProps: {
-                                      sx: commonDropdownMenuStyle,
-                                    },
-                                  }}
-                                >
-                                  <MenuItem value="" disabled>
-                                    Minute
-                                  </MenuItem>
-                                  {minutes.map((minute) => (
-                                    <MenuItem key={minute} value={minute}>
-                                      {minute}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </Grid>
-                              <Grid item xs={4}>
-                                <Select
-                                  fullWidth
-                                  variant="outlined"
-                                  value={dueampm}
-                                  onChange={(event) => {
-                                    dueTimeChange("ampm", event.target.value);
-                                  }}
-                                  displayEmpty
-                                  sx={commonSelectFieldStyle}
-                                  MenuProps={{
-                                    style: {
-                                      maxHeight: 350,
-                                    },
-                                    PaperProps: {
-                                      sx: commonDropdownMenuStyle,
-                                    },
-                                  }}
-                                >
-                                  <MenuItem value="" disabled>
-                                    AM/PM
-                                  </MenuItem>
-                                  {ampm.map((period) => (
-                                    <MenuItem key={period} value={period}>
-                                      {period}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                              </Grid>
-                            </Grid>
-                          </Box>
-                        </Popover>
-                      </LocalizationProvider>
-
-                      {formik.touched.ExamAvailabilityDate &&
-                        formik.errors.ExamAvailabilityDate && (
-                          <FormHelperText
-                            error
-                            id="standard-weight-helper-text-email-login"
-                          >
-                            {typeof formik.errors.ExamAvailabilityDate ===
-                            "string"
-                              ? formik.errors.ExamAvailabilityDate
-                              : "An error occurred"}
-                          </FormHelperText>
-                        )}
-                    </Stack>
-                    <Stack pt={"35px"} ml={"20px"}>
-                      <Typography
-                        variant="paragraph3"
-                        component={"p"}
-                        sx={commonFieldLabelStyle}
-                      >
-                        EST
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                </Grid> */
+                {
                   <Grid item xs={6} md={6}>
                     <Stack direction="row" gap="10px">
                       <Grid item xs={12} md={12}>
@@ -2612,7 +2154,6 @@ export default function CreateIMockExam() {
                               formik.errors.CSTimeOfExamDue
                             }
                           />
-
                         </Box>
                       </Grid>
                       <Stack pt={"35px"} ml={"20px"}>
@@ -2629,10 +2170,8 @@ export default function CreateIMockExam() {
                 }
               </>
             )}
-            {/* End Select date and time           */}
 
-            {/* Select camps */}
-            {examType?.ExamTypeSlug == "mockExamSlug" && (
+            {examType?.ExamTypeSlug == mockExamSlug && (
               <>
                 <Grid item md={12}>
                   <Typography variant="h5">Exam Locations</Typography>
@@ -3036,7 +2575,6 @@ export default function CreateIMockExam() {
                                         sx={calenderTextField}
                                       />
                                     )}
-
                                   />
                                 </LocalizationProvider>
                               </Stack>
@@ -3045,8 +2583,9 @@ export default function CreateIMockExam() {
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <TextField
                                   ref={textFieldRef}
-                                  value={`${row.selectedTime?.hour || "--"}:${row.selectedTime?.minute || "--"
-                                    } ${row?.selectedTime?.ampm || ""}`}
+                                  value={`${row.selectedTime?.hour || "--"}:${
+                                    row.selectedTime?.minute || "--"
+                                  } ${row?.selectedTime?.ampm || ""}`}
                                   fullWidth
                                   onClick={(e) => handleClick(e, row.id)}
                                   sx={calenderTextField}
@@ -3431,14 +2970,6 @@ export default function CreateIMockExam() {
               <Grid item xs={12} md={12}>
                 <>
                   <Stack>
-                    {/* <Typography
-                      variant="paragraph3"
-                      component={"p"}
-                      sx={commonFieldLabelStyle}
-                    >
-                      Quiz Start
-                      <span style={{ color: "#FC4B6C" }}>*</span>
-                    </Typography> */}
                     <RadioGroup
                       aria-labelledby="demo-controlled-radio-buttons-group"
                       name="controlled-radio-buttons-group"
@@ -3519,7 +3050,8 @@ export default function CreateIMockExam() {
                       )}
                   </Stack>
                   {(examType?.ExamTypeSlug == selfAssessmentExamSlug ||
-                    examType?.ExamTypeSlug == quizzExamSlug /* || (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish == true) */) &&
+                    examType?.ExamTypeSlug ==
+                      quizzExamSlug) /* || (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish == true) */ &&
                     isTimeLimit && (
                       <Stack mt="10px">
                         <Typography
@@ -3533,21 +3065,6 @@ export default function CreateIMockExam() {
                         <RadioGroup
                           aria-labelledby="demo-controlled-radio-buttons-group"
                           name="controlled-radio-buttons-group"
-                          // value={
-                          //   (isTimeLimit &&
-                          //     examType?.ExamTypeSlug == quizzExamSlug) ||
-                          //   (isTimeLimit &&
-                          //     examType?.ExamTypeSlug == selfAssessmentExamSlug) ||
-                          //   (isTimeLimit && examType?.ExamTypeSlug == mockExamSlug)
-                          //     ? formik.values.ExamTimeLimitExpires || "1"
-                          //     : ""
-                          // }
-                          // onChange={(event) => {
-                          //   formik.setFieldValue(
-                          //     "ExamTimeLimitExpires",
-                          //     event.target.value
-                          //   );
-                          // }}
                           sx={{
                             display: "flex",
                             flexDirection: "column",
@@ -3575,7 +3092,7 @@ export default function CreateIMockExam() {
                             }
                             checked={
                               isTimeLimit &&
-                                formik.values.ExamTimeLimitExpires == 1
+                              formik.values.ExamTimeLimitExpires == 1
                                 ? true
                                 : false
                             }
@@ -3585,7 +3102,8 @@ export default function CreateIMockExam() {
                             value="2"
                             disabled={
                               !isTimeLimit ||
-                              (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish === false) ||
+                              (examType?.ExamTypeSlug === mockExamSlug &&
+                                mockOnlineAutoPublish === false) ||
                               (examType?.ExamTypeSlug === quizzExamSlug &&
                                 formik?.values?.ExamQuizStart == 2)
                             }
@@ -3639,7 +3157,7 @@ export default function CreateIMockExam() {
                                   (examType?.ExamTypeSlug === quizzExamSlug &&
                                     formik?.values?.ExamQuizStart == 2) ||
                                   examType?.ExamTypeSlug ===
-                                  selfAssessmentExamSlug ||
+                                    selfAssessmentExamSlug ||
                                   examType?.ExamTypeSlug === quizzExamSlug
                                 }
                               />
@@ -3654,7 +3172,7 @@ export default function CreateIMockExam() {
                               id="standard-weight-helper-text-email-login"
                             >
                               {typeof formik.errors.ExamTimeLimitExpires ===
-                                "string"
+                              "string"
                                 ? formik.errors.ExamTimeLimitExpires
                                 : "An error occurred"}
                             </FormHelperText>
@@ -3664,89 +3182,15 @@ export default function CreateIMockExam() {
                 </>
               </Grid>
             ) : (
-              <Grid item xs={12} md={12} p={"0px !important"} height={"0px"}></Grid>
+              <Grid
+                item
+                xs={12}
+                md={12}
+                p={"0px !important"}
+                height={"0px"}
+              ></Grid>
             )}
 
-            {/* <Grid
-              item
-              xs={12}
-              md={6}
-              sx={{
-                "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset": {
-                  border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                },
-              }}
-            >
-              <Typography
-                variant="paragraph3"
-                component={"p"}
-                sx={commonFieldLabelStyle}
-              >
-                Shuffle {examType?.ExamTypeName || ""}
-              </Typography>
-              <FormControlLabel
-                control={
-                  <CustomCheckbox
-                    // checked={checkBoxChecked}
-                    onChange={(event) => handleShuffleQuiz(event)}
-                    sx={commonCheckboxField}
-                  />
-                }
-                label="Shuffle questions and selections within the quiz. Does not cascade to sub-sections. "
-                sx={checkboxLabelStyle}
-              />
-            </Grid> */}
-            <Grid item xs={12} md={6} p={"0px !important"} height={"0px"}></Grid>
-            {/* {isShuffleQuiz == 1 ||
-              (examType?.ExamTypeSlug === quizzExamSlug && (
-                <Grid
-                  item
-                  xs={12}
-                  md={6}
-                  sx={{
-                    "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                      {
-                        border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                      },
-                  }}
-                >
-                  <Typography
-                    variant="paragraph3"
-                    component={"p"}
-                    sx={commonFieldLabelStyle}
-                  >
-                    Paging
-                  </Typography>
-
-                  <CustomSelect
-                    id="standard-select-currency"
-                    value={numberOfPaging}
-                    onChange={handleNumberOfPaging}
-                    fullWidth
-                    variant="outlined"
-                    disabled={isShuffleQuiz}
-                    displayEmpty
-                    sx={commonSelectFieldStyle}
-                    MenuProps={{
-                      style: {
-                        maxHeight: 350,
-                      },
-                      PaperProps: {
-                        sx: commonDropdownMenuStyle,
-                      },
-                    }}
-                  >
-                    <MenuItem defaultValue="" disabled>
-                      Select Type
-                    </MenuItem>
-                    {pagingData?.map((option: any) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </CustomSelect>
-                </Grid>
-              ))} */}
             <Grid item xs={12} md={6}></Grid>
             {examType?.ExamTypeSlug != mockExamSlug && (
               <Grid item xs={12} md={12}>
@@ -3810,76 +3254,12 @@ export default function CreateIMockExam() {
                             error
                             id="standard-weight-helper-text-email-login"
                           >
-                            {/* {typeof formik.errors.ExamNumberofAttempts ===
-                          "string"
-                            ? formik.errors.ExamNumberofAttempts
-                            : Array.isArray(formik.errors.ExamNumberofAttempts)
-                            ? formik.errors.ExamNumberofAttempts.join(", ")
-                            : Object.values(
-                                formik.errors.ExamNumberofAttempts
-                              ).join(", ")} */}
                             {typeof formik.errors.ExamNumberofAttempts ===
-                              "string"
+                            "string"
                               ? formik.errors.ExamNumberofAttempts
                               : "An error occurred"}
                           </FormHelperText>
                         )}
-                      {/* {examType?.ExamTypeSlug === mockExamSlug ? (
-                      <CustomTextField
-                        id=""
-                        variant="outlined"
-                        fullWidth
-                        disabled={examType?.ExamTypeSlug === mockExamSlug}
-                        placeholder={""}
-                        name="ExamPaging"
-                        value={formik.values.ExamNumberofAttempts}
-                        onChange={formik.handleChange}
-                        sx={{
-                          ...disableInputStyle,
-                          backgroundColor: "transparent !important",
-                          "& .Mui-disabled fieldset": {
-                            backgroundColor: `${theme.palette.secondary.disableFieldColor} !important`,
-                            border: `${theme.palette.secondary.disableFieldColor} !important`,
-                          },
-                        }}
-                      />
-                    ) : (
-                      <CustomSelect
-                        id="standard-select-currency"
-                        value={numberOfAttempt}
-                        onChange={handleNumberOfAttempt}
-                        fullWidth
-                        variant="outlined"
-                        // disabled={isShuffleQuiz}
-                        displayEmpty
-                        sx={{
-                          "&.Mui-focused fieldset,&.MuiInputBase-root:hover fieldset":
-                            {
-                              border:
-                                "1px solid rgba(115, 138, 150, 0.5) !important",
-                            },
-                          ...disableInputStyle,
-                          backgroundColor: "transparent !important",
-                          "&.Mui-disabled fieldset,&.Mui-disabled:hover fieldset":
-                            {
-                              bgcolor: `${theme.palette.secondary.disableFieldColor} !important`,
-                              border: "0px !important",
-                            },
-                          "&.Mui-disabled": {
-                            border: `0px !important`,
-                          },
-                        }}
-                      >
-                        <MenuItem defaultValue="" disabled>
-                          Select Type
-                        </MenuItem>
-                        {attemptAllow?.map((option: any) => (
-                          <MenuItem key={option.id} value={option.id}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </CustomSelect>
-                    )} */}
                     </Box>
                   </Stack>
                 </Grid>
@@ -3968,78 +3348,36 @@ export default function CreateIMockExam() {
               }}
             >
               {(examType?.ExamTypeSlug !== mockExamSlug ||
-                (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish == true)) && (
-                  <><Typography variant="h5" mb={"16px"}>Evaluation and Feedback</Typography><Stack
+                (examType?.ExamTypeSlug === mockExamSlug &&
+                  mockOnlineAutoPublish == true)) && (
+                <>
+                  <Typography variant="h5" mb={"16px"}>
+                    Evaluation and Feedback
+                  </Typography>
+                  <Stack
                     sx={{
-                      "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset": {
-                        border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                      },
+                      "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
+                        {
+                          border:
+                            "1px solid rgba(115, 138, 150, 0.5) !important",
+                        },
                     }}
                   >
                     <FormControlLabel
-                      control={<CustomCheckbox
-                        // checked={checkBoxChecked}
-                        onChange={(event) => handleExamFeedBack(event)}
-                        //disabled={examType?.ExamTypeSlug == mockExamSlug}
-                        sx={commonCheckboxField} />}
+                      control={
+                        <CustomCheckbox
+                          // checked={checkBoxChecked}
+                          onChange={(event) => handleExamFeedBack(event)}
+                          //disabled={examType?.ExamTypeSlug == mockExamSlug}
+                          sx={commonCheckboxField}
+                        />
+                      }
                       label="Auto Publish Attempt Results immediately upon completion. "
-                      sx={checkboxLabelStyle} />
+                      sx={checkboxLabelStyle}
+                    />
                   </Stack>
-                  </>
-                )}
-              {/* <Typography
-                variant="paragraph3"
-                component={"p"}
-                sx={commonFieldLabelStyle}
-              >
-                When published, display to learners:
-              </Typography>
-              <FormControlLabel
-                control={
-                  <CustomCheckbox
-                    // checked={checkBoxChecked}
-                    onChange={(event) => handleDisplayLerners(event)}
-                    sx={commonCheckboxField}
-                  />
-                }
-                label="Attempt Grade"
-                sx={{ ...checkboxLabelStyle, mt: "15px" }}
-              />
-              <Stack pl={"30px"}>
-                <Typography
-                  variant="paragraph3"
-                  component={"p"}
-                  sx={commonFieldLabelStyle}
-                >
-                  Additionally:
-                </Typography>
-                <CustomSelect
-                  id="standard-select-currency"
-                  // value={examCycle}
-                  onChange={handleAdditionally}
-                  fullWidth
-                  variant="outlined"
-                  displayEmpty
-                  sx={commonSelectFieldStyle}
-                  MenuProps={{
-                    style: {
-                      maxHeight: 350,
-                    },
-                    PaperProps: {
-                      sx: commonDropdownMenuStyle,
-                    },
-                  }}
-                >
-                  <MenuItem defaultValue="" disabled>
-                    Select Type
-                  </MenuItem>
-                  {additionallyDropDown?.map((option: any) => (
-                    <MenuItem key={option.id} value={option.id}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </CustomSelect>
-              </Stack> */}
+                </>
+              )}
             </Grid>
             <Grid item xs={12} md={12}>
               <Stack>
@@ -4081,33 +3419,12 @@ export default function CreateIMockExam() {
               Save as Draft
             </Button>
 
-            {/* <Button
-              sx={{
-                borderRadius: "6px",
-                color: theme.palette.secondary.fieldText,
-                fontSize: "14px",
-                fontWeight: 500,
-                backgroundColor: "#f1f4f5",
-                padding: "8px 25px",
-                minWidth: "150px",
-                marginLeft: "auto",
-                "&:hover": {
-                  color: theme.palette.secondary.fieldText,
-                  backgroundColor: `#f1f4f5`,
-                },
-              }}
-              onClick={() => {
-                router.push("/imock-exam/station-management");
-              }}
-            >
-              Skip for now
-            </Button> */}
             <Button
               sx={{
                 ...primaryButon,
               }}
               type="submit"
-            // onClick={() => router.push("/acj-exam/question-selection")}
+              // onClick={() => router.push("/acj-exam/question-selection")}
             >
               Next
             </Button>
