@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Button,
   Typography,
@@ -14,24 +14,18 @@ import {
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb";
 
-import {
-  PlusIcon,
-
-} from "@/components/Icons";
+import { PlusIcon } from "@/components/Icons";
 
 import {
-
   commonTableStyle,
   createDropdownButtonStyle,
-
 } from "@/utils/commonstyles";
 import { useRouter } from "next/navigation";
 import theme from "@/utils/theme";
 import SortableHeader from "@/components/SortableHeader";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
-const BCrumb = [
-  { label: "Exam Management", link: "/Exam-Management" },
-];
+const BCrumb = [{ label: "Exam Management", link: "/Exam-Management" }];
 
 /**
  * @ Function Name      : ImockExam
@@ -39,7 +33,9 @@ const BCrumb = [
  */
 const ImockExam = () => {
   const router = useRouter();
-  const [iMockExamData, setIMockExamData] = useState<any>();
+  const [exams] = useLocalStorage<any[]>("exams", []);
+
+  const rows = useMemo(() => (Array.isArray(exams) ? exams : []), [exams]);
 
   return (
     <PageContainer title="Exam Listing" description="Exam Listing">
@@ -95,9 +91,7 @@ const ImockExam = () => {
                     width: "180px",
                   }}
                 >
-                  <SortableHeader
-                    field="PrepX ID"
-                  />
+                  <SortableHeader field="PrepX ID" />
                 </TableCell>
                 <TableCell
                   sx={{
@@ -106,9 +100,7 @@ const ImockExam = () => {
                     width: "160px",
                   }}
                 >
-                  <SortableHeader
-                    field="Course Type"
-                  />
+                  <SortableHeader field="Course Type" />
                 </TableCell>
 
                 <TableCell
@@ -118,10 +110,7 @@ const ImockExam = () => {
                     width: "360px",
                   }}
                 >
-                  <SortableHeader
-                    field="Exam Name"
-                  />
-
+                  <SortableHeader field="Exam Name" />
                 </TableCell>
                 <TableCell
                   sx={{
@@ -130,22 +119,33 @@ const ImockExam = () => {
                     width: "160px",
                   }}
                 >
-                  <SortableHeader
-                    field="Exam Date"
-                  />
+                  <SortableHeader field="Exam Date" />
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  align="center"
-                  style={{ paddingTop: "16px", paddingBottom: "16px" }}
-                >
-                  <Typography variant="body1">Data should go here</Typography>
-                </TableCell>
-              </TableRow>
+              {rows.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                    style={{ paddingTop: "16px", paddingBottom: "16px" }}
+                  >
+                    <Typography variant="body1">
+                      No exams yet, create one!
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                rows.map((exam: any) => (
+                  <TableRow key={exam?.ExamID}>
+                    <TableCell>{exam?.ExamID ?? "-"}</TableCell>
+                    <TableCell>{exam?.ExamTypeID ?? "-"}</TableCell>
+                    <TableCell>{exam?.ExamName ?? "-"}</TableCell>
+                    <TableCell>{exam?.ExamDateTime ?? "-"}</TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </Stack>

@@ -177,12 +177,54 @@ export default function AssignTrainee() {
     await assignTraineeForNewExam(dataBody)
       .then((result) => {
         if (result?.success) {
-
           toast({
             type: "success",
             message: "Assigned trainees successfully.",
           });
-          // getAvailableStudentList();
+
+          // assigne trainees to exams in localStorage
+          try {
+            const isBrowser = typeof window !== "undefined";
+            if (isBrowser) {
+              const existingExams = window.localStorage.getItem("exams");
+              const exams = existingExams ? JSON.parse(existingExams) : [];
+
+              // find the exam
+              const examIndex = exams.findIndex(
+                (exam: any) => exam.ExamID == examId
+              );
+              if (examIndex !== -1) {
+                // create trainee data
+                const traineeData = studentSelectedId.map((student: any) => ({
+                  id: student.StudentID,
+                  StudentID: student.StudentID,
+                  CampusID: student.CampusID,
+                  ExamID: examId,
+                  UserEmail: "test@test.com",
+                  UserFirstName: "test trainee",
+                  UserLastName: student.StudentID,
+                  UserTitleName: `test trainee ${student.StudentID}`,
+                  UserID: student.StudentID,
+                  UserIDText: `User-${student.StudentID}`,
+                  UserRoleTextID: `Trainee-${student.StudentID}`,
+                  CampusName: "Default Campus", // You can make this dynamic later
+                  AssignedDate: new Date().toISOString(),
+                }));
+
+                // add trainees to the exams array in localhost
+                exams[examIndex].trainees = traineeData;
+                exams[examIndex].totalTrainees = traineeData.length;
+                exams[examIndex].lastAssignedDate = new Date().toISOString();
+
+                // update local storage
+                window.localStorage.setItem("exams", JSON.stringify(exams));
+              }
+            }
+          } catch (e) {
+            console.log("Error saving to localStorage:", e);
+          }
+
+          // Update local state
           setSelectedStudentData({
             results: studentSelectedId.map((student: any) => ({
               id: student.StudentID,
@@ -196,18 +238,16 @@ export default function AssignTrainee() {
               UserID: student.StudentID,
               UserIDText: `User-${student.StudentID}`,
               UserRoleTextID: `Trainee-${student.StudentID}`,
-            }))
+            })),
           });
-          // getAllSelectedStudent();
+
           setStudentSelectedId([]);
           setSelectedOptions([]);
         }
-        // setLoading(false);
         setIsLoading(false);
       })
       .catch((error) => {
         console.log("error: ", error);
-        // setLoading(false);
         setIsLoading(false);
       });
   };
@@ -332,13 +372,11 @@ export default function AssignTrainee() {
 
     if (!allChecked) {
       // Set all checkboxes to checked
-      selectedStudentData.results.forEach(
-        (tdata: { id: any }) => {
-          newCheckedState[tdata.id] = true;
-          allnewCheckedState.push(tdata.id);
-          //selectedCheckboxes([...selectedCheckboxes, tdata.QuestionID]);
-        }
-      );
+      selectedStudentData.results.forEach((tdata: { id: any }) => {
+        newCheckedState[tdata.id] = true;
+        allnewCheckedState.push(tdata.id);
+        //selectedCheckboxes([...selectedCheckboxes, tdata.QuestionID]);
+      });
     }
     setSelectedCheckboxes(allnewCheckedState);
 
@@ -367,19 +405,45 @@ export default function AssignTrainee() {
     } else {
       finalArray = selectedCheckboxes;
     }
+
+    // Remove trainees from localStorage
+    try {
+      const isBrowser = typeof window !== "undefined";
+      if (isBrowser) {
+        const existingExams = window.localStorage.getItem("exams");
+        const exams = existingExams ? JSON.parse(existingExams) : [];
+
+        // Find the exam and remove the specified trainees
+        const examIndex = exams.findIndex((exam: any) => exam.ExamID == examId);
+        if (examIndex !== -1 && exams[examIndex].trainees) {
+          // Filter out the trainees to be removed
+          exams[examIndex].trainees = exams[examIndex].trainees.filter(
+            (trainee: any) => !finalArray.includes(trainee.id)
+          );
+          exams[examIndex].totalTrainees = exams[examIndex].trainees.length;
+
+          // Update localStorage
+          window.localStorage.setItem("exams", JSON.stringify(exams));
+        }
+      }
+    } catch (e) {
+      console.log("Error updating localStorage:", e);
+    }
+
     const bodyData = {
       ExamID: examId,
       id: finalArray,
     };
     await deleteStudentForNewExam(bodyData)
       .then((result) => {
-        debugger;
         if (result?.success) {
           setSelectedCheckboxes([]);
           setSelectedStudentData((prev: any) => {
             return {
-              results: prev.results.filter((student: any) => !finalArray.includes(student.id))
-            }
+              results: prev.results.filter(
+                (student: any) => !finalArray.includes(student.id)
+              ),
+            };
           });
           setSelectedStudents([]);
           handleModalClose();
@@ -393,7 +457,6 @@ export default function AssignTrainee() {
         handleModalClose();
         setIsLoading(false);
       });
-    // }
   };
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -435,18 +498,26 @@ export default function AssignTrainee() {
 
   const getExamData = async () => {
     setIsLoading(true);
-    return await getOneExamForNewExam(examId)
-      .then((result) => {
-        if (result?.success) {
-          setExamData(result?.data);
-          setIsLoading(false);
-          return result?.data;
-        }
-      })
-      .catch((error) => {
-        console.log("error: ", error);
-        setIsLoading(false);
-      });
+    try {
+      const isBrowser = typeof window !== "undefined";
+      if (!isBrowser) return;
+      const existing = window.localStorage.getItem("exams");
+      const exams = existing ? JSON.parse(existing) : [];
+      const idNum = Number(examId);
+      const found = Array.isArray(exams)
+        ? exams.find(
+            (e: any) =>
+              String(e?.ExamID) === String(examId) || e?.ExamID === idNum
+          )
+        : undefined;
+      if (found) {
+        setExamData(found);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   const handleSaveAsDraft = async () => {
     setIsLoading(true);
@@ -455,19 +526,28 @@ export default function AssignTrainee() {
     setIsLoading(false);
   };
 
-
   const getIMockExam = async () => {
+    // For this local-storage backed flow, derive minimal fields if present
     try {
-      const result = await getOneIMockExamForEdit(examId);
-      if (result?.success) {
-        setIMockExamData(result?.data);
-        setAssignCount(
-          result?.data?.StationsNumber + result?.data?.WaitStation
-        );
+      const isBrowser = typeof window !== "undefined";
+      if (!isBrowser) return;
+      const existing = window.localStorage.getItem("exams");
+      const exams = existing ? JSON.parse(existing) : [];
+      const idNum = Number(examId);
+      const found = Array.isArray(exams)
+        ? exams.find(
+            (e: any) =>
+              String(e?.ExamID) === String(examId) || e?.ExamID === idNum
+          )
+        : undefined;
+      if (found) {
+        setIMockExamData(found);
+        if (found?.StationsNumber != null && found?.WaitStation != null) {
+          setAssignCount(found?.StationsNumber + found?.WaitStation);
+        }
       }
     } catch (error) {
-      // Handle error, such as displaying an error message or logging the error
-      console.error("Error fetching iMock exam:", error);
+      console.error("Error fetching exam from local storage:", error);
     } finally {
     }
   };
@@ -475,7 +555,6 @@ export default function AssignTrainee() {
   const handlePreviewModalClose = () => {
     setmodalPreviewOpen(false);
   };
-
 
   // const filterOptions: any = createFilterOptions({
   //   matchFrom: "any",
@@ -849,10 +928,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "StudentIDTextASC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "StudentIDTextASC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() =>
                               handleOrderBy("StudentIDText", "ASC")
                             }
@@ -869,10 +949,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "StudentIDTextDESC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "StudentIDTextDESC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() =>
                               handleOrderBy("StudentIDText", "DESC")
                             }
@@ -935,10 +1016,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "StudentFirstNameASC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "StudentFirstNameASC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() =>
                               handleOrderBy("StudentFirstName", "ASC")
                             }
@@ -955,10 +1037,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "StudentFirstNameDESC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "StudentFirstNameDESC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() =>
                               handleOrderBy("StudentFirstName", "DESC")
                             }
@@ -1021,10 +1104,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "ActorIDTextASC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "ActorIDTextASC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() => handleOrderBy("ActorIDText", "ASC")}
                           >
                             <CaretupIcon />
@@ -1039,10 +1123,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "ActorIDTextDESC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "ActorIDTextDESC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() => handleOrderBy("ActorIDText", "DESC")}
                           >
                             <CaretupIcon className="arrow-down" />
@@ -1103,10 +1188,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "StudentEmailASC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "StudentEmailASC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() => handleOrderBy("StudentEmail", "ASC")}
                           >
                             <CaretupIcon />
@@ -1121,10 +1207,11 @@ export default function AssignTrainee() {
                           }}
                         >
                           <span
-                            className={`${checkorderBy === "StudentEmailDESC"
-                              ? "sortActiveTitle"
-                              : ""
-                              }`}
+                            className={`${
+                              checkorderBy === "StudentEmailDESC"
+                                ? "sortActiveTitle"
+                                : ""
+                            }`}
                             onClick={() =>
                               handleOrderBy("StudentEmail", "DESC")
                             }
@@ -1238,38 +1325,35 @@ export default function AssignTrainee() {
                 <col width={"50px"} />
               </colgroup>
               <TableBody>
-                {selectedStudentData?.results?.map((tdata: any, index: number) => (
-                  <TableRow key={tdata.id}>
-                    <TableCell>
-                      <Stack direction="row">
-                        <Box>
-                          <CustomCheckbox
-                            //   defaultChecked
-                            color="primary"
-                            inputProps={{
-                              "aria-label": "checkbox with default color",
-                            }}
-                            // className="c-checkbox"
-                            onChange={() =>
-                              handleChange(tdata.id)
-                            }
-                            checked={
-                              checkedItems[tdata.id] || false
-                            }
-                            className="checkbox_style"
-                            sx={commonCheckboxField}
-                          />
-                        </Box>
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        color={theme.palette.secondary.fieldText}
-                        variant="h6"
-                        fontWeight={400}
-                        fontSize={"14px"}
-                      >
-                        {/* <Box
+                {selectedStudentData?.results?.map(
+                  (tdata: any, index: number) => (
+                    <TableRow key={tdata.id}>
+                      <TableCell>
+                        <Stack direction="row">
+                          <Box>
+                            <CustomCheckbox
+                              //   defaultChecked
+                              color="primary"
+                              inputProps={{
+                                "aria-label": "checkbox with default color",
+                              }}
+                              // className="c-checkbox"
+                              onChange={() => handleChange(tdata.id)}
+                              checked={checkedItems[tdata.id] || false}
+                              className="checkbox_style"
+                              sx={commonCheckboxField}
+                            />
+                          </Box>
+                        </Stack>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          color={theme.palette.secondary.fieldText}
+                          variant="h6"
+                          fontWeight={400}
+                          fontSize={"14px"}
+                        >
+                          {/* <Box
                             component="span"
                             sx={{
                               padding: 0,
@@ -1283,20 +1367,20 @@ export default function AssignTrainee() {
                               cursor: "pointer",
                             }}
                           ></Box>{" "} */}
-                        {tdata.UserRoleTextID}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        color={theme.palette.secondary.fieldText}
-                        variant="h6"
-                        fontWeight={400}
-                        fontSize={"14px"}
-                      >
-                        {tdata.UserTitleName}
-                      </Typography>
-                    </TableCell>
-                    {/* <TableCell>
+                          {tdata.UserRoleTextID}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          color={theme.palette.secondary.fieldText}
+                          variant="h6"
+                          fontWeight={400}
+                          fontSize={"14px"}
+                        >
+                          {tdata.UserTitleName}
+                        </Typography>
+                      </TableCell>
+                      {/* <TableCell>
                         <CustomSelect
                           id="standard-select-currency"
                           value={tdata?.CampusID}
@@ -1326,103 +1410,99 @@ export default function AssignTrainee() {
                           ))}
                         </CustomSelect>
                       </TableCell> */}
-                    <TableCell>
-                      <Typography
-                        color={theme.palette.secondary.fieldText}
-                        variant="h6"
-                        fontWeight={400}
-                        fontSize={"14px"}
+                      <TableCell>
+                        <Typography
+                          color={theme.palette.secondary.fieldText}
+                          variant="h6"
+                          fontWeight={400}
+                          fontSize={"14px"}
+                        >
+                          {tdata.CampusName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          minWidth: "640px",
+                          maxWidth: "640px !important",
+                          width: "640px",
+                        }}
                       >
-                        {tdata.CampusName}
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        minWidth: "640px",
-                        maxWidth: "640px !important",
-                        width: "640px",
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.secondary.fieldText}
-                        variant="h6"
-                        fontWeight={400}
-                        fontSize={"14px"}
+                        <Typography
+                          color={theme.palette.secondary.fieldText}
+                          variant="h6"
+                          fontWeight={400}
+                          fontSize={"14px"}
+                        >
+                          {tdata.UserEmail}
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        className="sticky-col"
+                        width={"30px"}
+                        sx={{
+                          background:
+                            theme.palette.mode === "light" ? "#fff" : "#232527",
+                        }}
                       >
-                        {tdata.UserEmail}
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      className="sticky-col"
-                      width={"30px"}
-                      sx={{
-                        background:
-                          theme.palette.mode === "light" ? "#fff" : "#232527",
-                      }}
-                    >
-                      {selectedCheckboxes?.length <= 1 ? (
-                        <>
-                          <IconButton
-                            id="basic-button"
-                            aria-controls={open ? "basic-menu" : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={open ? "true" : undefined}
-                            onClick={(e) =>
-                              handleClick(
-                                e,
-                                tdata.id,
-                                tdata.StudentID
-                              )
-                            }
-                            sx={{
-                              transform: "rotate(90deg)",
-                            }}
-                            className="menu_dots"
-                          >
-                            <IconDotsVertical width={18} />
-                          </IconButton>
-                          <Menu
-                            id="basic-menu"
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                            MenuListProps={{
-                              "aria-labelledby": "basic-button",
-                            }}
-                            sx={{
-                              ...commonMenuStyle,
-                            }}
-                            transformOrigin={{
-                              horizontal: "center",
-                              vertical: "top",
-                            }}
-                            anchorOrigin={{
-                              horizontal: "center",
-                              vertical: "bottom",
-                            }}
-                          >
-                            <MenuItem
-                              onClick={() =>
-                                handleDeleteSelectedStudent(
-                                  selectedAssignStudentId
-                                )
+                        {selectedCheckboxes?.length <= 1 ? (
+                          <>
+                            <IconButton
+                              id="basic-button"
+                              aria-controls={open ? "basic-menu" : undefined}
+                              aria-haspopup="true"
+                              aria-expanded={open ? "true" : undefined}
+                              onClick={(e) =>
+                                handleClick(e, tdata.id, tdata.StudentID)
                               }
+                              sx={{
+                                transform: "rotate(90deg)",
+                              }}
+                              className="menu_dots"
                             >
-                              Remove
-                            </MenuItem>
-
-                          </Menu>
-                        </>
-                      ) : (
-                        <>
-                          <IconButton disabled className="menu_dots">
-                            <IconDots width={20} />
-                          </IconButton>
-                        </>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                              <IconDotsVertical width={18} />
+                            </IconButton>
+                            <Menu
+                              id="basic-menu"
+                              anchorEl={anchorEl}
+                              open={open}
+                              onClose={handleClose}
+                              MenuListProps={{
+                                "aria-labelledby": "basic-button",
+                              }}
+                              sx={{
+                                ...commonMenuStyle,
+                              }}
+                              transformOrigin={{
+                                horizontal: "center",
+                                vertical: "top",
+                              }}
+                              anchorOrigin={{
+                                horizontal: "center",
+                                vertical: "bottom",
+                              }}
+                            >
+                              <MenuItem
+                                onClick={() =>
+                                  handleDeleteSelectedStudent(
+                                    selectedAssignStudentId
+                                  )
+                                }
+                              >
+                                Remove
+                              </MenuItem>
+                            </Menu>
+                          </>
+                        ) : (
+                          <>
+                            <IconButton disabled className="menu_dots">
+                              <IconDots width={20} />
+                            </IconButton>
+                          </>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -1629,12 +1709,16 @@ export default function AssignTrainee() {
               </Typography>
               <Grid container spacing={3} mb={"24px"}>
                 <Grid item xs={12} md={12}>
-                  <Box textAlign="center" lineHeight={0} sx={{
-                    '& img': {
-                      borderRadius: "50%",
-                      objectFit: "cover"
-                    }
-                  }}>
+                  <Box
+                    textAlign="center"
+                    lineHeight={0}
+                    sx={{
+                      "& img": {
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      },
+                    }}
+                  >
                     <Image
                       src={
                         traineeData?.StudentMedia
@@ -1900,8 +1984,8 @@ export default function AssignTrainee() {
                     >
                       {traineeData?.StudentAssignedDate
                         ? moment(traineeData?.StudentAssignedDate).format(
-                          "YYYY-MM-DD"
-                        )
+                            "YYYY-MM-DD"
+                          )
                         : "-"}
                     </Typography>
                   </Stack>
@@ -1929,8 +2013,8 @@ export default function AssignTrainee() {
                     >
                       {traineeData?.StudentEndDate
                         ? moment(traineeData?.StudentEndDate).format(
-                          "YYYY-MM-DD"
-                        )
+                            "YYYY-MM-DD"
+                          )
                         : "-"}
                     </Typography>
                   </Stack>

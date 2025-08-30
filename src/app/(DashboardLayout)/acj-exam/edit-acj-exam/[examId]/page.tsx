@@ -162,7 +162,8 @@ export default function EditIMockExam({ params }: any) {
   const [selectedShift, setSelectedShift] = useState("AM");
   const [dateValue2, setDateValue2] = useState<Dayjs | null>(null);
   const [start, setStart] = useState<any | null>("10:00 AM");
-  const [numberOfQuestionError, setNumberOfQuestionError] = useState<any>(false);
+  const [numberOfQuestionError, setNumberOfQuestionError] =
+    useState<any>(false);
   const [numberError, setNumberError] = useState<any>(false);
 
   const [selectedHourDue, setSelectedHourDue] = useState("10");
@@ -170,7 +171,8 @@ export default function EditIMockExam({ params }: any) {
   const [selectedShiftDue, setSelectedShiftDue] = useState("AM");
   const [dateValue2Due, setDateValue2Due] = useState<Dayjs | null>(null);
   const [startDue, setStartDue] = useState<any | null>("10:00 AM");
-  const [mockOnlineAutoPublish, setMockOnlineAutoPublish] = useState<any>(false);
+  const [mockOnlineAutoPublish, setMockOnlineAutoPublish] =
+    useState<any>(false);
 
   const TimeZoneHandleSelected = (event: any) => {
     setSelectedTimeZone(event.target.value);
@@ -508,35 +510,35 @@ export default function EditIMockExam({ params }: any) {
       ExamBookletDuration:
         examTypeSlug == "mock"
           ? yup
-            .number()
-            .required("Booklet duration is required")
-            .test(
-              "is-greater-than-zero",
-              "Booklet duration must be greater than 0",
-              (value): boolean => {
-                if (value === undefined || value === null) {
-                  return true; // Required validation will handle empty cases
+              .number()
+              .required("Booklet duration is required")
+              .test(
+                "is-greater-than-zero",
+                "Booklet duration must be greater than 0",
+                (value): boolean => {
+                  if (value === undefined || value === null) {
+                    return true; // Required validation will handle empty cases
+                  }
+                  const numValue = Number(value);
+                  return numValue > 0;
                 }
-                const numValue = Number(value);
-                return numValue > 0;
-              }
-            )
+              )
           : yup.number(),
       ExamBreakDuration:
         examTypeSlug == "mock"
           ? yup.number().required("Break duration is required")
           : // .test(
-          //   "is-greater-than-zero",
-          //   "Number of questions must be greater than 0",
-          //   (value): boolean => {
-          //     if (value === undefined || value === null) {
-          //       return true; // Required validation will handle empty cases
-          //     }
-          //     const numValue = Number(value);
-          //     return numValue > 0;
-          //   }
-          // )
-          yup.number(),
+            //   "is-greater-than-zero",
+            //   "Number of questions must be greater than 0",
+            //   (value): boolean => {
+            //     if (value === undefined || value === null) {
+            //       return true; // Required validation will handle empty cases
+            //     }
+            //     const numValue = Number(value);
+            //     return numValue > 0;
+            //   }
+            // )
+            yup.number(),
     });
   };
 
@@ -634,10 +636,18 @@ export default function EditIMockExam({ params }: any) {
       // }
 
       //if (selectedHour && selectedMinute && selectedShift && availabilityDateValue) {
-      if (selectedHour && selectedMinute && selectedShift && availabilityDateValue) {
+      if (
+        selectedHour &&
+        selectedMinute &&
+        selectedShift &&
+        availabilityDateValue
+      ) {
         // Set the modifiedTimeZone correctly and clone the dateValue2 to avoid mutating it
         //const date = moment(dateValue2.valueOf()).tz(modifiedTimeZone, true);
-        const date = moment(availabilityDateValue.valueOf()).tz(modifiedTimeZone, true);
+        const date = moment(availabilityDateValue.valueOf()).tz(
+          modifiedTimeZone,
+          true
+        );
         // Adjust hour based on the AM/PM shift
         let hour = +selectedHour;
         if (selectedShift === "PM" && hour < 12) {
@@ -682,9 +692,17 @@ export default function EditIMockExam({ params }: any) {
         //   const updatedTimestamp = localDate.valueOf();
         //   values.ExamDueDate = updatedTimestamp;
         // }
-        if (selectedHourDue && selectedMinuteDue && selectedShiftDue && dueDateValue) {
+        if (
+          selectedHourDue &&
+          selectedMinuteDue &&
+          selectedShiftDue &&
+          dueDateValue
+        ) {
           // Set the timezone correctly and clone the dateValue2 to avoid mutating it
-          const date = moment(dueDateValue.valueOf()).tz(modifiedTimeZone, true);
+          const date = moment(dueDateValue.valueOf()).tz(
+            modifiedTimeZone,
+            true
+          );
           // Adjust hour based on the AM/PM shift
           let hour = +selectedHourDue;
           if (selectedShiftDue === "PM" && hour < 12) {
@@ -909,7 +927,7 @@ export default function EditIMockExam({ params }: any) {
         setCheckBoxChecked(data?.LongDescription != "" ? true : false);
         setIsTimeLimitExpire(data?.ExamTimeLimitExpires);
         setAdditionally(data?.ExamAdditionallyID);
-        if (data?.ExamTypeSlug === 'mock' && data?.ExamQuizStart === 1) {
+        if (data?.ExamTypeSlug === "mock" && data?.ExamQuizStart === 1) {
           setMockOnlineAutoPublish(true);
         } else {
           setMockOnlineAutoPublish(false); // Optional: reset to false if needed
@@ -1045,7 +1063,9 @@ export default function EditIMockExam({ params }: any) {
 
   const handleMinuteChangeDue = (event: any) => {
     setSelectedMinuteDue(event.target.value);
-    setStartDue(selectedHourDue + ":" + event.target.value + " " + selectedShiftDue);
+    setStartDue(
+      selectedHourDue + ":" + event.target.value + " " + selectedShiftDue
+    );
     formik.setFieldValue(
       "CSTimeOfExamDue",
       selectedHourDue + ":" + event.target.value + " " + selectedShiftDue
@@ -1054,7 +1074,9 @@ export default function EditIMockExam({ params }: any) {
 
   const handleShiftChangeDue = (event: any) => {
     setSelectedShiftDue(event.target.value);
-    setStartDue(selectedHourDue + ":" + selectedMinuteDue + " " + event.target.value);
+    setStartDue(
+      selectedHourDue + ":" + selectedMinuteDue + " " + event.target.value
+    );
     formik.setFieldValue(
       "CSTimeOfExamDue",
       selectedHourDue + ":" + selectedMinuteDue + " " + event.target.value
@@ -1063,7 +1085,9 @@ export default function EditIMockExam({ params }: any) {
 
   const handleHourChangeDue = (event: any) => {
     setSelectedHourDue(event.target.value);
-    setStartDue(event.target.value + ":" + selectedMinuteDue + " " + selectedShiftDue);
+    setStartDue(
+      event.target.value + ":" + selectedMinuteDue + " " + selectedShiftDue
+    );
     formik.setFieldValue(
       "CSTimeOfExamDue",
       event.target.value + ":" + selectedMinuteDue + " " + selectedShiftDue
@@ -1811,11 +1835,11 @@ export default function EditIMockExam({ params }: any) {
                           {...params}
                           placeholder="Select Your Course..."
                           aria-label="Select Your Course"
-                        // sx={{
-                        //   "& input": {
-                        //     paddingLeft: "35px !important",
-                        //   },
-                        // }}
+                          // sx={{
+                          //   "& input": {
+                          //     paddingLeft: "35px !important",
+                          //   },
+                          // }}
                         />
                       )}
                       popupIcon={<CornerDownArrowIcon />}
@@ -1833,7 +1857,6 @@ export default function EditIMockExam({ params }: any) {
                       sx={commonAutocompleteStyle}
                     />
 
-
                     {formik.touched.PrepXExamAFKACJOSCECourse &&
                       formik.errors.PrepXExamAFKACJOSCECourse && (
                         <FormHelperText
@@ -1841,7 +1864,7 @@ export default function EditIMockExam({ params }: any) {
                           id="standard-weight-helper-text-email-login"
                         >
                           {typeof formik.errors.PrepXExamAFKACJOSCECourse ===
-                            "string"
+                          "string"
                             ? formik.errors.PrepXExamAFKACJOSCECourse
                             : "An error occurred"}
                         </FormHelperText>
@@ -1917,14 +1940,14 @@ export default function EditIMockExam({ params }: any) {
                     name="ShortDescription"
                     value={formik.values.ShortDescription}
                     onChange={formik.handleChange}
-                  // error={
-                  //   formik.touched.ShortDescription &&
-                  //   Boolean(formik.errors.ShortDescription)
-                  // }
-                  // helperText={
-                  //   formik.touched.ShortDescription &&
-                  //   formik.errors.ShortDescription
-                  // }
+                    // error={
+                    //   formik.touched.ShortDescription &&
+                    //   Boolean(formik.errors.ShortDescription)
+                    // }
+                    // helperText={
+                    //   formik.touched.ShortDescription &&
+                    //   formik.errors.ShortDescription
+                    // }
                   />
                 </Box>
               </Stack>
@@ -2086,7 +2109,7 @@ export default function EditIMockExam({ params }: any) {
                           id="standard-weight-helper-text-email-login"
                         >
                           {typeof formik.errors.ExamNumberofBookletsID ===
-                            "string"
+                          "string"
                             ? formik.errors.ExamNumberofBookletsID
                             : "An error occurred"}
                         </FormHelperText>
@@ -2133,7 +2156,7 @@ export default function EditIMockExam({ params }: any) {
                               id="standard-weight-helper-text-email-login"
                             >
                               {typeof formik.errors.ExamBreakDuration ===
-                                "string"
+                              "string"
                                 ? formik.errors.ExamBreakDuration
                                 : "An error occurred"}
                             </FormHelperText>
@@ -2161,11 +2184,15 @@ export default function EditIMockExam({ params }: any) {
                       const value = e.target.value;
                       // Allow only positive numbers
                       if (value == "") {
-                        setNumberOfQuestionError(false)
+                        setNumberOfQuestionError(false);
                       }
                       if (/^[1-9]\d*$/.test(value) || value === "") {
                         formik.handleChange(e);
-                        if (formik.values.ExamNumberofBookletsID == 2 && value && parseInt(value) % 2 === 0) {
+                        if (
+                          formik.values.ExamNumberofBookletsID == 2 &&
+                          value &&
+                          parseInt(value) % 2 === 0
+                        ) {
                           formik.setFieldError("ExamNumberofQuestions", ""); // Clear the error when even number is entered
                         }
                       }
@@ -2175,29 +2202,42 @@ export default function EditIMockExam({ params }: any) {
                       setNumberOfQuestionError(false);
                       setNumberError(false);
                       if (value == "" || isNaN(value)) {
-                        return
+                        return;
                       }
                       const numValue = parseInt(value, 10);
                       if (numValue === 0) {
                         setNumberError(true);
-                      }
-                      else if (formik.values.ExamNumberofBookletsID === 2 && numValue % 2 !== 0) {
+                      } else if (
+                        formik.values.ExamNumberofBookletsID === 2 &&
+                        numValue % 2 !== 0
+                      ) {
                         setNumberOfQuestionError(true);
-                      }
-                      else {
+                      } else {
                         setNumberOfQuestionError(false);
                         setNumberError(false);
                       }
                     }}
                   />
-                  {numberOfQuestionError && <span style={{ color: "#FC4B6C" }}><FormHelperText
-                    error
-                    id="standard-weight-helper-text-email-login"
-                  >(Please enter the even number only)</FormHelperText></span>}
-                  {numberError && <span style={{ color: "#FC4B6C" }}><FormHelperText
-                    error
-                    id="standard-weight-helper-text-email-login"
-                  >(Please enter valid number only)</FormHelperText></span>}
+                  {numberOfQuestionError && (
+                    <span style={{ color: "#FC4B6C" }}>
+                      <FormHelperText
+                        error
+                        id="standard-weight-helper-text-email-login"
+                      >
+                        (Please enter the even number only)
+                      </FormHelperText>
+                    </span>
+                  )}
+                  {numberError && (
+                    <span style={{ color: "#FC4B6C" }}>
+                      <FormHelperText
+                        error
+                        id="standard-weight-helper-text-email-login"
+                      >
+                        (Please enter valid number only)
+                      </FormHelperText>
+                    </span>
+                  )}
                   {formik.touched.ExamNumberofQuestions &&
                     formik.errors.ExamNumberofQuestions && (
                       <FormHelperText
@@ -2224,9 +2264,9 @@ export default function EditIMockExam({ params }: any) {
                 md={6}
                 sx={{
                   "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                  {
-                    border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                  },
+                    {
+                      border: "1px solid rgba(115, 138, 150, 0.5) !important",
+                    },
                 }}
               >
                 <Typography
@@ -2254,7 +2294,7 @@ export default function EditIMockExam({ params }: any) {
                     )}
                     PopperProps={{
                       sx: {
-                        ...commonDatepickerStyle
+                        ...commonDatepickerStyle,
                       },
                     }}
                   />
@@ -2463,7 +2503,8 @@ export default function EditIMockExam({ params }: any) {
                         component={"p"}
                         sx={commonFieldLabelStyle}
                       >
-                        Availability time <span style={{ color: "#FC4B6C" }}>*</span>
+                        Availability time{" "}
+                        <span style={{ color: "#FC4B6C" }}>*</span>
                       </Typography>
                       <Stack
                         direction={"row"}
@@ -2554,7 +2595,6 @@ export default function EditIMockExam({ params }: any) {
                           formik.errors.CSTimeOfExam
                         }
                       />
-
                     </Box>
                   </Grid>
                   <Stack pt={"35px"} ml={"20px"}>
@@ -2578,9 +2618,9 @@ export default function EditIMockExam({ params }: any) {
                   md={6}
                   sx={{
                     "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
-                    {
-                      border: "1px solid rgba(115, 138, 150, 0.5) !important",
-                    },
+                      {
+                        border: "1px solid rgba(115, 138, 150, 0.5) !important",
+                      },
                   }}
                 >
                   <Typography
@@ -2608,7 +2648,7 @@ export default function EditIMockExam({ params }: any) {
                       )}
                       PopperProps={{
                         sx: {
-                          ...commonDatepickerStyle
+                          ...commonDatepickerStyle,
                         },
                       }}
                     />
@@ -2896,7 +2936,6 @@ export default function EditIMockExam({ params }: any) {
                             formik.errors.CSTimeOfExamDue
                           }
                         />
-
                       </Box>
                     </Grid>
                     <Stack pt={"35px"} ml={"20px"}>
@@ -3512,7 +3551,8 @@ sx={{
                                   value={
                                     (row?.ExamCampusDateTime &&
                                       formatTime(row?.ExamCampusDateTime)) ||
-                                    `${row?.selectedTime?.hour || "--"}:${row?.selectedTime?.minute || "--"
+                                    `${row?.selectedTime?.hour || "--"}:${
+                                      row?.selectedTime?.minute || "--"
                                     } ${row?.selectedTime?.ampm || ""}`
                                   }
                                   fullWidth
@@ -3961,8 +4001,8 @@ sx={{
                                 fill: theme.palette.primary.light,
                               },
                             }}
-                          // checked={isQuizStart == 1 ? true : false}
-                          // defaultChecked={true}
+                            // checked={isQuizStart == 1 ? true : false}
+                            // defaultChecked={true}
                           />
                         }
                         onChange={() => quizStart(1)}
@@ -3997,7 +4037,7 @@ sx={{
                                 fill: theme.palette.primary.light,
                               },
                             }}
-                          // checked={isQuizStart == 2 ? true : false}
+                            // checked={isQuizStart == 2 ? true : false}
                           />
                         }
                         onChange={() => quizStart(2)}
@@ -4020,7 +4060,8 @@ sx={{
                       )}
                   </Stack>
                   {(examType?.ExamTypeSlug == selfAssessmentExamSlug ||
-                    examType?.ExamTypeSlug == quizzExamSlug /* || (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish == true) */) &&
+                    examType?.ExamTypeSlug ==
+                      quizzExamSlug) /* || (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish == true) */ &&
                     isTimeLimit && (
                       <Stack mt="10px">
                         <Typography
@@ -4057,7 +4098,7 @@ sx={{
                             }
                             checked={
                               isTimeLimit &&
-                                formik.values.ExamTimeLimitExpires == 1
+                              formik.values.ExamTimeLimitExpires == 1
                                 ? true
                                 : false
                             }
@@ -4067,7 +4108,8 @@ sx={{
                             value="2"
                             disabled={
                               !isTimeLimit ||
-                              (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish === false) ||
+                              (examType?.ExamTypeSlug === mockExamSlug &&
+                                mockOnlineAutoPublish === false) ||
                               (examType?.ExamTypeSlug === quizzExamSlug &&
                                 formik?.values?.ExamQuizStart == 2)
                             }
@@ -4117,7 +4159,7 @@ sx={{
                                   (examType?.ExamTypeSlug === quizzExamSlug &&
                                     formik?.values?.ExamQuizStart == 2) ||
                                   examType?.ExamTypeSlug ===
-                                  selfAssessmentExamSlug ||
+                                    selfAssessmentExamSlug ||
                                   examType?.ExamTypeSlug === quizzExamSlug
                                 }
                               />
@@ -4132,7 +4174,7 @@ sx={{
                               id="standard-weight-helper-text-email-login"
                             >
                               {typeof formik.errors.ExamTimeLimitExpires ===
-                                "string"
+                              "string"
                                 ? formik.errors.ExamTimeLimitExpires
                                 : "An error occurred"}
                             </FormHelperText>
@@ -4176,7 +4218,13 @@ sx={{
                 sx={checkboxLabelStyle}
               />
             </Grid> */}
-            <Grid item xs={12} md={12} p={"0px !important"} height={"0px"}></Grid>
+            <Grid
+              item
+              xs={12}
+              md={12}
+              p={"0px !important"}
+              height={"0px"}
+            ></Grid>
             {/* {isShuffleQuiz == 1 ||
               (examType?.ExamTypeSlug === quizzExamSlug && (
                 <Grid
@@ -4341,13 +4389,13 @@ sx={{
                             id="standard-weight-helper-text-email-login"
                           >
                             {typeof formik.errors.ExamNumberofAttempts ===
-                              "string"
+                            "string"
                               ? formik.errors.ExamNumberofAttempts
                               : Array.isArray(
-                                formik.errors.ExamNumberofAttempts
-                              )
-                                ? formik.errors.ExamNumberofAttempts.join(", ")
-                                : Object.values(
+                                  formik.errors.ExamNumberofAttempts
+                                )
+                              ? formik.errors.ExamNumberofAttempts.join(", ")
+                              : Object.values(
                                   formik.errors.ExamNumberofAttempts
                                 ).join(", ")}
                           </FormHelperText>
@@ -4438,30 +4486,35 @@ sx={{
               }}
             >
               {(examType?.ExamTypeSlug !== mockExamSlug ||
-                (examType?.ExamTypeSlug === mockExamSlug && mockOnlineAutoPublish == true)) && (
-                  <><Typography variant="h5" mb={"16px"}>Evaluation and Feedback</Typography>
-                    <Stack
-                      sx={{
-                        "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
+                (examType?.ExamTypeSlug === mockExamSlug &&
+                  mockOnlineAutoPublish == true)) && (
+                <>
+                  <Typography variant="h5" mb={"16px"}>
+                    Evaluation and Feedback
+                  </Typography>
+                  <Stack
+                    sx={{
+                      "& .Mui-focused fieldset,&:hover .MuiInputBase-root fieldset":
                         {
-                          border: "1px solid rgba(115, 138, 150, 0.5) !important",
+                          border:
+                            "1px solid rgba(115, 138, 150, 0.5) !important",
                         },
-                      }}
-                    >
-                      <FormControlLabel
-                        control={
-                          <CustomCheckbox
-                            checked={isEvolution}
-                            onChange={(event) => handleExamFeedBack(event)}
-                            sx={commonCheckboxField}
-                          />
-                        }
-                        label="Auto Publish Attempt Results immediately upon completion. "
-                        sx={checkboxLabelStyle}
-                      />
-                    </Stack>
-                  </>
-                )}
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <CustomCheckbox
+                          checked={isEvolution}
+                          onChange={(event) => handleExamFeedBack(event)}
+                          sx={commonCheckboxField}
+                        />
+                      }
+                      label="Auto Publish Attempt Results immediately upon completion. "
+                      sx={checkboxLabelStyle}
+                    />
+                  </Stack>
+                </>
+              )}
               {/* <Typography
                 variant="paragraph3"
                 component={"p"}
@@ -4551,10 +4604,10 @@ sx={{
                     sx={{
                       // color: theme.palette.secondary.fieldText,
                       "& .Mui-focused fieldset,&.MuiFormControl-root:hover fieldset":
-                      {
-                        border:
-                          "1px solid rgba(115, 138, 150, 0.5) !important",
-                      },
+                        {
+                          border:
+                            "1px solid rgba(115, 138, 150, 0.5) !important",
+                        },
                     }}
                   />
                 </Box>

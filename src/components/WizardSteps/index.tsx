@@ -183,7 +183,9 @@ const WizardSteps: React.FC<WizardStepsProps> = ({
           <Link
             onClick={() => {
               examid
-                ? router.push(`/Exam-Management/station-management?examid=${examid}`)
+                ? router.push(
+                    `/Exam-Management/station-management?examid=${examid}`
+                  )
                 : "";
             }}
             sx={{
@@ -345,98 +347,7 @@ const WizardSteps: React.FC<WizardStepsProps> = ({
             Question Selection
           </Typography>
         </Grid>
-        {/* <Grid
-          xs={2.4}
-          sx={{
-            textAlign: "center",
-            color: theme.palette.primary.main,
-            position: "relative",
-            "&::after": {
-              position: "absolute",
-              content: '""',
-              display: "block",
-              height: "2px",
-              bottom: "calc(100% - 68.4px)",
-              zIndex: 0,
-              background: `${
-                step > 3 ? theme.palette.primary.main : "#E3E8EA"
-              }`,
-              width: "100%",
-              left: "50%",
-            },
-          }}
-        >
-          <Link
-            onClick={() => {
-              handleStationCreate(stationMange);
-              examid
-                ? router.push(`/imock-exam/assign-student?examid=${examid}`)
-                : "";
-            }}
-            sx={{
-              display: "inline-block",
-              cursor: "pointer",
-            }}
-          >
-            <Box
-              sx={{
-                width: "50px",
-                height: "50px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "50%",
-                border: "solid 3px transparent",
-                borderColor: theme.palette.primary.main,
-                color: theme.palette.primary.main,
-                margin: "0 auto",
-                position: "relative",
-                background: `${
-                  step >= 3 ? theme.palette.primary.main : "transparent"
-                }`,
-                "& svg": {
-                  "& path": {
-                    fill: `${
-                      step >= 3
-                        ? theme.palette.mode === "light"
-                          ? "#fff"
-                          : "#fff"
-                        : ""
-                    }`,
-                  },
-                },
-                "&::before": {
-                  position: "absolute",
-                  content: '""',
-                  display: "block",
-                  height: "10px",
-                  top: "calc(100% + 15px)",
-                  zIndex: 1,
-                  background: `${
-                    step >= 3 ? theme.palette.primary.main : "#E3E8EA"
-                  }`,
-                  width: "10px",
-                  borderRadius: "50%",
-                  border: `1px solid ${theme.palette.primary.main}`,
-                },
-              }}
-            >
-              <StepFourIcon />
-            </Box>
-          </Link>
-          <Typography
-            variant="h5"
-            component={"h4"}
-            mt={1}
-            color={theme.palette.primary.main}
-            fontSize={"16px"}
-            fontWeight={500}
-            textAlign={"center"}
-            marginTop={"34px"}
-          >
-            Assign Trainees
-          </Typography>
-        </Grid> */}
+
         <Grid
           xs={3}
           sx={{
@@ -449,7 +360,9 @@ const WizardSteps: React.FC<WizardStepsProps> = ({
             onClick={() => {
               handleStationCreate(stationMange);
               examid
-                ? router.push(`/Exam-Management/review-details?examid=${examid}`)
+                ? router.push(
+                    `/Exam-Management/review-details?examid=${examid}`
+                  )
                 : "";
             }}
             sx={{
