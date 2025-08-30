@@ -1,61 +1,57 @@
 import { useState, useEffect } from 'react';
 import { Exam } from '@/business/exam/types';
-import { ExamService } from '@/business/exam/examService';
+import { getExamById } from '@/services/api/exam'; // Assuming this is your API service
 
-export interface ViewExamData {
+export interface ViewExamState {
   exam: Exam | null;
   isLoading: boolean;
   error: string | null;
 }
 
-export interface ViewExamActions {
-  fetchExam: (examId: string) => Promise<void>;
-  refreshExam: () => Promise<void>;
-}
+export function useViewExam(examId: string) {
+  const [state, setState] = useState<ViewExamState>({
+    exam: null,
+    isLoading: true,
+    error: null
+  });
 
-export const useViewExam = (examId?: string): ViewExamData & ViewExamActions => {
-  const [exam, setExam] = useState<Exam | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchExam = async (examIdToFetch: string) => {
-    if (!examIdToFetch) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
+  const fetchExam = async () => {
     try {
-      const examData = ExamService.getExamById(examIdToFetch);
-      if (examData) {
-        setExam(examData);
+      setState(prev => ({ ...prev, isLoading: true }));
+      const response = await getExamById(examId);
+      
+      if (response.success) {
+        setState({
+          exam: response.data,
+          isLoading: false,
+          error: null
+        });
       } else {
-        setError('Exam not found');
+        setState({
+          exam: null,
+          isLoading: false,
+          error: response.message || 'Failed to fetch exam details'
+        });
       }
-    } catch (err) {
-      setError('Failed to fetch exam details');
-      console.error('Error fetching exam:', err);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      setState({
+        exam: null,
+        isLoading: false,
+        error: 'An error occurred while fetching exam details'
+      });
     }
   };
 
-  const refreshExam = async () => {
-    if (examId) {
-      await fetchExam(examId);
-    }
-  };
+  const refreshExam = () => fetchExam();
 
   useEffect(() => {
     if (examId) {
-      fetchExam(examId);
+      fetchExam();
     }
   }, [examId]);
 
   return {
-    exam,
-    isLoading,
-    error,
-    fetchExam,
-    refreshExam,
+    ...state,
+    refreshExam
   };
-};
+}

@@ -290,7 +290,7 @@ const ImockExam = () => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2">
-                      {exam.ExamCourseType || "N/A"}
+                      {exam.PrepXExamAFKACJOSCECourse || "N/A"}
                     </Typography>
                   </TableCell>
                   <TableCell>

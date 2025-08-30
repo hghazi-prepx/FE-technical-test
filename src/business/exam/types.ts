@@ -69,6 +69,7 @@ export interface Exam {
   ModifiedOn?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
+  PrepXExamAFKACJOSCECourse?: string;
 }
 
 export interface ExamFormData extends Omit<Exam, 'ExamID' | 'ExamIDText' | 'CreatedOn' | 'ModifiedOn' | 'CreatedBy' | 'ModifiedBy' | 'CSTimeOfExam' | 'CSTimeOfExamDue'> {

@@ -308,7 +308,6 @@ export default function AssignTrainee() {
    * @ Function Purpose   : Set searched key like first name, last name etc
    */
   const handleChange = (value: any) => {
-    debugger;
     // Check if the checkbox value is already in the array
     const index = selectedCheckboxes.indexOf(value);
     setCheckedItems((prevState) => ({
@@ -376,7 +375,6 @@ export default function AssignTrainee() {
     };
     await deleteStudentForNewExam(bodyData)
       .then((result) => {
-        debugger;
         if (result?.success) {
           setSelectedCheckboxes([]);
           setSelectedStudentData((prev: any) => {

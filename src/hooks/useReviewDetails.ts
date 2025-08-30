@@ -3,6 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { ExamService } from '@/business/exam/examService';
 import { Exam } from '@/business/exam/types';
 import toast from '@/app/(DashboardLayout)/components/Toast';
+import { COURSE_TYPE } from '@/utils/Constants';
 
 export interface ReviewDetailsData {
   examData: Exam | null;
@@ -20,6 +21,7 @@ export interface ReviewDetailsActions {
   publishExam: () => Promise<void>;
   refreshData: () => Promise<void>;
 }
+
 
 export const useReviewDetails = (): ReviewDetailsData & ReviewDetailsActions => {
   const searchParams = useSearchParams();
