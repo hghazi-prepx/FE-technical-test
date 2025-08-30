@@ -55,6 +55,7 @@ import Loading from "../loading";
 import { exportToExcel } from "../../../utils/exportDataCommonFunction/index";
 import toast from "../components/Toast/index";
 import DeleteModalComponent from "@/components/DeleleModalComponent";
+import { getIMockExamList } from "@/services/newExamFlow/newExamFlowAPI";
 // Removed permission import - authentication removed
 
 const BCrumb = [
@@ -179,7 +180,7 @@ export default function ImockExam() {
       ascDesc: orderBy,
       searchedKey: searchedKey != null ? searchedKey : [],
       search: search != null ? search : "",
-      CampusID: roleId == 7 ? UserCampusID : "",
+      CampusID: roleId === 1 ? UserCampusID : "",
     };
 
   };
@@ -217,7 +218,7 @@ export default function ImockExam() {
       ascDesc: orderBy,
       searchedKey: searchedKey != null ? searchedKey : [],
       search: search != null ? search : "",
-      CampusID: roleId === 7 ? UserCampusID : "",
+      CampusID: roleId === 1 ? UserCampusID : "",
     };
     await getIMockExamList(bodyData)
       .then((result) => {

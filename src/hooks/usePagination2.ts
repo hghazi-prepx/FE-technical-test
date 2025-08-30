@@ -6,6 +6,16 @@ import { PAGINATION } from "@/utils/Constants";
 
 const { DEFAULT_PAGE, DEFAULT_TOTAL_PAGE } = PAGINATION;
 
+interface IHandlePagination {
+  page: number;
+  rowsPerPage: number;
+}
+
+interface IHandlePagination2 {
+  page2: number;
+  rowsPerPage2: number;
+}
+
 type PaginationState = {
   setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
   setPage: React.Dispatch<React.SetStateAction<number>>;

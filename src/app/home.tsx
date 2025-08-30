@@ -4,8 +4,7 @@ import React from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeSettings } from "@/utils/theme/Theme";
-import { useSelector } from "@/store/hooks";
-import { AppState } from "@/store/store";
+
 import { Provider } from "react-redux";
 import NextTopLoader from "nextjs-toploader";
 import { NextAppDirEmotionCacheProvider } from "@/utils/theme/EmotionCache";
@@ -35,13 +34,11 @@ const MyApp = ({ children }: { children: React.ReactNode }) => {
 
 const Home = ({ children }: { children: React.ReactNode }) => {
   return (
-    <>
-      <Provider store={store}>
-        <PersistGate loading={true} persistor={persistor}>
-          <MyApp children={children} />
-        </PersistGate>
-      </Provider>
-    </>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <MyApp children={children} />
+      </PersistGate>
+    </Provider>
   );
 };
 

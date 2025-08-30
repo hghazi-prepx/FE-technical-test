@@ -115,7 +115,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
     setError("");
     setQuestionTextWords(value);
   };
-  console.log("casestudy",caseStudy)
+      // console.log("casestudy",caseStudy)
   useEffect(() => {
     if (isCreate) {
       switch (type) {
@@ -3339,7 +3339,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       textDecoration: tagName === "u" ? "underline" : "none",
                       fontSize: tagName === "h3" ? "1.5rem" : "inherit",
                     };
-                    console.log("styles ++ ", styles);
+                    // console.log("styles ++ ", styles);
                     return (
                       <span key={matchIndex} style={styles}>
                         {elementNode.textContent}

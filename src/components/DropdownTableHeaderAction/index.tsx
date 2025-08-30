@@ -112,7 +112,7 @@ const DropdownTableHeaderAction: React.FC<DropdownTableHeaderActionProps> = ({
         {
           handleDelete && (
             <MenuItem
-              disabled={length === 0 || loginRoleID == 4 || duplicateEnable}
+              disabled={length === 0 || loginRoleID === 1 || duplicateEnable}
               onClick={() => {
                 handleDelete();
                 handleCloseActionDropdown();

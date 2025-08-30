@@ -899,7 +899,7 @@ export default function EditIMockExam({ params }: any) {
         setAvailabilityDateValue(data?.ExamAvailabilityDate);
         setDueDateValue(data?.ExamDueDate);
         setNumberOfAttempt(data?.ExamNumberofAttempts);
-        setTicket(data?.ExamNumberofAttempts == 0 ? true : false);
+        setTicket(data?.ExamNumberofAttempts === "" ? true : false);
         setNumberOfPaging(data?.ExamPaging);
         setIsUnlimited(data?.ExamNumberofAttempts == "" ? true : false);
         setOverallGrade(data?.ExamOverallGradeCalculationID);

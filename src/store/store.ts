@@ -9,23 +9,21 @@ import CustomizerReducer from "./customizer/CustomizerSlice";
 const persistConfig = {
   key: 'root',
   storage,
-  blacklist: ['customizer'] 
+  whitelist: ['customizer'] // Changed from blacklist to whitelist
 };
-
-const persistedReducer = persistReducer(persistConfig, CustomizerReducer);
-
-export const store = configureStore({
-  reducer: {
-    customizer: persistedReducer,
-  },
-  devTools: process.env.NODE_ENV !== "production",
-});
-
-export const persistor = persistStore(store);
 
 const rootReducer = combineReducers({
   customizer: CustomizerReducer,
 });
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  devTools: process.env.NODE_ENV !== "production",
+});
+
+export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

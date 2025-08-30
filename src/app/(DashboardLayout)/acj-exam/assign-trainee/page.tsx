@@ -52,11 +52,14 @@ import Image from "next/image";
 import moment from "moment";
 import ExamWizardSteps from "@/components/ExamWizardSteps";
 import DeleteModalComponent from "@/components/DeleleModalComponent";
+import LoadingButton from "@/components/ui/LoadingButton";
 import {
   assignTraineeForNewExam,
   deleteStudentForNewExam,
   getAssignTraineeListForNewExam,
   getAvailableTraineeForNewExam,
+  getOneExamForNewExam,
+  getOneIMockExamForEdit,
 } from "@/services/newExamFlow/newExamFlowAPI";
 import CustomTablePagination from "@/components/CustomPagination";
 import usePagination2 from "@/hooks/usePagination2";
@@ -710,7 +713,7 @@ export default function AssignTrainee() {
                     right: "6px",
                   }}
                 >
-                  <Button
+                  <LoadingButton
                     sx={{
                       ...primaryButon,
                       height: "38px",
@@ -724,6 +727,8 @@ export default function AssignTrainee() {
                         width: "16px",
                       },
                     }}
+                    loading={isLoading}
+                    loadingText="Assigning..."
                     disabled={selectedStudents && selectedStudents.length == 0}
                     onClick={() =>
                       studentSelectedId ? handleAssignStudent() : ""
@@ -731,7 +736,7 @@ export default function AssignTrainee() {
                   >
                     <PlusIcon />
                     Assign
-                  </Button>
+                  </LoadingButton>
                 </Box>
                 {/* ) : (
                     <Box
@@ -1546,7 +1551,7 @@ export default function AssignTrainee() {
             >
               Skip for now
             </Button>
-            <Button
+            <LoadingButton
               sx={{
                 ...primaryButon,
               }}
@@ -1555,7 +1560,7 @@ export default function AssignTrainee() {
               }}
             >
               Generate
-            </Button>
+            </LoadingButton>
             {/* <Button
               sx={{
                 borderRadius: "6px",

@@ -52,14 +52,14 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
         redirect: false,
         UserType: 3,
       });
-      console.log("AuthLogin | repsignin : ", repsignin);
+      // console.log("AuthLogin | repsignin : ", repsignin);
       if (repsignin?.ok) {
-        console.log("AuthLogin | repsignin1111 : ", repsignin);
+        // console.log("AuthLogin | repsignin1111 : ", repsignin);
         window.localStorage.setItem("manualLogin", "true");
         // Get Role Based Permisssion and Store in localstorage
         await fetchApi(`${APIURL}user/getRoleBasedPermission`, "GET")
           .then(async (response: any) => {
-            console.log("getRoleBasedPermission : ", response);
+            // console.log("getRoleBasedPermission : ", response);
             if (response.success) {
               window.localStorage.setItem(
                 "RolePermissions",

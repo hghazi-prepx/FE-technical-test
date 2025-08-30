@@ -260,7 +260,7 @@ export default function ImockExamQuestion() {
                           lineHeight: 0,
                         }}
                       />{" "}
-                      {tdata.questionid}
+                      {tdata.questionId}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -270,7 +270,7 @@ export default function ImockExamQuestion() {
                       fontWeight={400}
                       fontSize={"15px"}
                     >
-                      {tdata.questiontype}
+                      {tdata.questionType}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -280,7 +280,7 @@ export default function ImockExamQuestion() {
                       fontWeight={400}
                       fontSize={"15px"}
                     >
-                      {tdata.question}
+                      {tdata.questionText}
                     </Typography>
                   </TableCell>
                   <TableCell>
