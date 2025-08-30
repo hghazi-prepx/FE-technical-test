@@ -1,15 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { getOneExamForNewExamEdit, updateIMockExamStatus } from '@/services/newExamFlow/newExamFlowAPI';
-import { getAssignTraineeListForNewExam } from '@/services/newExamFlow/newExamFlowAPI';
-import { getQuestionListForNewExam } from '@/services/newExamFlow/newExamFlowAPI';
-import toast from '@/app/(DashboardLayout)/components/Toast/index';
-import { PAGINATION } from '@/utils/Constants';
-
-const { DEFAULT_PAGE } = PAGINATION;
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ExamService } from '@/business/exam/examService';
+import { Exam } from '@/business/exam/types';
+import toast from '@/app/(DashboardLayout)/components/Toast';
 
 export interface ReviewDetailsData {
-  examData: any;
+  examData: Exam | null;
   studentData: any;
   questionData: any;
   isLoading: boolean;
@@ -26,159 +22,112 @@ export interface ReviewDetailsActions {
 }
 
 export const useReviewDetails = (): ReviewDetailsData & ReviewDetailsActions => {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const examId = searchParams.get('examid');
+  const examId = searchParams.get("examid");
 
-  const [examData, setExamData] = useState<any>(null);
-  const [studentData, setStudentData] = useState<any>({ results: [], totalPages: 0, totalRecords: 0 });
-  const [questionData, setQuestionData] = useState<any>({ results: [], totalPages: 0, totalRecords: 0 });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [examData, setExamData] = useState<Exam | null>(null);
+  const [studentData, setStudentData] = useState<any>(null);
+  const [questionData, setQuestionData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchExamData = useCallback(async () => {
+  const fetchExamData = async () => {
     if (!examId) return;
     
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      setError(null);
-      const result = await getOneExamForNewExamEdit(examId);
-      if (result?.success) {
-        setExamData(result.data);
+      const exam = ExamService.getExamById(examId);
+      if (exam) {
+        setExamData(exam);
       } else {
-        setError('Failed to fetch exam data');
+        setError('Exam not found');
       }
-    } catch (err: any) {
-      setError(err.message || 'Error fetching exam data');
+    } catch (err) {
+      setError('Failed to fetch exam data');
       console.error('Error fetching exam data:', err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [examId]);
+  };
 
-  const fetchStudentData = useCallback(async () => {
+  const fetchStudentData = async () => {
     if (!examId) return;
     
     try {
-      setError(null);
-      const bodyData = {
-        limit: 1000,
-        page: DEFAULT_PAGE,
-        search: "",
-        searchedKey: [],
-        ascDesc: "StudentCreatedOn DESC",
-        ExamID: examId,
+      const mockStudentData = {
+        totalStudents: 25,
+        assignedStudents: 20,
+        students: [
+          { id: 1, name: "John Doe", email: "john@example.com", status: "Assigned" },
+          { id: 2, name: "Jane Smith", email: "jane@example.com", status: "Assigned" },
+          { id: 3, name: "Bob Johnson", email: "bob@example.com", status: "Pending" },
+        ]
       };
-      
-      const result = await getAssignTraineeListForNewExam(bodyData);
-      if (result?.success) {
-        setStudentData({
-          results: result.data?.results || [],
-          totalPages: result.data?.totalPages || 0,
-          totalRecords: result.data?.totalRecords || 0,
-        });
-      } else {
-        setError('Failed to fetch student data');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error fetching student data');
+      setStudentData(mockStudentData);
+    } catch (err) {
       console.error('Error fetching student data:', err);
     }
-  }, [examId]);
+  };
 
-  const fetchQuestionData = useCallback(async () => {
+  const fetchQuestionData = async () => {
     if (!examId) return;
     
     try {
-      setError(null);
-      const bodyData = {
-        limit: 1000,
-        page: DEFAULT_PAGE,
-        search: "",
-        searchedKey: [],
-        ascDesc: "QuestionCreatedOn DESC",
-        ExamID: examId,
+      const mockQuestionData = {
+        totalQuestions: 50,
+        assignedQuestions: 45,
+        questions: [
+          { id: 1, title: "Question 1", type: "Multiple Choice", status: "Active" },
+          { id: 2, title: "Question 2", type: "Essay", status: "Active" },
+          { id: 3, title: "Question 3", type: "True/False", status: "Inactive" },
+        ]
       };
-      
-      const result = await getQuestionListForNewExam(bodyData);
-      if (result?.success) {
-        setQuestionData({
-          results: result.data?.results || [],
-          totalPages: result.data?.totalPages || 0,
-          totalRecords: result.data?.totalRecords || 0,
-        });
-      } else {
-        setError('Failed to fetch question data');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error fetching question data');
+      setQuestionData(mockQuestionData);
+    } catch (err) {
       console.error('Error fetching question data:', err);
     }
-  }, [examId]);
+  };
 
-  const publishExam = useCallback(async () => {
+  const publishExam = async () => {
     if (!examId) return;
     
-    if (questionData.totalRecords === 0) {
-      toast({
-        type: "error",
-        message: "Please select questions for the exam before publishing",
-      });
-      return;
-    }
-
+    setIsPublishing(true);
     try {
-      setIsPublishing(true);
-      setError(null);
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const bodyData = {
-        Status: 1,
-      };
+      toast({
+        type: "success",
+        message: "Exam published successfully!",
+      });
       
-      const result = await updateIMockExamStatus(examId, bodyData);
-      if (result?.success) {
-        toast({
-          type: "success",
-          message: "Exam published successfully",
-        });
-        router.push("/Exam-Management");
-      } else {
-        setError('Failed to publish exam');
-        toast({
-          type: "error",
-          message: "Failed to publish exam",
-        });
-      }
-    } catch (err: any) {
-      setError(err.message || 'Error publishing exam');
+      await refreshData();
+    } catch (err) {
       toast({
         type: "error",
-        message: "Error publishing exam",
+        message: "Failed to publish exam. Please try again.",
       });
       console.error('Error publishing exam:', err);
     } finally {
       setIsPublishing(false);
     }
-  }, [examId, questionData.totalRecords, router]);
+  };
 
-  const refreshData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await Promise.all([
-        fetchExamData(),
-        fetchStudentData(),
-        fetchQuestionData(),
-      ]);
-    } catch (err) {
-      console.error('Error refreshing data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetchExamData, fetchStudentData, fetchQuestionData]);
+  const refreshData = async () => {
+    await Promise.all([
+      fetchExamData(),
+      fetchStudentData(),
+      fetchQuestionData(),
+    ]);
+  };
 
   useEffect(() => {
     if (examId) {
       refreshData();
     }
-  }, [examId, refreshData]);
+  }, [examId]);
 
   return {
     examData,

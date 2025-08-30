@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Button, Box } from "@mui/material";
 import LoadingButton from "@/components/ui/LoadingButton";
 import { Dayjs } from "dayjs";
-import dayjs from "dayjs";
 
 import Breadcrumb from "@/app/(DashboardLayout)/layout/shared/breadcrumb/Breadcrumb";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
@@ -40,15 +39,14 @@ export default function CreateExamPage() {
   const examCourse: string | null = searchRouter.get("examcourse");
   const router = useRouter();
 
-  // State management
   const [examType, setExamType] = useState<ExamType | null>(null);
   const [isUnlimited, setIsUnlimited] = useState<boolean>(false);
   const [isTimeLimit, setIsTimeLimit] = useState<boolean>(false);
   const [availabilityDateValue, setAvailabilityDateValue] = useState<Dayjs | null>(null);
   const [dueDateValue, setDueDateValue] = useState<Dayjs | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Time state
   const [selectedHour, setSelectedHour] = useState("10");
   const [selectedMinute, setSelectedMinute] = useState("00");
   const [selectedShift, setSelectedShift] = useState("AM");
@@ -56,23 +54,20 @@ export default function CreateExamPage() {
   const [selectedMinuteDue, setSelectedMinuteDue] = useState("00");
   const [selectedShiftDue, setSelectedShiftDue] = useState("AM");
 
-  // Custom hook for exam management
   const { createExam, fetchExamTypes, examTypes, isLoading } = useExamManagement();
 
-  // Fetch exam types on component mount
   useEffect(() => {
     fetchExamTypes();
   }, [fetchExamTypes]);
 
-  // Handle form submission
   const handleSubmit = async (values: any) => {
+    setIsSubmitting(true);
     try {
-      // Prepare exam data using our business layer
       const examData = ExamDataProcessor.prepareExamData(
         values,
         examType,
         examCourse || "",
-        "America/Toronto", // Default timezone
+        "America/Toronto",
         {
           hour: selectedHour,
           minute: selectedMinute,
@@ -110,10 +105,11 @@ export default function CreateExamPage() {
         message: "Sorry, something went wrong. Please try again.",
       });
       console.error("Error creating exam:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Handle save as draft
   const handleSaveAsDraft = () => {
     toast({
       type: "success",
@@ -121,7 +117,6 @@ export default function CreateExamPage() {
     });
   };
 
-  // Handle modal close
   const handleModalClose = () => setOpenModal(false);
 
   if (isLoading) {
@@ -144,12 +139,27 @@ export default function CreateExamPage() {
         examType={examType}
         setExamType={setExamType}
         isUnlimited={isUnlimited}
+        setIsUnlimited={setIsUnlimited}
+        isTimeLimit={isTimeLimit}
+        setIsTimeLimit={setIsTimeLimit}
         availabilityDateValue={availabilityDateValue}
         setAvailabilityDateValue={setAvailabilityDateValue}
         dueDateValue={dueDateValue}
         setDueDateValue={setDueDateValue}
+        selectedHour={selectedHour}
+        setSelectedHour={setSelectedHour}
+        selectedMinute={selectedMinute}
+        setSelectedMinute={setSelectedMinute}
+        selectedShift={selectedShift}
+        setSelectedShift={setSelectedShift}
+        selectedHourDue={selectedHourDue}
+        setSelectedHourDue={setSelectedHourDue}
+        selectedMinuteDue={selectedMinuteDue}
+        setSelectedMinuteDue={setSelectedMinuteDue}
+        selectedShiftDue={selectedShiftDue}
+        setSelectedShiftDue={setSelectedShiftDue}
         onSubmit={handleSubmit}
-        isLoading={isLoading}
+        isLoading={isSubmitting}
       />
       
       <Box mt={6}>
@@ -169,10 +179,9 @@ export default function CreateExamPage() {
               ...primaryButon,
             }}
             type="submit"
-            loading={isLoading}
+            loading={isSubmitting}
             loadingText="Creating..."
             onClick={() => {
-              // Trigger form submission
               const form = document.querySelector('form');
               if (form) {
                 form.dispatchEvent(new Event('submit', { bubbles: true }));

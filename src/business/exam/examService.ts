@@ -3,13 +3,7 @@ import { ExamType } from './types';
 
 const LOCAL_STORAGE_KEY = 'prepx_exams';
 
-/**
- * Exam Service - Handles all exam-related business logic
- */
 export class ExamService {
-  /**
-   * Load exams from localStorage
-   */
   static loadExamsFromStorage(): Exam[] {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -20,9 +14,6 @@ export class ExamService {
     }
   }
 
-  /**
-   * Save exams to localStorage
-   */
   static saveExamsToStorage(examsData: Exam[]): void {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(examsData));
@@ -31,9 +22,6 @@ export class ExamService {
     }
   }
 
-  /**
-   * Create a new exam
-   */
   static createExam(examData: ExamFormData, examId: number): Exam {
     return {
       ...examData,
@@ -46,27 +34,18 @@ export class ExamService {
     };
   }
 
-  /**
-   * Add exam to storage
-   */
   static addExamToStorage(exam: Exam): void {
     const existingExams = this.loadExamsFromStorage();
     const updatedExams = [...existingExams, exam];
     this.saveExamsToStorage(updatedExams);
   }
 
-  /**
-   * Remove exam from storage
-   */
   static removeExamFromStorage(examId: number): void {
     const existingExams = this.loadExamsFromStorage();
     const updatedExams = existingExams.filter(exam => exam.ExamID !== examId);
     this.saveExamsToStorage(updatedExams);
   }
 
-  /**
-   * Update exam in storage
-   */
   static updateExamInStorage(examId: number, updatedData: Partial<Exam>): void {
     const existingExams = this.loadExamsFromStorage();
     const updatedExams = existingExams.map(exam => 
@@ -77,24 +56,16 @@ export class ExamService {
     this.saveExamsToStorage(updatedExams);
   }
 
-  /**
-   * Get exam by ID from storage
-   */
-  static getExamById(examId: number): Exam | undefined {
+  static getExamById(examId: string | number): Exam | undefined {
     const exams = this.loadExamsFromStorage();
-    return exams.find(exam => exam.ExamID === examId);
+    const numericId = typeof examId === 'string' ? parseInt(examId, 10) : examId;
+    return exams.find(exam => exam.ExamID === numericId);
   }
 
-  /**
-   * Clear all exams from storage (for testing)
-   */
   static clearAllExams(): void {
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   }
 
-  /**
-   * Get all exams from storage
-   */
   static getAllExams(): Exam[] {
     return this.loadExamsFromStorage();
   }

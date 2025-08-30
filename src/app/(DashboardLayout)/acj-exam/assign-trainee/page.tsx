@@ -728,7 +728,7 @@ export default function AssignTrainee() {
                       },
                     }}
                     loading={isLoading}
-                    loadingText="Assigning..."
+                    // loadingText="Assigning..."
                     disabled={selectedStudents && selectedStudents.length == 0}
                     onClick={() =>
                       studentSelectedId ? handleAssignStudent() : ""

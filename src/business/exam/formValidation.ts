@@ -16,7 +16,7 @@ export class ExamFormValidation {
       ExamName: yup.string().required("Exam name is required"),
       ExamTypeID: yup.string().required("Exam type is required"),
       PrepXExamAFKACJOSCECourse: yup
-        .number()
+        .string()
         .required("Exam course is required"),
       ExamNumberofBookletsID:
         examTypeSlug === "mock"

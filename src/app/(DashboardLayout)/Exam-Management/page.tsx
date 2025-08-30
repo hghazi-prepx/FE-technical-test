@@ -35,10 +35,6 @@ const BCrumb = [
   { label: "Exam Management", link: "/Exam-Management" },
 ];
 
-/**
- * @ Function Name      : ImockExam
- * @ Function Purpose   : Displaying exam list component
- */
 const ImockExam = () => {
   const router = useRouter();
   const [sortField, setSortField] = useState<string>("");
@@ -56,12 +52,10 @@ const ImockExam = () => {
     clearAllExams,
   } = useExamManagement();
 
-  // Fetch exam types on component mount
   useEffect(() => {
     fetchExamTypes();
   }, [fetchExamTypes]);
 
-  // Handle sorting
   const handleSort = (field: string) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -71,7 +65,6 @@ const ImockExam = () => {
     }
   };
 
-  // Sort exams
   const sortedExams = [...exams].sort((a, b) => {
     let aValue: any = a[sortField as keyof Exam];
     let bValue: any = b[sortField as keyof Exam];
@@ -89,7 +82,6 @@ const ImockExam = () => {
     return 0;
   });
 
-  // Handle exam deletion
   const handleDeleteExam = (exam: Exam) => {
     setSelectedExam(exam);
     setDeleteModalOpen(true);
@@ -112,7 +104,7 @@ const ImockExam = () => {
   };
 
   const handleViewExam = (exam: Exam) => {
-    router.push(`/acj-exam/question-selection?examid=${exam.ExamID}`);
+    router.push(`/acj-exam/view-exam/${exam.ExamID}`);
   };
 
   const getStatusChip = (status: number) => {

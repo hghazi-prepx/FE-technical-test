@@ -9,13 +9,7 @@ interface TimeData {
   date: any;
 }
 
-/**
- * Exam data processor for preparing form data for submission
- */
 export class ExamDataProcessor {
-  /**
-   * Prepare exam data for submission
-   */
   static prepareExamData(
     formValues: any,
     examType: ExamType | null,
@@ -31,9 +25,9 @@ export class ExamDataProcessor {
       TimeZoneID: 248,
       ExamCourseType: examCourse,
       ExamNumberofQuestions: formValues.ExamNumberofQuestions || 1000,
+      LongDescription: formValues.LongDescriptionText || "",
     };
 
-    // Process availability date
     if (!isTimeLimit) {
       examData.ExamTimeLimit = 0;
     }
@@ -50,7 +44,6 @@ export class ExamDataProcessor {
       examData.ExamAvailabilityDate = availabilityTimestamp;
     }
 
-    // Process due date
     if (formValues.ExamQuizStart === 2) {
       if (availabilityTimestamp) {
         const dueDate = DateTimeUtils.addMinutesToTimestamp(
@@ -74,12 +67,10 @@ export class ExamDataProcessor {
       }
     }
 
-    // Set mock exam specific values
     if (examType?.ExamTypeSlug === "mock") {
       examData.ExamNumberofAttempts = "1";
     }
 
-    // Clean up unused fields
     return examData;
   }
 }
