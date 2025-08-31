@@ -1,20 +1,16 @@
-import CustomCheckbox from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomCheckbox";
 import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
 import {
+  Autocomplete,
   Grid,
   Typography,
-  Button,
-  FormControlLabel,
-  useTheme,
-  Link,
-  Autocomplete,
 } from "@mui/material";
-import { Box, Stack } from "@mui/system";
+import { Box } from "@mui/system";
 import React from "react";
+
 const role = [{ name: "Doctor" }, { name: "Instructor" }];
+
 const SelectRole = () => {
-  const theme = useTheme();
-  const [value, setValue] = React.useState<string | null>(role[0].name);
+  const [value] = React.useState<string | null>(role[0].name);
   return (
     <>
       <Box
@@ -60,9 +56,6 @@ const SelectRole = () => {
               options={role}
               autoHighlight
               getOptionLabel={(option: any) => option.name}
-              onChange={(option: any) => {
-                setValue(option.name);
-              }}
               renderOption={(props, option) => (
                 <li {...props} key={option.name}>
                   {option.name}
@@ -126,39 +119,6 @@ const SelectRole = () => {
                 },
               }}
             />
-          </Grid>
-          <Grid item md={12}>
-            <FormControlLabel
-              control={
-                <CustomCheckbox
-                  sx={{
-                    "& input:checked + span": {
-                      background: "#02376D",
-                    },
-                  }}
-                />
-              }
-              name="StudentSameAsMailingAddress"
-              label="By creating an account, you agree to the"
-              sx={{
-                mr: "5px",
-                [`& .MuiFormControlLabel-label`]: {
-                  padding: "0",
-                  color: "#3A4752",
-                  fontWeight: 400,
-                  fontSize: "12px",
-                },
-              }}
-            />
-            <Link
-              href={""}
-              sx={{
-                fontSize: "12px",
-                fontWeight: 400,
-              }}
-            >
-              Terms of Service.
-            </Link>
           </Grid>
         </Grid>
       </Box>

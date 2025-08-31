@@ -1,61 +1,30 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
+import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
+import {
+  DarkSearchIcon
+} from "@/components/Icons";
 import {
   Box,
   Button,
-  Typography,
   Card,
   Stack,
-  TableContainer,
-  Table,
-  TableRow,
-  TableCell,
-  TableBody,
-  TableHead,
-  Link,
-  Checkbox,
-  TablePagination,
-  Tooltip,
-  IconButton,
-  Menu,
-  MenuItem,
+  Tooltip
 } from "@mui/material";
-import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
-import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb";
-import CustomTextField from "../components/forms/theme-elements/CustomTextField";
-import CustomCheckbox from "../components/forms/theme-elements/CustomCheckbox";
 import {
-  DeleteModalGraphic,
-  EditIcon,
-  EyeIcon,
-  PlusIcon,
-  TrashIcon,
-  QuestionIcon,
-  GraduateIcon,
-  ChairIcon,
-  CaretupIcon,
-  RefreshIcon,
-  FileUploadIcon,
-  DarkSearchIcon,
-  WhiteDownArrow,
-} from "@/components/Icons";
-import {
-  IconDots,
-  IconDotsVertical,
-  IconRefresh,
+  IconRefresh
 } from "@tabler/icons-react";
-import moment from "moment";
+import CustomTextField from "../components/forms/theme-elements/CustomTextField";
+import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb";
 
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 
 import Loading from "../loading";
 
-import { exportToExcel } from "../../../utils/exportDataCommonFunction/index";
-import toast from "../components/Toast/index";
-import DeleteModalComponent from "@/components/DeleleModalComponent";
 import { getIMockExamList } from "@/services/newExamFlow/newExamFlowAPI";
+import toast from "../components/Toast/index";
 // Removed permission import - authentication removed
 
 const BCrumb = [
