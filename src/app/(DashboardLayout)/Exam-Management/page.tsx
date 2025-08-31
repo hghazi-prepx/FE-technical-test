@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Typography,
@@ -14,36 +14,70 @@ import {
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb";
 
-import {
-  PlusIcon,
-
-} from "@/components/Icons";
+import { PlusIcon } from "@/components/Icons";
 
 import {
-
   commonTableStyle,
   createDropdownButtonStyle,
-
 } from "@/utils/commonstyles";
 import { useRouter } from "next/navigation";
 import theme from "@/utils/theme";
 import SortableHeader from "@/components/SortableHeader";
+import { useDispatch, useSelector } from "@/store/hooks";
+import { RootState } from "@/store/store";
+import { loadExams } from "@/store/customizer/examsSlice";
+import { formatDate } from "@/helpers/commonFunctions";
+import CustomTable, {
+  Column,
+  TableAction,
+} from "../components/shared/CustomTable";
 
-const BCrumb = [
-  { label: "Exam Management", link: "/Exam-Management" },
-];
+const BCrumb = [{ label: "Exam Management", link: "/Exam-Management" }];
 
-/**
- * @ Function Name      : ImockExam
- * @ Function Purpose   : Creating exam component
- */
 const ImockExam = () => {
   const router = useRouter();
-  const [iMockExamData, setIMockExamData] = useState<any>();
+  const dispatch = useDispatch();
+  const exams = useSelector((state: RootState) => state.exams.exams);
+  console.log(exams);
+  useEffect(() => {
+    dispatch(loadExams());
+  }, [dispatch]);
+  const examColumns: Column[] = [
+    {
+      id: "ExamID",
+      label: "PrepX ID",
+      sortable: true,
+      sortKey: "ExamID",
+      render: (exam) => exam.examDetails?.ExamID || "-",
+    },
+    {
+      id: "CourseType",
+      label: "Course Type",
+      sortable: true,
+      sortKey: "CourseType",
+      render: (exam) => exam.examDetails?.ExamType?.ExamTypeName || "-",
+    },
+    {
+      id: "ExamName",
+      label: "Exam Name",
+      sortable: true,
+      sortKey: "ExamName",
+      render: (exam) => exam.examDetails?.ExamName || "-",
+    },
+    {
+      id: "ExamDate",
+      label: "Exam Date",
+      sortable: true,
+      sortKey: "ExamDate",
+      render: (exam) =>
+        `${formatDate(exam.examDetails?.ExamAvailabilityDate)} ${
+          exam.examDetails?.CSTimeOfExam || ""
+        }`,
+    },
+  ];
 
   return (
     <PageContainer title="Exam Listing" description="Exam Listing">
-      {/* breadcrumb */}
       <Breadcrumb title="Exam Management" items={BCrumb} />
       <>
         <Card
@@ -80,74 +114,7 @@ const ImockExam = () => {
           direction={"row"}
           flexWrap={"wrap"}
         >
-          <Table
-            aria-label="simple table"
-            sx={{ ...commonTableStyle, tableLayout: "fixed" }}
-            className="c-table"
-            stickyHeader
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    minWidth: "180px",
-                    maxWidth: "180px",
-                    width: "180px",
-                  }}
-                >
-                  <SortableHeader
-                    field="PrepX ID"
-                  />
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "160px",
-                    maxWidth: "160px",
-                    width: "160px",
-                  }}
-                >
-                  <SortableHeader
-                    field="Course Type"
-                  />
-                </TableCell>
-
-                <TableCell
-                  sx={{
-                    minWidth: "360px",
-                    maxWidth: "360px",
-                    width: "360px",
-                  }}
-                >
-                  <SortableHeader
-                    field="Exam Name"
-                  />
-
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "160px",
-                    maxWidth: "160px",
-                    width: "160px",
-                  }}
-                >
-                  <SortableHeader
-                    field="Exam Date"
-                  />
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  align="center"
-                  style={{ paddingTop: "16px", paddingBottom: "16px" }}
-                >
-                  <Typography variant="body1">Data should go here</Typography>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <CustomTable columns={examColumns} rows={exams} />
         </Stack>
       </>
     </PageContainer>

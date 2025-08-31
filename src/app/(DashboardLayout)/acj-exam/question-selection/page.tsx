@@ -29,22 +29,15 @@ import PageContainer from "@/app/(DashboardLayout)/components/container/PageCont
 import CustomSelect from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomSelect";
 import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
 import CustomCheckbox from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomCheckbox";
-// import { ImageIcon } from "@/components/Icons";
 import { useTheme } from "@mui/material/styles";
-import {
-  CaretupIcon,
-  CornerDownArrowIcon,
-  PlusIcon,
-  PreviewIcon,
-} from "@/components/Icons";
+import { CaretupIcon, CornerDownArrowIcon, PlusIcon } from "@/components/Icons";
 import { IconDotsVertical } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Loading from "../../loading";
+
 import toast from "../../components/Toast/index";
 import { IconX } from "@tabler/icons-react";
 import Image from "next/image";
 import {
-  blueButton,
   commonAutocompleteStyle,
   commonCheckboxField,
   commonContentCardStyle,
@@ -55,8 +48,6 @@ import {
   commonSelectFieldStyle,
   commonTableCardStyle,
   commonTableStyle,
-  disableInputStyle,
-  fieldLabel,
   linkButton,
   primaryButon,
   secondaryButon,
@@ -77,72 +68,52 @@ import CustomTablePagination from "@/components/CustomPagination";
 import usePagination2 from "@/hooks/usePagination2";
 import { PAGINATION } from "@/utils/Constants";
 import DropdownTableHeaderAction from "@/components/DropdownTableHeaderAction";
-import MassImport from "@/components/MassImport";
-const { DEFAULT_PAGE } = PAGINATION;
-const BCrumb = [
-  {
-    to: "/",
-    title: "Home",
-  },
-  {
-    to: "/Exam-Management",
-    title: "Assessment Module",
-  },
-  {
-    title: "Exam Management",
-  },
-];
-
-const styleModal = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "100%",
-  maxWidth: 460,
-  bgcolor: "background.paper",
-  boxShadow: 20,
-  p: { xs: 3, lg: 4, xl: 5 },
-  [`& .delete-modal-graphic`]: { marginRight: "15px" },
-};
+import { useDispatch, useSelector } from "@/store/hooks";
+import {
+  removeSelectedQuestion,
+  setExamId,
+  setSelectedQuestions,
+} from "@/store/customizer/QuestionSlice";
+import CustomTable, { Column } from "../../components/shared/CustomTable";
 
 export default function StationManagement() {
   const preQuestionId = window.localStorage.getItem("new-question");
   const theme = useTheme();
   const router = useRouter();
   const searchRouter = useSearchParams();
-  const [PrepXID, setPrepXID] = useState(new Date().getTime())
+  const [PrepXID, setPrepXID] = useState(new Date().getTime());
   const examId: any = searchRouter.get("examid");
-  const [loading, setLoading] = useState(false);
-  const [bookletId, setBookletId] = useState("1");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
   const [questionData, setQuestionData] = useState<any>();
-  const [assignQuestionCount, setAssignQuestionCount] = useState<any>();
-  const [defaultSelectedQuestionId, setDefaultSelectedQuestionId] =
-    useState<any>();
   const [searchValue, setSearchValue] = useState<any>("");
+  const dispatch = useDispatch();
+  const {
+    selectedQuestions,
+    examId: reduxExamId,
+    bookletId: reduxBookletId,
+  } = useSelector((state) => state.questions);
+  const [bookletId, setBookletId] = useState(reduxBookletId || "1");
+  console.log(selectedQuestions, "selectedQuestions");
   const [selectedQuestionData, setSelectedQuestionData] = useState<any>();
   const [selectedCheckboxes, setSelectedCheckboxes] = useState<any>([]);
-  const [selectedAssignStudentId, setSelectedAssignStudentId] = useState<any>();
-  const [defaultSelectedValue, setDefaultSelectedValue] = useState<any>();
+
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<any>([]);
   type CheckedItems = {
     [key: string]: boolean;
   };
+  console.log(selectedQuestionData, "selectedQuestionData");
   const [allChecked, setAllChecked] = useState(false);
   const [checkedItems, setCheckedItems] = useState<CheckedItems>({});
   const [openModal, setOpenModal] = React.useState(false);
-  const handleModalOpen = () => setOpenModal(true);
+
   const handleModalClose = () => setOpenModal(false);
   const [selectedAssignQuestionId, setSelectedAssignQuestionId] =
     useState<any>();
-  const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
   const [checkorderBy, setCheckorderBy] = useState<any>("");
   const [orderBy, setOrderBy] = useState<any>("BookletID ASC");
   const [deleteText, setDeleteText] = useState("");
-  const [modalPreviewOpen, setmodalPreviewOpen] = useState(false);
-  const [previewData, setPreViewData] = useState<any>();
+
   const [previewQuestionId, setPreviewQuestionId] = useState<any>();
   const [examData, setExamData] = useState<any>();
   const [openAutocomplete, setOpenAutocomplete] = useState(false);
@@ -159,15 +130,16 @@ export default function StationManagement() {
     selectedQuestionData?.results?.filter(
       (question: any) => question.BookletID === `Booklet ${bookletId}`
     ).length >= examData?.ExamBookletsQuestions;
-
-  // const searchItem = (event: any) => {
-  //   setSearchValue(event.target.value);
-  //   if (event.target.value) {
-  //     setOpenAutocomplete(true);
-  //   } else {
-  //     setOpenAutocomplete(false);
-  //   }
-  // };
+  useEffect(() => {
+    if (reduxBookletId) {
+      setBookletId(reduxBookletId);
+    }
+  }, [reduxBookletId]);
+  useEffect(() => {
+    if (examId) {
+      dispatch(setExamId(examId));
+    }
+  }, [examId, dispatch]);
 
   const searchItem = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -178,7 +150,24 @@ export default function StationManagement() {
       setOpenAutocomplete(false);
     }
   };
+  useEffect(() => {
+    if (reduxBookletId) {
+      setBookletId(reduxBookletId);
+    }
+  }, [reduxBookletId]);
 
+  useEffect(() => {
+    if (examId) {
+      dispatch(setExamId(examId));
+    }
+  }, [examId, dispatch]);
+
+  // Initialize selectedQuestionData from Redux store
+  useEffect(() => {
+    if (selectedQuestions && selectedQuestions.length > 0) {
+      setSelectedOptions(selectedQuestions);
+    }
+  }, [selectedQuestions]);
   const getAllSelectedQuestion = async () => {
     setAllChecked(false);
     setIsLoading(true);
@@ -198,7 +187,6 @@ export default function StationManagement() {
     limit: 10,
   });
 
-
   const handleSaveAsDraft = async () => {
     setIsLoading(true);
     toast({ type: "success", message: "Draft saved successfully." });
@@ -207,13 +195,15 @@ export default function StationManagement() {
   };
 
   const bookletHandleChange = async (event: any) => {
+    const newBookletId = event.target.value;
     setIsLoading(true);
-    setBookletId(event.target.value);
+    setBookletId(newBookletId);
     setSearchValue("");
     setSelectedQuestions([]);
     setOpenAutocomplete(false);
     setSelectedCheckboxes([]);
     getAllSelectedQuestion();
+    setBookletId(newBookletId);
   };
 
   const updateQuestionStatus = async (questionStatus: any) => {
@@ -223,9 +213,7 @@ export default function StationManagement() {
     };
   };
 
-
   const removeKeepInReportQuestion = async (selectedAssignQuestionId: any) => {
-
     const bodyData = {
       ExamID: examId,
       ExamQuestionID: selectedAssignQuestionId,
@@ -259,8 +247,19 @@ export default function StationManagement() {
               QuestionTextID: `Question-${id}`,
               QuestionTopicName: "Radiology",
               QuestionTypeFor: "msq",
-            }))
+            })),
           });
+          const newQuestions = selectedQuestionIds.map((id: any) => ({
+            ExamQuestionID: id,
+            BookletID: `Booklet ${bookletId}`,
+            QuestionID: id,
+            CourseTypeName: "ACJ",
+            ExamQuestionStatus: 1,
+            QuestionTextID: `Question-${id}`,
+            QuestionTopicName: "Radiology",
+            QuestionTypeFor: "msq",
+          }));
+          dispatch(setSelectedQuestions(newQuestions));
           // getAllSelectedQuestion();
         }
         setIsLoading(false);
@@ -269,7 +268,6 @@ export default function StationManagement() {
         console.log("error: ", error);
       })
       .finally(() => setIsLoading(false));
-
   };
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -288,26 +286,6 @@ export default function StationManagement() {
   const handleClose = () => {
     setAnchorEl(null);
     setSelectedAssignQuestionId("");
-  };
-
-  /**
-   * @ Function Name      : handleChangeRowsPerPage
-   * @ Function Purpose   : To change page size
-   */
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(1);
-    setSelectedCheckboxes([]);
-  };
-
-  /**
-   * @ Function Name      : handleChangePage
-   * @ Function Purpose   : For change page
-   */
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
   };
 
   /**
@@ -358,22 +336,18 @@ export default function StationManagement() {
       (question: any) => question.QuestionID
     );
     setSelectedQuestionIds(selectedQuestionID);
-    // setSelectedQuestions(Array.from(questionIDs));
+
     setSelectedQuestions(value.map((option: any) => option.QuestionID));
-    // setOpenAutocomplete(false);
   };
 
   const handleAllChange = () => {
-    // Handle the change event for the "all_check" checkbox
     const newCheckedState: { [key: string]: boolean } = {};
     const allnewCheckedState: string[] = [];
 
     if (!allChecked) {
-      // Set all checkboxes to checked
       selectedQuestionData.results.forEach((tdata: { ExamQuestionID: any }) => {
         newCheckedState[tdata.ExamQuestionID] = true;
         allnewCheckedState.push(tdata.ExamQuestionID);
-        //selectedCheckboxes([...selectedCheckboxes, tdata.QuestionID]);
       });
     }
     setSelectedCheckboxes(allnewCheckedState);
@@ -381,25 +355,17 @@ export default function StationManagement() {
     setAllChecked(!allChecked);
     setCheckedItems(newCheckedState);
   };
-
-  /**
-   * @ Function Name      : handleOrderBy
-   * @ Function Purpose   : Handle filters ascending and descending order
-   */
   const handleOrderBy = (key: any, order: any) => {
     const combineKey = key + " " + order;
     setCheckorderBy(key + "" + order);
     setOrderBy(combineKey);
   };
 
-  /**
-   * @ Function Name      : handleDeleteStation
-   * @ Function Purpose   : Calling API for deleting station
-   */
   const handleDeleteSelectedQuestion = async (id?: any) => {
     console.log("id: ", id);
     console.log("selectedCheckboxes: ", selectedCheckboxes);
     let finalArray: any = [];
+    dispatch(removeSelectedQuestion(id));
     if (id) {
       finalArray.push(id);
     } else {
@@ -415,11 +381,12 @@ export default function StationManagement() {
           setSelectedCheckboxes([]);
           setSelectedQuestionData((prev: any) => {
             return {
-              results: prev.results.filter((question: any) => !finalArray.includes(question.ExamQuestionID)),
-            }
+              results: prev.results.filter(
+                (question: any) => !finalArray.includes(question.ExamQuestionID)
+              ),
+            };
           });
-          // getAllSelectedQuestion();
-          // getAllSelectQuestion();
+
           setSelectedQuestions([]);
         } else {
           setIsLoading(false);
@@ -432,49 +399,6 @@ export default function StationManagement() {
     // }
   };
 
-  const handlePreviewModalOpen = async (questionId: any) => {
-    // const defaultValue = "";
-    setIsLoading(true);
-  };
-
-  const handlePreviewModalClose = () => {
-    setmodalPreviewOpen(false);
-  };
-
-  const tabHandelChange = (event: React.SyntheticEvent, newValue: any) => {
-    setTabValue(newValue);
-  };
-
-  const getNewQuestion = async (data: any) => {
-    setLoading(true);
-    await getQuestionListForNewExam(data)
-      .then((result) => {
-        if (result?.success) {
-          setQuestionData(result?.data?.results);
-          setAssignQuestionCount(result?.data?.BooklateTotal);
-          setSelectedQuestionIds((prev: any) =>
-            Array.from(new Set([...prev, preQuestionId]))
-          );
-          setDefaultSelectedQuestionId(result?.data?.QuestionID);
-          // setOpenAutcomplete(true);
-          // setIsLoading(false);
-        }
-        // setLoading(false);
-        setSearchLoading(false);
-      })
-      .catch((error) => {
-        console.log("error: ", error);
-        // setLoading(false);
-        setSearchLoading(false);
-      })
-      .finally(() => setLoading(false));
-    window.localStorage.removeItem("new-question");
-  };
-
-  /**
-   * @ Function Name      : handleFileUpload
-   * @ Function Purpose   : Function for upload file
-   */
   const handleFileUpload = async (files: FileList | null) => {
     if (files && files.length > 0) {
       setIsLoading(true);
@@ -488,7 +412,7 @@ export default function StationManagement() {
       const isCsvFile = file.type === "text/csv" || file.name.endsWith(".csv");
       const isXLSXFile =
         file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
         file.name.endsWith(".xlsx");
       if (!isCsvFile && !isXLSXFile) {
         setIsLoading(false);
@@ -540,21 +464,13 @@ export default function StationManagement() {
         .then((result) => {
           if (result?.success) {
             setQuestionData(result?.data?.results);
-            const defaultValue = result?.data?.assignStudent?.map(
-              (studentId: any) => studentId
-            );
-            setDefaultSelectedValue(defaultValue);
-            setSelectedAssignStudentId("");
-            // setAssignQuestionCount(result?.data?.BooklateTotal);
-            // setOpenAutcomplete(true);
-            // setIsLoading(false);
           }
-          // setLoading(false);
+
           setSearchLoading(false);
         })
         .catch((error) => {
           console.log("error: ", error);
-          // setLoading(false);
+
           setSearchLoading(false);
         });
     };
@@ -562,18 +478,66 @@ export default function StationManagement() {
     if (searchValue.length > 0) {
       const timeoutId = setTimeout(() => {
         getAllSelectQuestion();
-      }, 500); // Adjust the delay as needed
+      }, 500);
 
-      return () => clearTimeout(timeoutId); // Clean up the timeout on component unmount or inputValue change
+      return () => clearTimeout(timeoutId);
     } else {
-      setQuestionData([]); // Clear options when input is less than 3 characters
+      setQuestionData([]);
     }
   }, [searchValue]);
 
   useEffect(() => {
     getAllSelectedQuestion();
   }, [page, rowsPerPage, orderBy]);
-
+  const columns: Column[] = [
+    {
+      id: "QuestionTextID",
+      label: "Question ID",
+      sortable: true,
+      sortKey: "StationRankID",
+      render: (row) => (
+        <Typography
+          color={theme.palette.secondary.fieldText}
+          fontWeight={400}
+          fontSize="14px"
+        >
+          <Tooltip title={row.ExamQuestionStatus == 1 ? "Active" : "Inactive"}>
+            <Box
+              component="span"
+              sx={{
+                backgroundColor:
+                  row.ExamQuestionStatus == 1 ? "#44D3BB" : "#FC4B6C",
+                marginRight: "10px",
+                borderRadius: "50%",
+                width: "8px",
+                height: "8px",
+                display: "inline-block",
+              }}
+            />
+          </Tooltip>
+          {row.QuestionTextID}
+        </Typography>
+      ),
+    },
+    { id: "BookletID", label: "Booklet", sortable: true, sortKey: "BookletID" },
+    {
+      id: "CourseTypeName",
+      label: "Course Type",
+      sortable: true,
+      sortKey: "QuestionTypeFor",
+    },
+    {
+      id: "QuestionTopicName",
+      label: "Topic",
+      sortable: true,
+      sortKey: "QuestionTypeName",
+    },
+    {
+      id: "ExamQuestionStatus",
+      label: "Status",
+      render: (row) => (row.ExamQuestionStatus == 1 ? "Active" : "Removed"),
+    },
+  ];
   return (
     <PageContainer title="Question Selection" description="Question Selection">
       <ExamWizardSteps step={1} examid={examId} />
@@ -647,21 +611,11 @@ export default function StationManagement() {
                             {option.label}
                           </MenuItem>
                         ))}
-                    {/* {booklet.map((option) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.label}
-                      </MenuItem>
-                    ))} */}
                   </CustomSelect>
                 </Box>
               </Stack>
             </Grid>
           )}
-
-          {/* {selectedQuestionData?.results?.length <= examData?.ExamBookletsQuestions 
-           && ( */}
-          {/* )
-        } */}
 
           <Grid item xs={12}>
             <Box
@@ -687,8 +641,9 @@ export default function StationManagement() {
                 gap={"15px"}
                 position={"relative"}
                 sx={{
-                  border: `1px solid ${theme.palette.mode === "dark" ? "transparent" : "#738A9633"
-                    }`,
+                  border: `1px solid ${
+                    theme.palette.mode === "dark" ? "transparent" : "#738A9633"
+                  }`,
                   borderRadius: "5px",
                   "&:has(input:disabled)": {
                     background: theme.palette.secondary.disableFieldColor,
@@ -696,156 +651,141 @@ export default function StationManagement() {
                 }}
               >
                 <>
-                  {loading ? (
-                    <>Loading...</>
-                  ) : (
-                    <Autocomplete
-                      freeSolo
-                      id="checkboxes-tags-demo"
-                      loading={searchLoading}
-                      multiple
-                      options={questionData?.length ? questionData : []}
-                      open={openAutocomplete}
-                      autoHighlight
-                      onBlur={() => {
-                        setOpenAutocomplete(false);
-                        setSearchValue("");
-                      }}
-                      getOptionLabel={(option: any) =>
-                        option?.QuestionTopicName +
-                        " / " +
-                        option?.SubTopicName +
-                        " / " +
-                        option?.QuestionTextID
-                      }
-                      value={selectedOptions}
-                      defaultValue={
-                        questionData &&
-                        questionData?.find(
-                          (option: any) =>
-                            defaultSelectedValue?.[0] == option.QuestionID
-                        )
-                      }
-                      renderOption={(props, option, { selected }) => {
-                        const isSelected =
-                          selectedQuestions &&
-                          selectedQuestions.includes(option.QuestionID);
-                        return (
-                          <li {...props}>
-                            <CustomCheckbox
-                              style={{ marginRight: 8 }}
-                              checked={isSelected}
-                              className="c-checkbox"
-                              sx={commonCheckboxField}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedOptions((prevSelected) =>
-                                    prevSelected.filter(
-                                      (id) => id !== option.QuestionID
-                                    )
-                                  );
-                                } else {
-                                  setSelectedOptions((prevSelected) =>
-                                    prevSelected.filter(
-                                      (id) => id !== option.QuestionID
-                                    )
-                                  );
-                                }
-                              }}
-                            />
+                  <Autocomplete
+                    freeSolo
+                    id="checkboxes-tags-demo"
+                    loading={searchLoading}
+                    multiple
+                    options={questionData?.length ? questionData : []}
+                    open={openAutocomplete}
+                    autoHighlight
+                    onBlur={() => {
+                      setOpenAutocomplete(false);
+                      setSearchValue("");
+                    }}
+                    getOptionLabel={(option: any) =>
+                      option?.QuestionTopicName +
+                      " / " +
+                      option?.SubTopicName +
+                      " / " +
+                      option?.QuestionTextID
+                    }
+                    value={selectedOptions}
+                    renderOption={(props, option, { selected }) => {
+                      const isSelected =
+                        selectedQuestions &&
+                        selectedQuestions.includes(option.QuestionID);
+                      return (
+                        <li {...props}>
+                          <CustomCheckbox
+                            style={{ marginRight: 8 }}
+                            checked={isSelected}
+                            className="c-checkbox"
+                            sx={commonCheckboxField}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedOptions((prevSelected) =>
+                                  prevSelected.filter(
+                                    (id) => id !== option.QuestionID
+                                  )
+                                );
+                              } else {
+                                setSelectedOptions((prevSelected) =>
+                                  prevSelected.filter(
+                                    (id) => id !== option.QuestionID
+                                  )
+                                );
+                              }
+                            }}
+                          />
 
-                            {option.QuestionTopicName +
-                              " / " +
-                              option.SubTopicName +
-                              " / " +
-                              option.QuestionTextID}
+                          {option.QuestionTopicName +
+                            " / " +
+                            option.SubTopicName +
+                            " / " +
+                            option.QuestionTextID}
 
-                            <Button
-                              type="submit"
-                              size="small"
-                              sx={{
-                                borderRadius: "4px",
+                          <Button
+                            type="submit"
+                            size="small"
+                            sx={{
+                              borderRadius: "4px",
+                              color: "#fff",
+                              backgroundColor: theme.palette.secondary.main,
+                              padding: "5px 10px",
+                              marginLeft: "auto",
+                              "&:hover": {
                                 color: "#fff",
                                 backgroundColor: theme.palette.secondary.main,
-                                padding: "5px 10px",
-                                marginLeft: "auto",
-                                "&:hover": {
-                                  color: "#fff",
-                                  backgroundColor: theme.palette.secondary.main,
-                                },
-                              }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setOpenAutocomplete(false);
-                                handlePreviewModalOpen(option?.QuestionID);
-                              }}
-                            >
-                              Preview
-                            </Button>
-                          </li>
-                        );
-                      }}
-                      fullWidth
-                      onChange={(event, value) => {
-                        // setSelectedQuestions(value);
-                        studentHandleChange(value);
-                        setSelectedOptions(value); // Update selected options
-                        // setSearchValue("");
-                      }}
-                      disabled={isDisabled}
-                      renderInput={(params) => (
-                        <Tooltip
-                          title={
-                            selectedQuestionData?.results?.filter(
-                              (question: any) =>
-                                question.BookletID === `Booklet ${bookletId}`
-                            ).length >= examData?.ExamBookletsQuestions
-                              ? "Maximum questions reached"
-                              : ""
-                          }
-                          placement="top"
-                          arrow
-                          sx={{
-                            "& .MuiTooltip-tooltip": {
-                              fontSize: "18px", // Adjust the font size as needed
-                            },
-                          }}
-                        >
-                          <div>
-                            <CustomTextField
-                              {...params}
-                              placeholder="Search by Question ID, Name..."
-                              aria-label="Favorites"
-                              onChange={searchItem}
-                              value={searchValue}
-                            />
-                          </div>
-                        </Tooltip>
-                      )}
-                      // onClose={() => setOpenAutocomplete(false)}
-                      popupIcon={<CornerDownArrowIcon />}
-                      componentsProps={{
-                        popper: {
-                          sx: commonPopStyle,
-                          modifiers: [
-                            {
-                              name: "flip",
-                              enabled: false, // Disable flipping to other sides
-                            },
-                          ],
-                        },
-                      }}
-                      sx={{
-                        ...commonAutocompleteStyle,
-                        "& .MuiAutocomplete-inputRoot": {
-                          pr: "120px",
-                        },
-                        "& .MuiAutocomplete-endAdornment": {
-                          right: "115px !important",
-                        },
-                      }}
-                    />
-                  )}
+                              },
+                            }}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setOpenAutocomplete(false);
+                            }}
+                          >
+                            Preview
+                          </Button>
+                        </li>
+                      );
+                    }}
+                    fullWidth
+                    onChange={(event, value) => {
+                      studentHandleChange(value);
+                      setSelectedOptions(value);
+                    }}
+                    disabled={isDisabled}
+                    renderInput={(params) => (
+                      <Tooltip
+                        title={
+                          selectedQuestionData?.results?.filter(
+                            (question: any) =>
+                              question.BookletID === `Booklet ${bookletId}`
+                          ).length >= examData?.ExamBookletsQuestions
+                            ? "Maximum questions reached"
+                            : ""
+                        }
+                        placement="top"
+                        arrow
+                        sx={{
+                          "& .MuiTooltip-tooltip": {
+                            fontSize: "18px", // Adjust the font size as needed
+                          },
+                        }}
+                      >
+                        <div>
+                          <CustomTextField
+                            {...params}
+                            placeholder="Search by Question ID, Name..."
+                            aria-label="Favorites"
+                            onChange={searchItem}
+                            value={searchValue}
+                          />
+                        </div>
+                      </Tooltip>
+                    )}
+                    popupIcon={<CornerDownArrowIcon />}
+                    componentsProps={{
+                      popper: {
+                        sx: commonPopStyle,
+                        modifiers: [
+                          {
+                            name: "flip",
+                            enabled: false, // Disable flipping to other sides
+                          },
+                        ],
+                      },
+                    }}
+                    sx={{
+                      ...commonAutocompleteStyle,
+                      "& .MuiAutocomplete-inputRoot": {
+                        pr: "120px",
+                      },
+                      "& .MuiAutocomplete-endAdornment": {
+                        right: "115px !important",
+                      },
+                    }}
+                  />
                 </>
                 <Box
                   display={"flex"}
@@ -889,684 +829,30 @@ export default function StationManagement() {
         </Grid>
       </Card>
       <Card sx={commonTableCardStyle}>
-        <TableContainer sx={stickyTableHeaderContainerStyle}>
-          <Table
-            aria-label="simple table"
-            sx={{ ...commonTableStyle, tableLayout: "fixed" }}
-            stickyHeader
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    width: "57px",
-                    minWidth: "160px",
-                    maxWidth: "160px",
-                    paddingRight: "0px !important",
-                  }}
-                >
-                  <Stack direction="row">
-                    <CustomCheckbox
-                      //   defaultChecked
-                      color="primary"
-                      // className="c-checkbox"
-                      inputProps={{
-                        "aria-label": "checkbox with default color",
-                      }}
-                      className="checkbox_style"
-                      checked={allChecked}
-                      onChange={handleAllChange}
-                      sx={commonCheckboxField}
-                    />
-                    <DropdownTableHeaderAction
-                      enable={selectedCheckboxes?.length > 1}
-                      text="Remove"
-                      handleDelete={() => handleDeleteSelectedQuestion()}
-                      length={selectedCheckboxes?.length}
-                    />
-                  </Stack>
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "180px",
-                    maxWidth: "180px",
-                    width: "180px",
-                  }}
-                >
-                  <Typography
-                    component={"span"}
-                    color={theme.palette.primary.main}
-                    fontSize={"15px"}
-                    fontWeight={500}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <span>Question ID</span>
-                    <Box
-                      component={"span"}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      gap={"1px"}
-                      color={theme.palette.primary.main}
-                      sx={{
-                        [`& svg`]: {
-                          width: "8px",
-                          height: "6px",
-                          cursor: "pointer",
-                        },
-                        [`& svg path`]: {
-                          color: "#67757C",
-                        },
-                        [`& .sortActiveTitle svg path`]: {
-                          color: "#02376D",
-                        },
-                        [`& svg.arrow-down`]: {
-                          scale: "-1",
-                        },
-                      }}
-                    >
-                      <Tooltip
-                        placement="top"
-                        title="ASC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "StationRankIDASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() => handleOrderBy("StationRankID", "ASC")}
-                        >
-                          <CaretupIcon />
-                        </span>
-                      </Tooltip>
-                      <Tooltip
-                        placement="top"
-                        title="DESC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "StationRankIDDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() => handleOrderBy("StationRankID", "DESC")}
-                        >
-                          <CaretupIcon className="arrow-down" />
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "320px",
-                    maxWidth: "320px",
-                    width: "320px",
-                  }}
-                >
-                  <Typography
-                    component={"span"}
-                    color={theme.palette.primary.main}
-                    fontSize={"15px"}
-                    fontWeight={500}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <span>Booklet</span>
-                    <Box
-                      component={"span"}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      gap={"1px"}
-                      color={theme.palette.primary.main}
-                      sx={{
-                        [`& svg`]: {
-                          width: "8px",
-                          height: "6px",
-                          cursor: "pointer",
-                        },
-                        [`& svg.arrow-down`]: {
-                          scale: "-1",
-                        },
-                        [`& svg path`]: {
-                          color: theme.palette.secondary.fieldText,
-                        },
-                        [`& .sortActiveTitle svg path`]: {
-                          color: theme.palette.secondary.textColor,
-                        },
-                      }}
-                    >
-                      <Tooltip
-                        placement="top"
-                        title="ASC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "BookletIDASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() => handleOrderBy("BookletID", "ASC")}
-                        >
-                          <CaretupIcon />
-                        </span>
-                      </Tooltip>
-                      <Tooltip
-                        placement="top"
-                        title="DESC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "BookletIDDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() => handleOrderBy("BookletID", "DESC")}
-                        >
-                          <CaretupIcon className="arrow-down" />
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "320px",
-                    maxWidth: "320px",
-                    width: "320px",
-                  }}
-                >
-                  <Typography
-                    component={"span"}
-                    color={theme.palette.primary.main}
-                    fontSize={"15px"}
-                    fontWeight={500}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <span>Course Type</span>
-                    <Box
-                      component={"span"}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      gap={"1px"}
-                      color={theme.palette.primary.main}
-                      sx={{
-                        [`& svg`]: {
-                          width: "8px",
-                          height: "6px",
-                          cursor: "pointer",
-                        },
-                        [`& svg.arrow-down`]: {
-                          scale: "-1",
-                        },
-                        [`& svg path`]: {
-                          color: theme.palette.secondary.fieldText,
-                        },
-                        [`& .sortActiveTitle svg path`]: {
-                          color: theme.palette.secondary.textColor,
-                        },
-                      }}
-                    >
-                      <Tooltip
-                        placement="top"
-                        title="ASC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "QuestionTypeForASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() =>
-                            handleOrderBy("QuestionTypeFor", "ASC")
-                          }
-                        >
-                          <CaretupIcon />
-                        </span>
-                      </Tooltip>
-                      <Tooltip
-                        placement="top"
-                        title="DESC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "QuestionTypeForDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() =>
-                            handleOrderBy("QuestionTypeFor", "DESC")
-                          }
-                        >
-                          <CaretupIcon className="arrow-down" />
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "240px",
-                    maxWidth: "240px",
-                    width: "240px",
-                  }}
-                >
-                  <Typography
-                    component={"span"}
-                    color={theme.palette.primary.main}
-                    fontSize={"15px"}
-                    fontWeight={500}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <span>Topic</span>
-                    <Box
-                      component={"span"}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      gap={"1px"}
-                      color={theme.palette.primary.main}
-                      sx={{
-                        [`& svg`]: {
-                          width: "8px",
-                          height: "6px",
-                          cursor: "pointer",
-                        },
-                        [`& svg.arrow-down`]: {
-                          scale: "-1",
-                        },
-                      }}
-                    >
-                      <Tooltip
-                        placement="top"
-                        title="ASC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "QuestionTypeNameASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() =>
-                            handleOrderBy("QuestionTypeName", "ASC")
-                          }
-                        >
-                          <CaretupIcon />
-                        </span>
-                      </Tooltip>
-                      <Tooltip
-                        placement="top"
-                        title="DESC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "QuestionTypeNameDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() =>
-                            handleOrderBy("QuestionTypeName", "DESC")
-                          }
-                        >
-                          <CaretupIcon className="arrow-down" />
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </Typography>
-                </TableCell>
-
-                <TableCell
-                  sx={{
-                    minWidth: "240px",
-                    maxWidth: "240px",
-                    width: "240px",
-                  }}
-                >
-                  <Typography
-                    component={"span"}
-                    color={theme.palette.primary.main}
-                    fontSize={"15px"}
-                    fontWeight={500}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <span>Status</span>
-                    <Box
-                      component={"span"}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      gap={"1px"}
-                      color={theme.palette.primary.main}
-                      sx={{
-                        [`& svg`]: {
-                          width: "8px",
-                          height: "6px",
-                          cursor: "pointer",
-                        },
-                        [`& svg.arrow-down`]: {
-                          scale: "-1",
-                        },
-                      }}
-                    >
-                      <Tooltip
-                        placement="top"
-                        title="ASC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "QuestionTypeNameASC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() =>
-                            handleOrderBy("QuestionTypeName", "ASC")
-                          }
-                        >
-                          <CaretupIcon />
-                        </span>
-                      </Tooltip>
-                      <Tooltip
-                        placement="top"
-                        title="DESC"
-                        style={{
-                          height: "6px",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <span
-                          className={`${checkorderBy === "QuestionTypeNameDESC"
-                            ? "sortActiveTitle"
-                            : ""
-                            }`}
-                          onClick={() =>
-                            handleOrderBy("QuestionTypeName", "DESC")
-                          }
-                        >
-                          <CaretupIcon className="arrow-down" />
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    component={"span"}
-                    color={theme.palette.primary.main}
-                    fontSize={"15px"}
-                    fontWeight={500}
-                  >
-                    &nbsp;
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {selectedQuestionData?.results?.map((tdata: any) => (
-                <TableRow key={tdata.id}>
-                  <TableCell>
-                    <Stack direction="row">
-                      <Box>
-                        <CustomCheckbox
-                          //   defaultChecked
-                          color="primary"
-                          // className="c-checkbox"
-                          inputProps={{
-                            "aria-label": "checkbox with default color",
-                          }}
-                          onChange={() => handleChange(tdata.ExamQuestionID)}
-                          checked={checkedItems[tdata.ExamQuestionID] || false}
-                          className="checkbox_style"
-                          sx={commonCheckboxField}
-                        />
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color={theme.palette.secondary.fieldText}
-                      variant="h6"
-                      fontWeight={400}
-                      fontSize={"14px"}
-                    >
-                      <Tooltip
-                        title={
-                          tdata?.ExamQuestionStatus == 1 ? "Active" : "Inactive"
-                        }
-                      >
-                        <Box
-                          component="span"
-                          sx={{
-                            padding: 0,
-                            backgroundColor:
-                              tdata.ExamQuestionStatus == 1
-                                ? "#44D3BB"
-                                : "#FC4B6C",
-                            marginRight: "10px",
-                            borderRadius: "50%",
-                            width: "8px",
-                            height: "8px",
-                            display: "inline-block",
-                            lineHeight: 0,
-                            cursor: "pointer",
-                          }}
-                        ></Box>
-                      </Tooltip>
-                      {tdata.QuestionTextID}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color={theme.palette.secondary.fieldText}
-                      variant="h6"
-                      fontWeight={400}
-                      fontSize={"14px"}
-                    >
-                      {tdata.BookletID}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color={theme.palette.secondary.fieldText}
-                      variant="h6"
-                      fontWeight={400}
-                      fontSize={"14px"}
-                    >
-                      {tdata.CourseTypeName}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color={theme.palette.secondary.fieldText}
-                      variant="h6"
-                      fontWeight={400}
-                      fontSize={"14px"}
-                    >
-                      {tdata.QuestionTopicName}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color={theme.palette.secondary.fieldText}
-                      variant="h6"
-                      fontWeight={400}
-                      fontSize={"14px"}
-                    >
-                      {tdata.ExamQuestionStatus == 1 ? "Active" : "Removed"}
-                    </Typography>
-                  </TableCell>
-                  <TableCell className="sticky-col" sx={stickyColStyle}>
-                    {selectedCheckboxes?.length <= 1 ? (
-                      <>
-                        <IconButton
-                          id="basic-button"
-                          aria-controls={open ? "basic-menu" : undefined}
-                          aria-haspopup="true"
-                          aria-expanded={open ? "true" : undefined}
-                          onClick={(e) =>
-                            handleClick(
-                              e,
-                              tdata.ExamQuestionID,
-                              tdata.QuestionID,
-                              tdata.ExamQuestionStatus
-                            )
-                          }
-                          sx={{
-                            transform: "rotate(90deg)",
-                          }}
-                          className="menu_dots"
-                        >
-                          <IconDotsVertical width={18} />
-                        </IconButton>
-                        <Menu
-                          id="basic-menu"
-                          anchorEl={anchorEl}
-                          open={open}
-                          onClose={handleClose}
-                          MenuListProps={{
-                            "aria-labelledby": "basic-button",
-                          }}
-                          sx={{
-                            ...commonMenuStyle,
-                          }}
-                          transformOrigin={{
-                            horizontal: "center",
-                            vertical: "top",
-                          }}
-                          anchorOrigin={{
-                            horizontal: "center",
-                            vertical: "bottom",
-                          }}
-                        >
-                          {/* <MenuItem onClick={handleClose}>Edit</MenuItem> */}
-                          <MenuItem
-                            onClick={() =>
-                              handlePreviewModalOpen(previewQuestionId)
-                            }
-                          >
-                            View
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => {
-                              handleDeleteSelectedQuestion(
-                                selectedAssignQuestionId
-                              );
-                            }}
-                          >
-                            Delete
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() =>
-                              updateQuestionStatus(selectedQuestionStatus)
-                            }
-                          >
-                            Update Status
-                          </MenuItem>
-
-                          <MenuItem
-                            onClick={() =>
-                              removeKeepInReportQuestion(selectedAssignQuestionId)
-                            }
-                          >
-                            Remove & keep in report
-                          </MenuItem>
-                          {/* <MenuItem onClick={() => router.push("/audit-trail")}>
-                            View Logs
-                          </MenuItem>
-                          <MenuItem>Reports</MenuItem> */}
-                        </Menu>
-                      </>
-                    ) : (
-                      <>
-                        <IconButton disabled className="menu_dots">
-                          <IconDots width={20} />
-                        </IconButton>
-                      </>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <>
-          {/* {selectedCheckboxes?.length > 0 && (
-            <Box
-              px={3.3}
-              py={1.5}
-              sx={{
-                borderTop: "1px solid #e5eaef",
-              }}
-            >
-              <Button
-                sx={{
-                  borderRadius: "5px",
-                  color: "#fff",
-                  backgroundColor: theme.palette.primary.main,
-                  padding: "8px 25px",
-                  minWidth: "110px",
-                  "&:hover": {
-                    color: "#fff",
-                    backgroundColor: theme.palette.primary.main,
-                  },
-                }}
-                onClick={() =>
-                  handleDeleteSelectedQuestion(selectedAssignQuestionId)
-                }
-              >
-                Delete
-              </Button>
-            </Box>
-          )} */}
-        </>
+        <CustomTable
+          columns={columns}
+          rows={selectedQuestionData?.results || []}
+          onOrderBy={handleOrderBy}
+          onSelectAll={handleAllChange}
+          onSelectOne={handleChange}
+          allChecked={allChecked}
+          checkedItems={checkedItems}
+          actions={[
+            {
+              label: "Delete",
+              onClick: (row) =>
+                handleDeleteSelectedQuestion(row.ExamQuestionID),
+            },
+            {
+              label: "Update Status",
+              onClick: (row) => updateQuestionStatus(row.ExamQuestionStatus),
+            },
+            {
+              label: "Remove & keep in report",
+              onClick: (row) => removeKeepInReportQuestion(row.ExamQuestionID),
+            },
+          ]}
+        />
         <DeleteModalComponent
           open={openModal}
           handleClose={handleModalClose}
@@ -1625,197 +911,6 @@ export default function StationManagement() {
           </Button>
         </Box>
       </Box>
-      <Dialog
-        open={modalPreviewOpen}
-        onClose={handlePreviewModalClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        sx={{
-          zIndex: 1301,
-          "& .MuiPaper-root": {
-            width: "100%",
-            maxWidth: "1400px",
-            padding: "15px",
-            paddingTop: "30px",
-            bgcolor: "#fff",
-          },
-          "& .MuiTabPanel-root": {
-            // marginTop:"15px"
-          },
-        }}
-        className="q-modal"
-      >
-        <IconButton
-          aria-label="close"
-          onClick={handlePreviewModalClose}
-          sx={{
-            position: "absolute",
-            right: 7,
-            top: 3,
-            color: "#000",
-          }}
-        >
-          {/* <CloseIcon /> */}
-          <IconX stroke={2} />
-        </IconButton>
-        <Stack mt={"20px"}>
-          <Grid container spacing={"30px"}>
-            {previewData?.QuestionCaseStudy && (
-              <Grid item md={6}>
-                <Stack
-                  sx={{
-                    p: "30px",
-                    background: "#F9FDFF",
-                    border: "1px solid #738A9633",
-                    borderRadius: "5px",
-                  }}
-                >
-                  <Stack mb={"30px"}>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontSize: "15px",
-                        fontWeight: 400,
-                        color: theme.palette.primary.main,
-                        mb: "9px",
-                      }}
-                    >
-                      Case Study
-                    </Typography>
-                    <Typography
-                      variant="h4"
-                      sx={{
-                        fontSize: "15px",
-                        fontWeight: 400,
-                        color: "#7A878D",
-                        "& table": {
-                          tableLayout: "fixed",
-                        },
-                        "& *": {
-                          maxWidth: "100% !important",
-                          fontSize: "15px",
-                          lineHeight: "24px",
-                          fontWeight: 400,
-                          padding: "0px !important",
-                          m: "0px !important",
-                        },
-                      }}
-                    >
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: previewData?.QuestionCaseStudyText
-                            ? previewData?.QuestionCaseStudyText
-                            : "",
-                        }}
-                      />
-                    </Typography>
-                  </Stack>
-                  <Stack>
-                    <TableContainer>
-                      <Table
-                        sx={{
-                          borderRadius: "4px",
-                          border: `1px solid ${theme.palette.mode === "light" ? "#000" : "#FFF"
-                            }`,
-                          borderCollapse: "collapse",
-                          borderSpacing: "0px",
-                          fontSize: "12px",
-                          tableLayout: "fixed",
-                          lineHeight: "14px",
-                          background: "#fff",
-                          "& tr:nth-child(even) td": {
-                            bgcolor: "#C9E3F9",
-                          },
-                          "& td": {
-                            borderRight: `1px solid ${theme.palette.mode === "light" ? "#000" : "#FFF"
-                              }`,
-                            borderBottom: `1px solid ${theme.palette.mode === "light" ? "#000" : "#FFF"
-                              }`,
-                            minWidth: "33.3%",
-                            width: "33.3%",
-                            p: "14px 10px",
-                            "&:last-child": {
-                              borderRight: "0px",
-                            },
-                          },
-                        }}
-                        dangerouslySetInnerHTML={{
-                          __html: previewData?.QuestionCaseStudy,
-                        }}
-                      ></Table>
-                    </TableContainer>
-                  </Stack>
-                  {previewData?.CaseStudyImages?.length > 0 &&
-                    previewData?.CaseStudyImages?.map((imageData: any) => (
-                      <>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            position: "relative",
-                            width: "fit-content",
-                            margin: "10px auto",
-                            maxWidth: "100%",
-                            "& img": {
-                              height: "auto",
-                              width: "auto",
-                              maxWidth: "100%",
-                              objectFit: "contain",
-                              gap: "40px",
-                            },
-                          }}
-                        >
-                          <Image
-                            src={imageData?.CaseStudyImage}
-                            alt={"question-preview"}
-                            width={363}
-                            height={240}
-                            style={{
-                              objectFit: "cover",
-                              borderRadius: "6px",
-                            }}
-                          />
-                        </Box>
-                      </>
-                    ))}
-                </Stack>
-              </Grid>
-            )}
-            <Grid
-              item
-              md={previewData?.QuestionCaseStudy ? 6 : 12}
-              mt={"0px !important"}
-            >
-              <Stack
-                sx={{
-                  p: "30px",
-                  background: "#F9FDFF",
-                  border: "1px solid #738A9633",
-                  borderRadius: "5px",
-                }}
-              >
-                <QuestionOptions
-                  type={previewData?.QuestionTypeFor}
-                  primaryImage={previewData?.QuestionImageList?.PrimaryMedia}
-                  secondaryImage={
-                    previewData?.QuestionImageList?.SecondaryMedia
-                  }
-                  viewImage={previewData?.QuestionImageList?.AdditionalMedia}
-                  tabValue={tabValue}
-                  multipleImage={
-                    previewData?.QuestionImageList?.AdditionalMedia
-                  }
-                  questionText={previewData?.QuestionText}
-                  questionData={previewData}
-                  handleChange={tabHandelChange}
-                  caseStudy={previewData?.QuestionCaseStudy ? true : false}
-                />
-              </Stack>
-            </Grid>
-          </Grid>
-        </Stack>
-      </Dialog>
     </PageContainer>
   );
 }

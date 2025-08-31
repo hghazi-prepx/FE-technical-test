@@ -72,9 +72,9 @@
 //     {id: 71, name: "India"},
 //     {id: 72, name: "Indonesia"},
 //     {id: 73, name: 'Iran'}
-// ]  
+// ]
 
 export const countries = [
-    { id: 31, name: "Canada" },
-    { id: 71, name: "India" }
-]  
+  { id: 31, name: "Canada" },
+  { id: 71, name: "India" },
+];
