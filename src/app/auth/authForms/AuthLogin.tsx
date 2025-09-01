@@ -1,27 +1,25 @@
-import React, { useState } from "react";
+import CustomOutlinedInput from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomOutlinedInput";
+import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
+import { loginType } from "@/app/(DashboardLayout)/types/auth/auth";
 import {
+  Box,
+  Button,
   CircularProgress,
   IconButton,
   InputAdornment,
+  Stack,
   styled,
+  Typography,
 } from "@mui/material";
-import { Box, Typography, Button, Stack } from "@mui/material";
-import Link from "next/link";
-import { loginType } from "@/app/(DashboardLayout)/types/auth/auth";
-import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
-import CustomFormLabel from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomFormLabel";
-import { useRouter } from "next/navigation";
-import { getSession, signIn } from "next-auth/react";
+import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useFormik } from "formik";
-import * as yup from "yup";
-// Removed useDataContext import
-import { IconEyeOff } from "@tabler/icons-react";
-import { IconEye } from "@tabler/icons-react";
-import CustomOutlinedInput from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomOutlinedInput";
-import { useTheme } from "@mui/material/styles";
-import fetchApi from "../../../utils/apiCall/index";
-import { height } from "@mui/system";
+import { getSession, signIn } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import * as yup from "yup";
+import fetchApi from "../../../utils/apiCall/index";
 export const APIURL = process.env.NEXT_PUBLIC_API_URL;
 
 const validationSchema = yup.object({
@@ -30,9 +28,7 @@ const validationSchema = yup.object({
 });
 
 const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
-  const theme = useTheme();
   const [loading, setLoading] = React.useState(false);
-  // Removed hostName context - no longer needed
   const [errormsg, setErrormsg] = useState("");
   const [successmsg, setSuccessmsg] = useState("");
   const router = useRouter();
@@ -44,22 +40,17 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      // Removed hostName check - using default UserType
       let UserType = 3;
       const repsignin = await signIn("credentials", {
         UserName: values.UserName,
         UserPassword: values.UserPassword,
         redirect: false,
-        UserType: 3,
+        UserType: UserType,
       });
-      console.log("AuthLogin | repsignin : ", repsignin);
       if (repsignin?.ok) {
-        console.log("AuthLogin | repsignin1111 : ", repsignin);
         window.localStorage.setItem("manualLogin", "true");
-        // Get Role Based Permisssion and Store in localstorage
         await fetchApi(`${APIURL}user/getRoleBasedPermission`, "GET")
           .then(async (response: any) => {
-            console.log("getRoleBasedPermission : ", response);
             if (response.success) {
               window.localStorage.setItem(
                 "RolePermissions",
@@ -82,10 +73,8 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               if (isPasswordUpdated !== undefined && isPasswordUpdated == 0) {
                 router.push("/update-password");
               } else if (loginRoleID === 3 || loginRoleID === 2) {
-                // router.push("/dashboard");
                 window.location.href = "/Exam-Management";
               } else {
-                // router.push("/");
                 window.location.href = "/Exam-Management";
               }
             }
@@ -172,7 +161,6 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
             id="UserName"
             variant="outlined"
             fullWidth
-            //onChange={handleUsernameChange}
             onChange={formik.handleChange}
             error={formik.touched.UserName && Boolean(formik.errors.UserName)}
             helperText={formik.touched.UserName && formik.errors.UserName}
@@ -214,7 +202,6 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
             type={showPassword ? "text" : "password"}
             variant="outlined"
             fullWidth
-            //onChange={handlepasswordChange}
             onChange={formik.handleChange}
             error={
               formik.touched.UserPassword && Boolean(formik.errors.UserPassword)
@@ -227,7 +214,6 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
                 <IconButton
                   aria-label="toggle password visibility"
                   onClick={handleClickShowPassword}
-                  // onMouseDown={handleMouseDownPassword}
                   edge="end"
                   sx={{
                     color: formik.errors.UserPassword ? "#FC4B6C" : "",
@@ -305,31 +291,6 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
           </Button>
         )}
       </Box>
-      {/* <Button
-        color="primary"
-        variant="contained"
-        size="large"
-        fullWidth
-        type="submit"
-        sx={{
-          marginTop: "24px",
-          bgcolor: "#FFF",
-          color: "#02376D",
-          border: "1px solid #02376D",
-          fontWeight: 500,
-          borderRadius: "5px",
-          fontSize: "15px",
-          lineHeight: "17.6px",
-          boxShadow: "none",
-          "&:hover": {
-            bgcolor: "#FFF",
-            color: "#02376D",
-            boxShadow: "none",
-          },
-        }}
-      >
-        Sign Up
-      </Button> */}
       <Box
         display="flex"
         alignItems="center"

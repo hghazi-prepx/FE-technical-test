@@ -67,6 +67,7 @@ import { IconDots } from "@tabler/icons-react";
 import QuestionOptions from "@/components/QuestionOptions";
 import ExamWizardSteps from "@/components/ExamWizardSteps";
 import DeleteModalComponent from "@/components/DeleleModalComponent";
+import LoadingButton from "@/components/ui/LoadingButton";
 import {
   createQuestionForNewExam,
   deleteQuestionForNewExam,
@@ -397,8 +398,8 @@ export default function StationManagement() {
    * @ Function Purpose   : Calling API for deleting station
    */
   const handleDeleteSelectedQuestion = async (id?: any) => {
-    console.log("id: ", id);
-    console.log("selectedCheckboxes: ", selectedCheckboxes);
+    // console.log("id: ", id);
+    // console.log("selectedCheckboxes: ", selectedCheckboxes);
     let finalArray: any = [];
     if (id) {
       finalArray.push(id);
@@ -859,29 +860,31 @@ export default function StationManagement() {
                     right: "6px",
                   }}
                 >
-                  <Button
-                    sx={{
-                      ...primaryButon,
-                      height: "38px",
-                      p: "9px 16px",
-                      zIndex: "10",
-                      "&:disabled": {
-                        opacity: 0.8,
-                      },
-                      "& svg": {
-                        mr: "2px",
-                        width: "16px",
-                      },
-                    }}
-                    onClick={() =>
-                      selectedQuestionIds?.length > 0
-                        ? handleAssignQuestion()
-                        : ""
-                    }
-                  >
-                    <PlusIcon />
-                    Assign
-                  </Button>
+                                     <LoadingButton
+                     sx={{
+                       ...primaryButon,
+                       height: "38px",
+                       p: "9px 16px",
+                       zIndex: "10",
+                       "&:disabled": {
+                         opacity: 0.8,
+                       },
+                       "& svg": {
+                         mr: "2px",
+                         width: "16px",
+                       },
+                     }}
+                    //  loading={isLoading}
+                     loadingText="Assigning..."
+                     onClick={() =>
+                       selectedQuestionIds?.length > 0
+                         ? handleAssignQuestion()
+                         : ""
+                     }
+                   >
+                     <PlusIcon />
+                     Assign
+                   </LoadingButton>
                 </Box>
               </Stack>
             </Box>
@@ -1612,17 +1615,17 @@ export default function StationManagement() {
           >
             Skip for now
           </Button>
-          <Button
-            sx={{
-              ...primaryButon,
-            }}
-            // type="submit"
-            onClick={() => {
-              router.push(`/acj-exam/assign-trainee?examid=${examId}`);
-            }}
-          >
-            Next
-          </Button>
+                     <LoadingButton
+             sx={{
+               ...primaryButon,
+             }}
+             // type="submit"
+             onClick={() => {
+               router.push(`/acj-exam/assign-trainee?examid=${examId}`);
+             }}
+           >
+             Next
+           </LoadingButton>
         </Box>
       </Box>
       <Dialog

@@ -5,6 +5,11 @@ import WithPaginationSelect from "./WithPaginationSelect";
 import { PAGINATION } from "@/utils/Constants";
 import { minHeight } from "@mui/system";
 
+interface IHandlePagination {
+  rowsPerPage: number;
+  page: number;
+}
+
 interface CustomPaginationProps {
   align?: string;
   totalPageCount: number;

@@ -1,12 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PageContainer from "../../components/container/PageContainer";
 import Breadcrumb from "../../layout/shared/breadcrumb/Breadcrumb";
 import {
   Button,
   Card,
-  CardContent,
-  Link,
   Stack,
   Table,
   TableBody,
@@ -16,23 +14,26 @@ import {
   TableRow,
   Typography,
   useTheme,
+  Alert,
+  Box,
+  Chip,
+  Divider,
+  Grid,
 } from "@mui/material";
-import { PhoneIcon } from "@/components/Icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loading from "../../loading";
-import { stationList } from "../stations";
 import {
   commonContentCardStyle,
   primaryButon,
   secondaryButon,
+  commonFieldLabelStyle,
 } from "@/utils/commonstyles";
 import ExamWizardSteps from "@/components/ExamWizardSteps";
-import CustomTablePagination from "@/components/CustomPagination";
-import usePagination2 from "@/hooks/usePagination2";
-import { PAGINATION } from "@/utils/Constants";
-import toast from "../../components/Toast/index";
-
-const { DEFAULT_TOTAL_PAGE, DEFAULT_PAGE } = PAGINATION;
+import { useReviewDetails } from "@/hooks/useReviewDetails";
+import LoadingButton from "@/components/ui/LoadingButton";
+import { formatExamDate, formatExamDateTime, formatCreatedDate } from "@/utils/dateUtils";
+import { getExamTypeNameById } from "@/business/exam/examTypes";
+import { useExamManagement } from "@/hooks/useExamManagement";
 
 const BCrumb = [
   {
@@ -48,1170 +49,304 @@ const BCrumb = [
   },
 ];
 
-const timezones = [
-  {
-    id: "1",
-    label: "EST",
-  },
-  {
-    id: "2",
-    label: "GMT",
-  },
-  {
-    id: "3",
-    label: "PST",
-  },
-];
-
-// get iMock exam by Id
-
 const ReviewDetails = () => {
-  // alert("ReviewDetails");
   const router = useRouter();
-  const searchRouter = useSearchParams();
+  const searchParams = useSearchParams();
   const theme = useTheme();
-  const examId: any = searchRouter.get("examid");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [iMockExamData] = useState<any>();
-  const [selectedStudentData] = useState<any>({ results: [], totalPages: 0, totalRecords: 0 });
-  const [selectedQuestionData] = useState<any>({ results: [], totalPages: 0, totalRecords: 0 });
-  const { setPage, page, setRowsPerPage, rowsPerPage, handlePagination } =
-    usePagination2();
-  const localUserTimeZone = 'America/Toronto';
+  const examId = searchParams.get("examid");
 
   const {
-    setPage: setPage1,
-    page: page1,
-    setRowsPerPage: setRowsPerPage1,
-    rowsPerPage: rowsPerPage1,
-    handlePagination: handlePagination1,
-  } = usePagination2();
+    examData,
+    studentData,
+    questionData,
+    isLoading,
+    isPublishing,
+    error,
+    publishExam,
+  } = useReviewDetails();
 
+  const { examTypes } = useExamManagement();
 
-
-
-  /**
-   * @ Function Name      : handleChangeRowsPerPage
-   * @ Function Purpose   : To change page size
-   */
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(1);
-  };
-
-  /**
-   * @ Function Name      : handleChangePage
-   * @ Function Purpose   : For change page
-   */
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  /**
-   * @ Function Name      : handleChangeRowsPerPage
-   * @ Function Purpose   : To change page size
-   */
-  const handleChangeRowsPerPage1 = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage1(parseInt(event.target.value, 10));
-    setPage1(0);
-  };
-
-  /**
-   * @ Function Name      : handleChangePage
-   * @ Function Purpose   : For change page
-   */
-  const handleChangePage1 = (event: unknown, newPage: number) => {
-    setPage1(newPage);
-  };
-
-
-  const countTotalAddedTrainee = (id: any) => {
-    let count = 0;
-    selectedStudentData?.forEach((item: any) => {
-      if (item.CampusID == id) {
-        count++;
-      }
-    });
-    return count;
-  };
-
-  const getTimeZone = (TimeZoneID: any) => {
-    const zone = timezones?.find(
-      (timeZoneData: any) => timeZoneData.id == TimeZoneID
+  const getStatusChip = (status: number) => {
+    return (
+      <Chip
+        label={status === 1 ? "Active" : "Inactive"}
+        color={status === 1 ? "success" : "default"}
+        size="small"
+      />
     );
-    return zone?.label;
-    // setTimeZone(zone)
   };
 
-  const getStationNameById = (id: any) => {
-    const stationData = stationList?.find(
-      (stationData: any) => stationData.value == id
-    );
-    return stationData?.label;
+  const handleBack = () => {
+    router.push("/Exam-Management");
   };
 
-  const updateExamDataStatus = async () => {
-    if (selectedQuestionData.totalRecords == 0) {
-      toast({
-        type: "error",
-        message: "Please select a Question for the exam",
-      });
-      return;
-    }
-    try {
-      setIsLoading(true);
-      // let detailsArray: any = [];
-      // detailsArray = selectedStudentData?.map((data: any, index: any) => ({
-      //   LocationID: data?.CampusID,
-      //   StudentID: data?.StudentID,
-      //   ExamID: data?.ExamID,
-      //   CampusOrderNumber: index + 1,
-      //   StudentTextID: data?.StudentIDText,
-      // }));
-
-      const bodyData = {
-        Status: 1,
-      };
-      // const reviewBody = {
-      //   ExamID: examId,
-      //   examReviewDetails: detailsArray,
-      // };
-      // const reviewData = await createExamReviewDetail(reviewBody);
-      const result = await updateIMockExamStatus(examId, bodyData);
-      if (result?.success) {
-        router.push("/Exam-Management");
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.log("error: ", error);
-    }
+  const handleEdit = () => {
+    router.push(`/acj-exam/edit-acj-exam/${examId}`);
   };
-
-
 
   if (isLoading) {
     return <Loading />;
   }
+
+  if (error) {
+    return (
+      <PageContainer title="Review Details" description="Review Details">
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button sx={{ ...secondaryButon }} onClick={handleBack}>
+          Back to Exam Management
+        </Button>
+      </PageContainer>
+    );
+  }
+
   return (
     <PageContainer title="Review Details" description="Review Details">
       <ExamWizardSteps step={3} examid={examId} />
-      {/* breadcrumb */}
-      <Breadcrumb title="Review Details" items={undefined} />
+      <Breadcrumb title="Review Details" items={BCrumb} />
 
-      <Card sx={commonContentCardStyle}>
-        <Stack>
-          <TableContainer>
-            <Table
-              aria-label="simple table"
-              sx={{
-                whiteSpace: "nowrap",
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>PrepX ID</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Exam Number</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Exam Name</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Exam Type</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Exam Created</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Date and Time of Exam</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Due Date and Time</span>
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <Stack>
-                      <Typography variant="h6">Exam details should go here</Typography>
-                    </Stack>
-                  </TableCell>
-                  {/* <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamIDText}
-                  </TableCell>
-
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamIDText}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamName}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamTypeName}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.CreatedOn
-                      ? moment(iMockExamData?.CreatedOn).format("MM-DD-YYYY")
-                      : ""}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamAvailabilityDate
-                      ? moment
-                        .tz(iMockExamData?.ExamAvailabilityDate, localUserTimeZone)
-                        .format("YYYY-MM-DD hh:mm A z") : "-"}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamDueDate
-                      ? moment
-                        .tz(iMockExamData?.ExamDueDate, localUserTimeZone)
-                        .format("YYYY-MM-DD hh:mm A z") : "-"}
-                  </TableCell> */}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Stack>
-        <Stack marginTop={"24px"}>
-          <Button
-            sx={{ ...secondaryButon, width: "fit-content" }}
-            onClick={() => router.push(`/acj-exam/edit-acj-exam/${examId}`)}
-          >
-            <span>Edit Section</span>
-          </Button>
-        </Stack>
-      </Card>
-
-      {/* Trainee block */}
-      <Card sx={commonContentCardStyle}>
-        <Stack>
-          <TableContainer>
-            <Table
-              aria-label="simple table"
-              sx={{
-                whiteSpace: "nowrap",
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Trainee ID</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Trainee Name</span>
-                    </Typography>
-                  </TableCell>
-
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Status</span>
-                      </Typography>
-                    </TableCell> */}
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Exam Type</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Email</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Location</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>LMS ID</span>
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <Stack>
-                      <Typography variant="h6">Trainee details should go here</Typography>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-                {selectedStudentData?.results?.map((item: any, index: any) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.UserRoleTextID}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.UserTitleName}
-                    </TableCell>
-                    {/* <TableCell
-                          sx={{
-                            paddingLeft: 0,
-                            borderBottom: 0,
-                            fontSize: "15px",
-                            color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                            fontWeight: 400,
-                          }}
-                        >
-                          {item.StudentStatus === 1 ? "Active" : "Incative"}
-                        </TableCell> */}
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {iMockExamData?.ExamTypeName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.UserEmail || '-'}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.CampusName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color: theme.palette.secondary.fieldText,
-                        fontWeight: 400,
-                      }}
-                    >
-                      <Stack
-                        gap={"10px"}
-                        alignItems={"center"}
-                        display={"flex"}
-                        direction={"row"}
-                        color={theme.palette.primary.main}
-                        sx={{
-                          "& svg path": {
-                            fill: `${theme.palette.primary.main} !important`,
-                          },
-                        }}
-                      >
-                        {/* <PhoneIcon />{" "} */}
-                        {/* <Link
-                          sx={{
-                            color: theme.palette.primary.main,
-                            textDecorationColor: theme.palette.primary.main,
-                          }}
-                        >
-                        </Link> */}
-                        {item.LMSOrgDefinedId || '-'}
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <CustomTablePagination
-              totalPageCount={selectedStudentData?.totalPages}
-              totalRecords={selectedStudentData?.totalRecords}
-              currentPage={page}
-              rowsPerPage={rowsPerPage}
-              handlePagination={handlePagination}
-            />
-          </TableContainer>
-        </Stack>
-        <Stack marginTop={"24px"}>
-          <Button
-            sx={{ ...secondaryButon, width: "fit-content" }}
-            onClick={() =>
-              router.push(`/acj-exam/assign-trainee?examid=${examId}`)
-            }
-          >
-            <span>Edit Section</span>
-          </Button>
-        </Stack>
-      </Card>
-
-      {/* station details */}
-      <Card sx={commonContentCardStyle}>
-        <Stack>
-          <TableContainer>
-            <Table
-              aria-label="simple table"
-              sx={{
-                whiteSpace: "nowrap",
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Question ID</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Booklet</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Course Type</span>
-                    </Typography>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Topic</span>
-                    </Typography>
-                  </TableCell>
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Chapter</span>
-                      </Typography>
-                    </TableCell> */}
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Section</span>
-                      </Typography>
-                    </TableCell> */}
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Slide</span>
-                      </Typography>
-                    </TableCell> */}
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                    }}
-                  >
-                    <Typography
-                      color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                    >
-                      <span>Status</span>
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <Stack>
-                      <Typography variant="h6">Question details should go here</Typography>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-                {selectedQuestionData?.results.map((item: any, index: any) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.QuestionTextID}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.BookletID}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.CourseTypeName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.QuestionTopicName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.ExamQuestionStatus == 1 ? "Active" : "Removed"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <CustomTablePagination
-              totalPageCount={selectedQuestionData?.totalPages}
-              totalRecords={selectedQuestionData?.totalRecords}
-              currentPage={page1}
-              rowsPerPage={rowsPerPage1}
-              handlePagination={handlePagination1}
-            />
-          </TableContainer>
-        </Stack>
-        <Stack marginTop={"24px"}>
-          <Button
-            sx={{ ...secondaryButon, width: "fit-content" }}
-            onClick={() =>
-              router.push(`/acj-exam/question-selection?examid=${examId}`)
-            }
-          >
-            <span>Edit Section</span>
-          </Button>
-        </Stack>
-      </Card>
-
-      {/* Location details */}
-      {/* {iMockExamData?.ExamTypeName == "Mock" ? (
+      {examData && (
         <Card sx={commonContentCardStyle}>
-          <Stack>
-            <TableContainer>
-              <Table
-                aria-label="simple table"
-                sx={{
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Seats</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Date</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Time</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Country</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Campus</span>
-                      </Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+            <Typography variant="h5" fontWeight={600}>
+              Exam Details
+            </Typography>
+            <Stack direction="row" spacing={2}>
+              <Button sx={{ ...secondaryButon }} onClick={handleBack}>
+                Back
+              </Button>
+              <Button sx={{ ...primaryButon }} onClick={handleEdit}>
+                Edit Exam
+              </Button>
+            </Stack>
+          </Stack>
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>PrepX ID</Typography>
+                <Typography variant="body1" fontWeight={500}>
+                  {examData.ExamIDText || `EXAM-${examData.ExamID}`}
+                </Typography>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Status</Typography>
+                {getStatusChip(examData.Status)}
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Exam Name</Typography>
+                <Typography variant="body1" fontWeight={500}>
+                  {examData.ExamName}
+                </Typography>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Exam Type</Typography>
+                <Typography variant="body1">
+                  {getExamTypeNameById(examTypes, examData.ExamTypeID)}
+                </Typography>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Course Type</Typography>
+                <Typography variant="body1">
+                  {examData.ExamCourseType || "N/A"}
+                </Typography>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Number of Attempts</Typography>
+                <Typography variant="body1">
+                  {examData.ExamNumberofAttempts || "Unlimited"}
+                </Typography>
+              </Stack>
+            </Grid>
+
+            {examData.ShortDescription && (
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <Typography sx={commonFieldLabelStyle}>Short Description</Typography>
+                  <Typography variant="body1">
+                    {examData.ShortDescription}
+                  </Typography>
+                </Stack>
+              </Grid>
+            )}
+
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }} />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                Timing Information
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Availability Date</Typography>
+                <Typography variant="body1">
+                  {examData.ExamAvailabilityDate 
+                    ? formatExamDate(examData.ExamAvailabilityDate)
+                    : "Not set"
+                  }
+                </Typography>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Due Date</Typography>
+                <Typography variant="body1">
+                  {examData.ExamDueDate 
+                    ? formatExamDate(examData.ExamDueDate)
+                    : "Not set"
+                  }
+                </Typography>
+              </Stack>
+            </Grid>
+
+            {examData.ExamSetTimeLimit === 1 && (
+              <Grid item xs={12} md={6}>
+                <Stack spacing={1}>
+                  <Typography sx={commonFieldLabelStyle}>Time Limit</Typography>
+                  <Typography variant="body1">
+                    {examData.ExamTimeLimit} minutes
+                  </Typography>
+                </Stack>
+              </Grid>
+            )}
+
+            <Grid item xs={12} md={6}>
+              <Stack spacing={1}>
+                <Typography sx={commonFieldLabelStyle}>Number of Questions</Typography>
+                <Typography variant="body1">
+                  {examData.ExamNumberofQuestions}
+                </Typography>
+              </Stack>
+            </Grid>
+          </Grid>
+        </Card>
+      )}
+
+      {studentData && (
+        <Card sx={{ ...commonContentCardStyle, mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Trainee Information
+          </Typography>
+          
+          <Stack direction="row" spacing={2} mb={2}>
+            <Typography variant="body1">
+              <strong>Total Students:</strong> {studentData.totalStudents}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Assigned Students:</strong> {studentData.assignedStudents}
+            </Typography>
+          </Stack>
+
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {studentData.students?.map((student: any) => (
+                  <TableRow key={student.id}>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={student.status}
+                        color={student.status === "Assigned" ? "success" : "warning"}
+                        size="small"
+                      />
                     </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {saveExamData?.results?.map((item: any, index: any) => (
-                    <TableRow key={index}>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {item.CampusIDCount}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {moment(item?.ExamCampusDateTime).format("MMM-DD-YYYY")}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {moment.utc(item?.ExamCampusDateTime).format("hh:mm A")}{" "}
-                        {item?.GoogleTimezone}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {item.CountryName}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {item.CampusName}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Stack>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Card>
-      ) : (
-        <span></span>
-      )} */}
+      )}
 
-      <Stack
-        display={"flex"}
-        direction={"row"}
-        gap={"10px"}
-        justifyContent={"flex-end"}
-      >
-        {/* {iMockExamData?.Status != 1 && ( */}
-        <Button
-          sx={{
-            ...primaryButon,
-          }}
-          onClick={() => updateExamDataStatus()}
-        >
-          Publish
+      {questionData && (
+        <Card sx={{ ...commonContentCardStyle, mt: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Question Information
+          </Typography>
+          
+          <Stack direction="row" spacing={2} mb={2}>
+            <Typography variant="body1">
+              <strong>Total Questions:</strong> {questionData.totalQuestions}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Assigned Questions:</strong> {questionData.assignedQuestions}
+            </Typography>
+          </Stack>
+
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Question ID</TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {questionData.questions?.map((question: any) => (
+                  <TableRow key={question.id}>
+                    <TableCell>{question.id}</TableCell>
+                    <TableCell>{question.title}</TableCell>
+                    <TableCell>{question.type}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={question.status}
+                        color={question.status === "Active" ? "success" : "default"}
+                        size="small"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      )}
+
+      <Box sx={{ mt: 3, display: "flex", gap: 2, justifyContent: "flex-end" }}>
+        <Button sx={{ ...secondaryButon }} onClick={handleBack}>
+          Back to Exam Management
         </Button>
-        {/* )} */}
-        {/* <Button
-          sx={{
-            ...primaryButon,
-            p: "9px 16px",
-            width: "fit-content",
-            background: theme.palette.secondary.textColor,
-            "&:disabled": {
-              background: "#738A9633",
-              borderColor: "#738A9633",
-            },
-            "&:hover": {
-              background: theme.palette.secondary.textColor,
-            },
-          }} */}
-        {/* onClick={() => router.push(`/situational-timer/${examId}`)} */}
-        {/* >
-          Start Session
-        </Button> */}
-      </Stack>
+        <LoadingButton
+          sx={{ ...primaryButon }}
+          loading={isPublishing}
+          loadingText="Publishing..."
+          onClick={publishExam}
+        >
+          Publish Exam
+        </LoadingButton>
+      </Box>
     </PageContainer>
   );
 };

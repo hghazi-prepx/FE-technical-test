@@ -1,3 +1,8 @@
+interface SelectOption {
+  value: string | number;
+  label: string;
+}
+
 export const MenuNameEnum = {
   Role: "Role",
   Admin: "Admin",

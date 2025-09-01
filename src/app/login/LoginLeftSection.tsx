@@ -40,7 +40,7 @@ export default function LoginLeftSection() {
               alt=""
             />
           </Box>
-          {/* <Image
+          <Image
             src={"/images/login/login-image.png"}
             alt="bg"
             width={660}
@@ -50,7 +50,7 @@ export default function LoginLeftSection() {
               height: "100%",
               objectFit: "cover",
             }}
-          /> */}
+          />
         </Box>
       </Box>
     </Grid>
