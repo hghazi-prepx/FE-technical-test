@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Typography,
@@ -13,20 +13,11 @@ import {
 } from "@mui/material";
 import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
 import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb";
+import moment from "moment";
 
-import {
-  PlusIcon,
-
-} from "@/components/Icons";
-
-import {
-
-  commonTableStyle,
-  createDropdownButtonStyle,
-
-} from "@/utils/commonstyles";
+import { PlusIcon } from "@/components/Icons";
+import { createDropdownButtonStyle, commonTableStyle } from "@/utils/commonstyles";
 import { useRouter } from "next/navigation";
-import theme from "@/utils/theme";
 import SortableHeader from "@/components/SortableHeader";
 
 const BCrumb = [
@@ -39,7 +30,14 @@ const BCrumb = [
  */
 const ImockExam = () => {
   const router = useRouter();
-  const [iMockExamData, setIMockExamData] = useState<any>();
+  const [iMockExamData, setIMockExamData] = useState<any[]>([]);
+
+  useEffect(() => {
+     const storedExams = localStorage.getItem('prepx_exams');
+     if (storedExams) {
+       setIMockExamData(JSON.parse(storedExams));
+     }
+   }, []);
 
   return (
     <PageContainer title="Exam Listing" description="Exam Listing">
@@ -137,15 +135,28 @@ const ImockExam = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  align="center"
-                  style={{ paddingTop: "16px", paddingBottom: "16px" }}
-                >
-                  <Typography variant="body1">Data should go here</Typography>
-                </TableCell>
-              </TableRow>
+              {iMockExamData.length > 0 ? (
+                 iMockExamData.map((exam, index) => (
+                   <TableRow key={index}>
+                     <TableCell>{exam.ExamIDText || `EXAM-${exam.ExamID}`}</TableCell>
+                     <TableCell>{exam.ExamType || 'Mock Exam'}</TableCell>
+                     <TableCell>{exam.ExamName}</TableCell>
+                     <TableCell>
+                       {exam.ExamDate ? moment(exam.ExamDate).format('DD/MM/YYYY') : 'N/A'}
+                     </TableCell>
+                   </TableRow>
+                 ))
+               ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    align="center"
+                    style={{ paddingTop: "16px", paddingBottom: "16px" }}
+                  >
+                    <Typography variant="body1">No exams found</Typography>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </Stack>

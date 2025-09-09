@@ -191,6 +191,17 @@ export default function StationManagement() {
       ascDesc: orderBy,
       ExamID: examId,
     };
+    await getQuestionListForNewExam(bodyData)
+      .then((result) => {
+        if (result?.success) {
+          setSelectedQuestionData(result.data || { results: [] });
+        }
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log("error: ", error);
+        setIsLoading(false);
+      });
   };
 
   const filterOptions: any = createFilterOptions({

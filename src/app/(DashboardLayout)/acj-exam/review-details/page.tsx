@@ -31,8 +31,26 @@ import CustomTablePagination from "@/components/CustomPagination";
 import usePagination2 from "@/hooks/usePagination2";
 import { PAGINATION } from "@/utils/Constants";
 import toast from "../../components/Toast/index";
+import { getOneExamForNewExam } from "@/services/newExamFlow/newExamFlowAPI";
+import moment from "moment";
+import { useExamWizard } from "@/store/examWizard/ExamWizardContext";
 
 const { DEFAULT_TOTAL_PAGE, DEFAULT_PAGE } = PAGINATION;
+
+// Mock function to simulate updating exam status
+const updateIMockExamStatus = async (examId: string, bodyData: any) => {
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    success: true,
+    message: "Exam status updated successfully",
+    data: {
+      ExamID: examId,
+      ...bodyData
+    }
+  };
+};
 
 const BCrumb = [
   {
@@ -63,20 +81,17 @@ const timezones = [
   },
 ];
 
-// get iMock exam by Id
-
 const ReviewDetails = () => {
-  // alert("ReviewDetails");
   const router = useRouter();
   const searchRouter = useSearchParams();
   const theme = useTheme();
   const examId: any = searchRouter.get("examid");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [iMockExamData] = useState<any>();
+  const [iMockExamData, setIMockExamData] = useState<any>();
+  const { state } = useExamWizard();
   const [selectedStudentData] = useState<any>({ results: [], totalPages: 0, totalRecords: 0 });
   const [selectedQuestionData] = useState<any>({ results: [], totalPages: 0, totalRecords: 0 });
-  const { setPage, page, setRowsPerPage, rowsPerPage, handlePagination } =
-    usePagination2();
+  const { setPage, page, setRowsPerPage, rowsPerPage, handlePagination } = usePagination2();
   const localUserTimeZone = 'America/Toronto';
 
   const {
@@ -86,9 +101,6 @@ const ReviewDetails = () => {
     rowsPerPage: rowsPerPage1,
     handlePagination: handlePagination1,
   } = usePagination2();
-
-
-
 
   /**
    * @ Function Name      : handleChangeRowsPerPage
@@ -110,7 +122,7 @@ const ReviewDetails = () => {
   };
 
   /**
-   * @ Function Name      : handleChangeRowsPerPage
+   * @ Function Name      : handleChangeRowsPerPage1
    * @ Function Purpose   : To change page size
    */
   const handleChangeRowsPerPage1 = (
@@ -121,13 +133,12 @@ const ReviewDetails = () => {
   };
 
   /**
-   * @ Function Name      : handleChangePage
+   * @ Function Name      : handleChangePage1
    * @ Function Purpose   : For change page
    */
   const handleChangePage1 = (event: unknown, newPage: number) => {
     setPage1(newPage);
   };
-
 
   const countTotalAddedTrainee = (id: any) => {
     let count = 0;
@@ -144,7 +155,6 @@ const ReviewDetails = () => {
       (timeZoneData: any) => timeZoneData.id == TimeZoneID
     );
     return zone?.label;
-    // setTimeZone(zone)
   };
 
   const getStationNameById = (id: any) => {
@@ -154,35 +164,69 @@ const ReviewDetails = () => {
     return stationData?.label;
   };
 
-  const updateExamDataStatus = async () => {
-    if (selectedQuestionData.totalRecords == 0) {
-      toast({
-        type: "error",
-        message: "Please select a Question for the exam",
-      });
-      return;
+  const getExamData = async () => {
+    if (!examId) return;
+    
+    console.log('Review Details - examId:', examId);
+    console.log('Review Details - context state:', state);
+    console.log('Review Details - examData from context:', state.examData);
+    
+    setIsLoading(true);
+    try {
+      // Pass the current exam data from context to the API function
+      const result = await getOneExamForNewExam(examId, state.examData);
+      console.log('Review Details - API result:', result);
+      if (result?.success) {
+        setIMockExamData(result.data);
+        console.log('Review Details - Set iMockExamData to:', result.data);
+      }
+    } catch (error) {
+      console.log("Error fetching exam data:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
+    getExamData();
+  }, [examId]);
+
+  const updateExamDataStatus = async () => {
     try {
       setIsLoading(true);
-      // let detailsArray: any = [];
-      // detailsArray = selectedStudentData?.map((data: any, index: any) => ({
-      //   LocationID: data?.CampusID,
-      //   StudentID: data?.StudentID,
-      //   ExamID: data?.ExamID,
-      //   CampusOrderNumber: index + 1,
-      //   StudentTextID: data?.StudentIDText,
-      // }));
-
+      
       const bodyData = {
         Status: 1,
       };
-      // const reviewBody = {
-      //   ExamID: examId,
-      //   examReviewDetails: detailsArray,
-      // };
-      // const reviewData = await createExamReviewDetail(reviewBody);
+      
       const result = await updateIMockExamStatus(examId, bodyData);
       if (result?.success) {
+        // Save exam to localStorage when published
+        const savedExams = JSON.parse(localStorage.getItem('prepx_exams') || '[]');
+        const examIndex = savedExams.findIndex((exam: any) => exam.ExamID == examId);
+        
+        const updatedExamData = {
+          ...iMockExamData,
+          Status: 1,
+          PublishedDate: new Date().toISOString(),
+          ExamIDText: iMockExamData?.ExamIDText || `EXAM-${examId}`,
+        };
+        
+        if (examIndex >= 0) {
+          // Update existing exam
+          savedExams[examIndex] = updatedExamData;
+        } else {
+          // Add new exam
+          savedExams.push(updatedExamData);
+        }
+        
+        localStorage.setItem('prepx_exams', JSON.stringify(savedExams));
+        
+        toast({
+          type: "success",
+          message: "Exam published successfully!",
+        });
+        
         router.push("/Exam-Management");
         setIsLoading(false);
       } else {
@@ -194,11 +238,10 @@ const ReviewDetails = () => {
     }
   };
 
-
-
   if (isLoading) {
     return <Loading />;
   }
+
   return (
     <PageContainer title="Review Details" description="Review Details">
       <ExamWizardSteps step={3} examid={examId} />
@@ -344,108 +387,96 @@ const ReviewDetails = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <Stack>
-                      <Typography variant="h6">Exam details should go here</Typography>
-                    </Stack>
-                  </TableCell>
-                  {/* <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamIDText}
-                  </TableCell>
-
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamIDText}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamName}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamTypeName}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.CreatedOn
-                      ? moment(iMockExamData?.CreatedOn).format("MM-DD-YYYY")
-                      : ""}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamAvailabilityDate
-                      ? moment
-                        .tz(iMockExamData?.ExamAvailabilityDate, localUserTimeZone)
-                        .format("YYYY-MM-DD hh:mm A z") : "-"}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      paddingLeft: 0,
-                      borderBottom: 0,
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "light" ? "#52585D" : "#fff",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {iMockExamData?.ExamDueDate
-                      ? moment
-                        .tz(iMockExamData?.ExamDueDate, localUserTimeZone)
-                        .format("YYYY-MM-DD hh:mm A z") : "-"}
-                  </TableCell> */}
-                </TableRow>
+                {iMockExamData ? (
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.ExamIDText || iMockExamData?.ExamID}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.ExamIDText || iMockExamData?.ExamID}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.ExamName}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.ExamTypeName || iMockExamData?.ExamType}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.ExamCreatedOn ? moment(iMockExamData.ExamCreatedOn).format("MMM-DD-YYYY") : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.ExamDate ? moment(iMockExamData.ExamDate).format("MMM-DD-YYYY hh:mm A") : "N/A"}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        paddingLeft: 0,
+                        borderBottom: 0,
+                        fontSize: "15px",
+                        color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {iMockExamData?.DueDate ? moment(iMockExamData.DueDate).format("MMM-DD-YYYY hh:mm A") : "N/A"}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7}>
+                      <Stack>
+                        <Typography variant="h6">Loading exam details...</Typography>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
@@ -508,26 +539,6 @@ const ReviewDetails = () => {
                       <span>Trainee Name</span>
                     </Typography>
                   </TableCell>
-
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Status</span>
-                      </Typography>
-                    </TableCell> */}
                   <TableCell
                     sx={{
                       paddingLeft: 0,
@@ -603,121 +614,99 @@ const ReviewDetails = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <Stack>
-                      <Typography variant="h6">Trainee details should go here</Typography>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-                {selectedStudentData?.results?.map((item: any, index: any) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.UserRoleTextID}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.UserTitleName}
-                    </TableCell>
-                    {/* <TableCell
-                          sx={{
-                            paddingLeft: 0,
-                            borderBottom: 0,
-                            fontSize: "15px",
-                            color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                            fontWeight: 400,
-                          }}
-                        >
-                          {item.StudentStatus === 1 ? "Active" : "Incative"}
-                        </TableCell> */}
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {iMockExamData?.ExamTypeName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.UserEmail || '-'}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.CampusName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color: theme.palette.secondary.fieldText,
-                        fontWeight: 400,
-                      }}
-                    >
-                      <Stack
-                        gap={"10px"}
-                        alignItems={"center"}
-                        display={"flex"}
-                        direction={"row"}
-                        color={theme.palette.primary.main}
+                {selectedStudentData?.results?.length > 0 ? (
+                  selectedStudentData?.results?.map((item: any, index: any) => (
+                    <TableRow key={index}>
+                      <TableCell
                         sx={{
-                          "& svg path": {
-                            fill: `${theme.palette.primary.main} !important`,
-                          },
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
                         }}
                       >
-                        {/* <PhoneIcon />{" "} */}
-                        {/* <Link
+                        {item.UserRoleTextID}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.UserTitleName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {iMockExamData?.ExamTypeName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.UserEmail || '-'}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.CampusName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.secondary.fieldText,
+                          fontWeight: 400,
+                        }}
+                      >
+                        <Stack
+                          gap={"10px"}
+                          alignItems={"center"}
+                          display={"flex"}
+                          direction={"row"}
+                          color={theme.palette.primary.main}
                           sx={{
-                            color: theme.palette.primary.main,
-                            textDecorationColor: theme.palette.primary.main,
+                            "& svg path": {
+                              fill: `${theme.palette.primary.main} !important`,
+                            },
                           }}
                         >
-                        </Link> */}
-                        {item.LMSOrgDefinedId || '-'}
+                          {item.LMSOrgDefinedId || '-'}
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <Stack>
+                        <Typography variant="h6">Trainee details should go here</Typography>
                       </Stack>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
             <CustomTablePagination
@@ -741,7 +730,7 @@ const ReviewDetails = () => {
         </Stack>
       </Card>
 
-      {/* station details */}
+      {/* Question details */}
       <Card sx={commonContentCardStyle}>
         <Stack>
           <TableContainer>
@@ -825,63 +814,6 @@ const ReviewDetails = () => {
                       <span>Topic</span>
                     </Typography>
                   </TableCell>
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Chapter</span>
-                      </Typography>
-                    </TableCell> */}
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Section</span>
-                      </Typography>
-                    </TableCell> */}
-                  {/* <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                      variant="h6"
-                      display={"flex"}
-                      alignItems={"center"}
-                      gap={0.5}
-                      component={"p"}
-                      fontWeight={400}
-                      >
-                        
-                        <span>Slide</span>
-                      </Typography>
-                    </TableCell> */}
                   <TableCell
                     sx={{
                       paddingLeft: 0,
@@ -903,77 +835,75 @@ const ReviewDetails = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <Stack>
-                      <Typography variant="h6">Question details should go here</Typography>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-                {selectedQuestionData?.results.map((item: any, index: any) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.QuestionTextID}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.BookletID}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.CourseTypeName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.QuestionTopicName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                        fontSize: "15px",
-                        color:
-                          theme.palette.mode === "light" ? "#52585D" : "#fff",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {item.ExamQuestionStatus == 1 ? "Active" : "Removed"}
+                {selectedQuestionData?.results?.length > 0 ? (
+                  selectedQuestionData?.results.map((item: any, index: any) => (
+                    <TableRow key={index}>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.QuestionTextID}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.BookletID}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.CourseTypeName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.QuestionTopicName}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          paddingLeft: 0,
+                          borderBottom: 0,
+                          fontSize: "15px",
+                          color: theme.palette.mode === "light" ? "#52585D" : "#fff",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {item.ExamQuestionStatus == 1 ? "Active" : "Removed"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Stack>
+                        <Typography variant="h6">Question details should go here</Typography>
+                      </Stack>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
             <CustomTablePagination
@@ -997,193 +927,12 @@ const ReviewDetails = () => {
         </Stack>
       </Card>
 
-      {/* Location details */}
-      {/* {iMockExamData?.ExamTypeName == "Mock" ? (
-        <Card sx={commonContentCardStyle}>
-          <Stack>
-            <TableContainer>
-              <Table
-                aria-label="simple table"
-                sx={{
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Seats</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Date</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Time</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Country</span>
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        paddingLeft: 0,
-                        borderBottom: 0,
-                      }}
-                    >
-                      <Typography
-                        color={theme.palette.primary.main}
-                        variant="h6"
-                        display={"flex"}
-                        alignItems={"center"}
-                        gap={0.5}
-                        component={"p"}
-                        fontWeight={400}
-                      >
-                        <span>Campus</span>
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {saveExamData?.results?.map((item: any, index: any) => (
-                    <TableRow key={index}>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {item.CampusIDCount}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {moment(item?.ExamCampusDateTime).format("MMM-DD-YYYY")}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {moment.utc(item?.ExamCampusDateTime).format("hh:mm A")}{" "}
-                        {item?.GoogleTimezone}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {item.CountryName}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          paddingLeft: 0,
-                          borderBottom: 0,
-                          fontSize: "15px",
-                          color:
-                            theme.palette.mode === "light" ? "#52585D" : "#fff",
-                          fontWeight: 400,
-                        }}
-                      >
-                        {item.CampusName}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Stack>
-        </Card>
-      ) : (
-        <span></span>
-      )} */}
-
       <Stack
         display={"flex"}
         direction={"row"}
         gap={"10px"}
         justifyContent={"flex-end"}
       >
-        {/* {iMockExamData?.Status != 1 && ( */}
         <Button
           sx={{
             ...primaryButon,
@@ -1192,25 +941,6 @@ const ReviewDetails = () => {
         >
           Publish
         </Button>
-        {/* )} */}
-        {/* <Button
-          sx={{
-            ...primaryButon,
-            p: "9px 16px",
-            width: "fit-content",
-            background: theme.palette.secondary.textColor,
-            "&:disabled": {
-              background: "#738A9633",
-              borderColor: "#738A9633",
-            },
-            "&:hover": {
-              background: theme.palette.secondary.textColor,
-            },
-          }} */}
-        {/* onClick={() => router.push(`/situational-timer/${examId}`)} */}
-        {/* >
-          Start Session
-        </Button> */}
       </Stack>
     </PageContainer>
   );

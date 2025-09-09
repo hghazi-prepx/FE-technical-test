@@ -57,6 +57,8 @@ import {
   deleteStudentForNewExam,
   getAssignTraineeListForNewExam,
   getAvailableTraineeForNewExam,
+  getOneExamForNewExam,
+  getOneIMockExamForEdit,
 } from "@/services/newExamFlow/newExamFlowAPI";
 import CustomTablePagination from "@/components/CustomPagination";
 import usePagination2 from "@/hooks/usePagination2";
@@ -155,7 +157,7 @@ export default function AssignTrainee() {
     await getAssignTraineeListForNewExam(bodyData)
       .then((result) => {
         if (result?.success) {
-          setSelectedStudentData([]);
+          setSelectedStudentData(result.data || { results: [] });
           setAnchorEl(null);
           setSelectedAssignStudentId("");
           // setOpenAutcomplete(true);

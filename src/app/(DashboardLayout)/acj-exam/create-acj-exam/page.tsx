@@ -547,7 +547,7 @@ export default function CreateIMockExam() {
       ExamQuizStart: 1,
       ExamTimeLimitExpires: 1,
       ExamAvailabilityDate: "",
-      ExamDueDate: "",
+      ExamDueDate: null,
       ExamShuffleQuiz: 0,
       ExamPaging: 0,
       ExamNumberofAttempts: "",
@@ -702,6 +702,11 @@ export default function CreateIMockExam() {
 
         if (examType?.ExamTypeSlug === mockExamSlug) {
           values.ExamNumberofAttempts = 1;
+        }
+
+        // Ensure DueDate is a valid timestamp or null
+        if (typeof values.ExamDueDate !== 'number') {
+          values.ExamDueDate = null;
         }
 
         const result = await createNewExam(values);
