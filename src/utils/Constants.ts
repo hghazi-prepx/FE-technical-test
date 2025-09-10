@@ -1,3 +1,5 @@
+import { SelectOption } from "@/types/common.type"
+
 export const MenuNameEnum = {
   Role: "Role",
   Admin: "Admin",
@@ -83,8 +85,8 @@ export const MenuNameEnum = {
   SuperAdminManagement: "Super Admin Management",
   AdminManagement: "Admin Management",
   AuditLog: "Audit Log",
-  CsCriteria:"CS Criteria"
-};
+  CsCriteria: "CS Criteria"
+}
 
 export const MenuCodeEnum = {
   Role: "role",
@@ -146,7 +148,7 @@ export const MenuCodeEnum = {
   StatusManagement: "status-management",
   ExamDelayManagement: "exam-delay-management",
   ExamReports: "exam-reports",
-  ExamAttempts:"exam-attempts",
+  ExamAttempts: "exam-attempts",
   ExamEvaluationRubric: "exam-evaluation-rubric",
   ProjectManagement: "project-management",
   ProjectTopicManagement: "project-topic-management",
@@ -167,9 +169,8 @@ export const MenuCodeEnum = {
   AdminManagement: "admin-management",
   AuditLog: "audit-log",
   StudentCourse: "student-course",
-	CsCriteria:"cs-criteria"
-
-};
+  CsCriteria: "cs-criteria"
+}
 
 export const SocketEvents = {
   CONNECTION: "connection",
@@ -182,13 +183,12 @@ export const SocketEvents = {
   EXAM_TIMER_REMAINING: "exam-timer-remaining",
   BREAK_TIMER_REMAINING: "break-timer-remaining",
   STOP_TIMER: "stop-timer",
-  RESTART_TIMER: 'restart-timer',
-	EXTEND_EXAM_TIME:'extend-time',
-  RESTART_EXAM_TIMER:'restart-exam-timer',
-  EXAM_CLEARED:"exam-clear",
+  RESTART_TIMER: "restart-timer",
+  EXTEND_EXAM_TIME: "extend-time",
+  RESTART_EXAM_TIMER: "restart-exam-timer",
+  EXAM_CLEARED: "exam-clear",
   STUDENT_DISABLE: "disable-student"
-
-};
+}
 
 export const toothNumberingSystem = [
   // FDI Numbering System
@@ -224,20 +224,19 @@ export const toothNumberingSystem = [
   { value: 4.6, label: "4.6" },
   { value: 4.7, label: "4.7" },
   { value: 4.8, label: "4.8" }
-];
-
+]
 
 export const SocketEventsBreakType = {
   BREAK_IN: "break-in",
-  BREAK_OUT: "break-out",
-};
+  BREAK_OUT: "break-out"
+}
 
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
   DEFAULT_TOTAL_PAGE: 50,
   DEFAULT_RECORDS: 0,
-  MIN_GOTO_VALUE: 1,
-};
+  MIN_GOTO_VALUE: 1
+}
 
 export const COURSE_TYPE: SelectOption[] = [
   { value: "AFK", label: "AFK" },
@@ -246,22 +245,22 @@ export const COURSE_TYPE: SelectOption[] = [
   { value: "NDECC-SJ", label: "NDECC-SJ" },
   { value: "NDECC-CS", label: "NDECC-CS" },
   { value: "Pharma-EE", label: "Pharma-EE" },
-  { value: "INDBE", label: "INDBE"},
-  { value: "ADAT", label: "ADAT"},
-  { value: "Pharma-MCQ", label: "Pharma-MCQ" },
-];
+  { value: "INDBE", label: "INDBE" },
+  { value: "ADAT", label: "ADAT" },
+  { value: "Pharma-MCQ", label: "Pharma-MCQ" }
+]
 
 export const USER_CATEGORY: SelectOption[] = [
   { value: "SuperAdmin", label: "Super Admin" },
   { value: "Administrator", label: "Administrator" },
   { value: "Instructor", label: "Instructor" },
   { value: "Trainee", label: "Trainee" },
-  { value: "Stations", label: "Stations" },
+  { value: "Stations", label: "Stations" }
 ]
 
 export const USER_STATUS: SelectOption[] = [
   { value: "1", label: "Active" },
-  { value: "0", label: "Inactive" },
+  { value: "0", label: "Inactive" }
 ]
 export const EXAM_TYPE: SelectOption[] = [
   { value: "mock", label: "MOCK" },
@@ -275,81 +274,90 @@ export const EXAM_TYPE: SelectOption[] = [
 export const EXAM_STATUS: SelectOption[] = [
   { value: "1", label: "Active" },
   { value: "0", label: "Draft" },
-  { value: "2", label: "Completed" },
-];
+  { value: "2", label: "Completed" }
+]
 
 export const numOfProjectTopicChoiceList = [
   {
     value: "1",
-    label: "1",
+    label: "1"
   },
   {
     value: "2",
-    label: "2",
+    label: "2"
   },
   {
     value: "3",
-    label: "3",
+    label: "3"
   },
   {
     value: "4",
-    label: "4",
+    label: "4"
   },
   {
     value: "5",
-    label: "5",
+    label: "5"
   },
   {
     value: "6",
-    label: "6",
+    label: "6"
   },
   {
     value: "7",
-    label: "7",
+    label: "7"
   },
   {
     value: "8",
-    label: "8",
+    label: "8"
   },
   {
     value: "9",
-    label: "9",
+    label: "9"
   },
   {
     value: "10",
-    label: "10",
-  },
-];
+    label: "10"
+  }
+]
 
-export const extendTimeValues  = [
+export const extendTimeValues = [
   {
-    value:1,
-    label: "Booklet 1",
+    value: 1,
+    label: "Booklet 1"
   },
   {
     value: 2,
-    label: "Booklet 2",
+    label: "Booklet 2"
   },
   {
     value: 3,
-    label: "Break Time",
-  },
-];
+    label: "Break Time"
+  }
+]
 
 enum ENVIRONMENT {
   DEV = "development",
   STAGE = "staging",
-  PROD = "production",
+  PROD = "production"
 }
 
-const currentEnvironment = process.env.NEXT_PUBLIC_ENVIRONMENT;
+const currentEnvironment = process.env.NEXT_PUBLIC_ENVIRONMENT
 
 export const Environment = {
   Is: (env: keyof typeof ENVIRONMENT) =>
     currentEnvironment === ENVIRONMENT[env],
   IsDevelopment: () => Environment.Is("DEV"),
   IsStaging: () => Environment.Is("STAGE"),
-  IsProduction: () => Environment.Is("PROD"),
-};
+  IsProduction: () => Environment.Is("PROD")
+}
 
-export const allowedQuestions = ["SJWritten", "mcq", "msq", "truefalse", "SJRoleplay", "drop-down-question", "fill-in-the-blanks", "writtenresponse"]
+export const allowedQuestions = [
+  "SJWritten",
+  "mcq",
+  "msq",
+  "truefalse",
+  "SJRoleplay",
+  "drop-down-question",
+  "fill-in-the-blanks",
+  "writtenresponse"
+]

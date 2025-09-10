@@ -1,5 +1,5 @@
-import { ExamTypeListResponse } from "@/mocks/ExamTypeList";
+import { ExamTypeListResponse } from "@/mocks/ExamTypeList"
 
-export const getExamTypeList = async () => {
-  return ExamTypeListResponse;
-};
+export const getExamTypeList = async ({ page, limit }) => {
+  return ExamTypeListResponse
+}

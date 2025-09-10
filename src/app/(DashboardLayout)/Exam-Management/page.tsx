@@ -1,46 +1,23 @@
-"use client";
-import React, { useState } from "react";
-import {
-  Button,
-  Typography,
-  Card,
-  Stack,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-  Table,
-} from "@mui/material";
-import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer";
-import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb";
-
-import {
-  PlusIcon,
-
-} from "@/components/Icons";
-
-import {
-
-  commonTableStyle,
-  createDropdownButtonStyle,
-
-} from "@/utils/commonstyles";
-import { useRouter } from "next/navigation";
-import theme from "@/utils/theme";
-import SortableHeader from "@/components/SortableHeader";
-
-const BCrumb = [
-  { label: "Exam Management", link: "/Exam-Management" },
-];
+"use client"
+import { Button, Typography, Card, Stack } from "@mui/material"
+import PageContainer from "@/app/(DashboardLayout)/components/container/PageContainer"
+import Breadcrumb from "../layout/shared/breadcrumb/Breadcrumb"
+import { PlusIcon } from "@/components/Icons"
+import { createDropdownButtonStyle } from "@/utils/commonstyles"
+import { useRouter } from "next/navigation"
+import { ExamType } from "@/types/exam.type"
+import GenericTable from "@/components/GenericTable"
+import { examColumns } from "./examColumns"
+import useExam from "@/hooks/useExam"
+const BCrumb = [{ label: "Exam Management", link: "/Exam-Management" }]
 
 /**
  * @ Function Name      : ImockExam
  * @ Function Purpose   : Creating exam component
  */
 const ImockExam = () => {
-  const router = useRouter();
-  const [iMockExamData, setIMockExamData] = useState<any>();
-
+  const router = useRouter()
+  const { iMockExamData } = useExam()
   return (
     <PageContainer title="Exam Listing" description="Exam Listing">
       {/* breadcrumb */}
@@ -52,7 +29,7 @@ const ImockExam = () => {
             backgroundColor: "transparent",
             marginBottom: "25px",
             overflow: "visible",
-            boxShadow: "none",
+            boxShadow: "none"
           }}
         >
           <Stack
@@ -80,77 +57,10 @@ const ImockExam = () => {
           direction={"row"}
           flexWrap={"wrap"}
         >
-          <Table
-            aria-label="simple table"
-            sx={{ ...commonTableStyle, tableLayout: "fixed" }}
-            className="c-table"
-            stickyHeader
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    minWidth: "180px",
-                    maxWidth: "180px",
-                    width: "180px",
-                  }}
-                >
-                  <SortableHeader
-                    field="PrepX ID"
-                  />
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "160px",
-                    maxWidth: "160px",
-                    width: "160px",
-                  }}
-                >
-                  <SortableHeader
-                    field="Course Type"
-                  />
-                </TableCell>
-
-                <TableCell
-                  sx={{
-                    minWidth: "360px",
-                    maxWidth: "360px",
-                    width: "360px",
-                  }}
-                >
-                  <SortableHeader
-                    field="Exam Name"
-                  />
-
-                </TableCell>
-                <TableCell
-                  sx={{
-                    minWidth: "160px",
-                    maxWidth: "160px",
-                    width: "160px",
-                  }}
-                >
-                  <SortableHeader
-                    field="Exam Date"
-                  />
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  align="center"
-                  style={{ paddingTop: "16px", paddingBottom: "16px" }}
-                >
-                  <Typography variant="body1">Data should go here</Typography>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <GenericTable<ExamType> columns={examColumns} data={iMockExamData} />
         </Stack>
       </>
     </PageContainer>
-  );
-};
-export default ImockExam;
+  )
+}
+export default ImockExam
