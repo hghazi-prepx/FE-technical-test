@@ -1,6 +1,6 @@
 import { uniqueId } from "lodash";
 
-interface MenuitemsType {
+export interface MenuitemsType {
   [x: string]: any;
   id?: string;
   navlabel?: boolean;
@@ -13,30 +13,10 @@ interface MenuitemsType {
   chipColor?: string;
   variant?: string;
   external?: boolean;
+  onClick?: () => void;
 }
-import {
-  IconPoint,
-  IconDashboard,
-  IconFile,
-  IconUsers,
-  IconLockOpen,
-  IconSettings,
-  IconBell,
-  IconApps,
-  IconServer,
-  IconNotebook,
-  IconSchool,
-  IconServerCog,
-  IconTableOptions,
-  IconFileCertificate,
-  IconBriefcase,
-  IconFolderBolt,
-  IconFolderOpen,
-  IconFolderOff,
-  IconFolder,
-} from "@tabler/icons-react";
-import { SidebarBooksIcon } from "@/components/Icons";
-import { MenuCodeEnum, MenuNameEnum } from "@/utils/Constants";
+import { IconFile, IconNotebook } from "@tabler/icons-react";
+import { useExamWizardStore } from "@/store/useExamWizardSteps";
 
 export const LatestMenuItems: MenuitemsType[] = [
   {
@@ -51,9 +31,12 @@ export const LatestMenuItems: MenuitemsType[] = [
     id: uniqueId(),
     title: "Create Exam",
     icon: IconNotebook,
-    href: "/acj-exam/create-acj-exam",
+    href: "/acj-exam",
     code: "create-exam",
+    onClick: () => {
+      // ✅ reset the wizard state
+      useExamWizardStore.getState().reset();
+    },
     orderNumber: 1,
   },
-  
 ];

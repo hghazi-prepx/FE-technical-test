@@ -39,7 +39,7 @@ type NavGroup = {
 
 interface ItemType {
   item: NavGroup;
-  onClick: (event: React.MouseEvent<HTMLElement>) => void;
+  onClick: () => void;
   hideMenu?: any;
   level?: number | any;
   pathDirect?: string;
@@ -107,13 +107,12 @@ export default function NavItem({
 
   return (
     <List component="li" disablePadding key={item?.id && item.title}>
-
       <Link href={item.href}>
         <ListItemStyled
           // {...listItemProps}
           disabled={item?.disabled}
           selected={pathDirect === item?.href}
-          onClick={lgDown ? onClick : undefined}
+          onClick={onClick}
         >
           <ListItemIcon
             sx={{

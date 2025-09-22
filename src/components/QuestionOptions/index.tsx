@@ -57,7 +57,7 @@ interface questionOptionsProps {
   Createenumeration?: any;
   selectedTrueFalseOptions?: any;
   selectedMcqOptions?: any;
-  caseStudy:boolean
+  caseStudy: boolean;
 }
 const MAX_WORD_COUNT = 3000;
 const QuestionOptions: React.FC<questionOptionsProps> = ({
@@ -74,7 +74,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
   QuestionRandomizeOrder,
   Createenumeration,
   selectedMcqOptions,
-  caseStudy
+  caseStudy,
 }) => {
   const [selectedOptions, setSelectOptions] = useState<any>();
   const [questionValue, setQuestionValue] = useState<any>();
@@ -115,7 +115,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
     setError("");
     setQuestionTextWords(value);
   };
-  console.log("casestudy",caseStudy)
+  console.log("casestudy", caseStudy);
   useEffect(() => {
     if (isCreate) {
       switch (type) {
@@ -336,123 +336,137 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
       >
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Grid container spacing={3}>
-            {primaryImage || secondaryImage || viewImage.length > 0 ?
-            <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mt={8}
-                mb={3}
-                gap={"10px"}
+            {primaryImage || secondaryImage || viewImage?.length > 0 ? (
+              <Grid
+                item
+                xs={12}
+                md={caseStudy ? 12 : 6}
+                order={caseStudy ? 1 : 2}
               >
-                {primaryImage ? (
-                  <Image
-                    src={primaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                      width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mb={3}
-                gap={"10px"}
-              >
-                {secondaryImage ? (
-                  <Image
-                    src={secondaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                      width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                sx={{
-                  // color: theme.palette.secondary.fieldText,
-                  [`& label`]: {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#F5F7F8",
-                    borderRadius: "7px",
-                    padding: "35px 30px",
-                    cursor: "pointer",
-                    width: "100%",
-                    height: "400px",
-                  },
-                }}
-                mb={3}
-                gap={"10px"}
-              >
-                {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
-                  return (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mt={8}
+                  mb={3}
+                  gap={"10px"}
+                >
+                  {primaryImage ? (
                     <Image
-                      src={imageData.QuestionImage}
-                      alt={"question-preview123"}
-                      width={406}
-                      height={419}
+                      src={primaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
                       style={{
-                        height: "fit-content",
                         objectFit: "contain",
-                        width:"auto"
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
-                  );
-                })}
-              </Box>
-            </Grid>
-  :''}
-             <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}>
+                  ) : (
+                    ""
+                  )}
+                </Box>
                 <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mb={3}
+                  gap={"10px"}
+                >
+                  {secondaryImage ? (
+                    <Image
+                      src={secondaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
                   sx={{
-                    color: theme.palette.secondary.fieldText,
-                    "& a": {
-                      color: `${theme.palette.primary.main} !important`,
-                      textDecoration: "underline",
-                      textDecorationColor: theme.palette.primary.main,
-                    },
-                    "& p": {
-                      color: "#7A878D",
-                      fontSize: "15px",
-                      lineHeight: "20px",
-                      fontWeight: 400,
-                      mb: "32px",
+                    // color: theme.palette.secondary.fieldText,
+                    [`& label`]: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#F5F7F8",
+                      borderRadius: "7px",
+                      padding: "35px 30px",
+                      cursor: "pointer",
+                      width: "100%",
+                      height: "400px",
                     },
                   }}
+                  mb={3}
+                  gap={"10px"}
                 >
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: isCreate ? questionText : questionText,
-                    }}
-                  /> 
+                  {viewImage
+                    ?.flat(Infinity)
+                    .map((imageData: any, index: any) => {
+                      return (
+                        <Image
+                          src={imageData.QuestionImage}
+                          alt={"question-preview123"}
+                          width={406}
+                          height={419}
+                          style={{
+                            height: "fit-content",
+                            objectFit: "contain",
+                            width: "auto",
+                          }}
+                        />
+                      );
+                    })}
                 </Box>
-                 <Box display={"flex"} flexDirection={"column"} gap={"8px"}>
+              </Grid>
+            ) : (
+              ""
+            )}
+            <Grid
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
+            >
+              <Box
+                sx={{
+                  color: theme.palette.secondary.fieldText,
+                  "& a": {
+                    color: `${theme.palette.primary.main} !important`,
+                    textDecoration: "underline",
+                    textDecorationColor: theme.palette.primary.main,
+                  },
+                  "& p": {
+                    color: "#7A878D",
+                    fontSize: "15px",
+                    lineHeight: "20px",
+                    fontWeight: 400,
+                    mb: "32px",
+                  },
+                }}
+              >
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: isCreate ? questionText : questionText,
+                  }}
+                />
+              </Box>
+              <Box display={"flex"} flexDirection={"column"} gap={"8px"}>
                 {questionValue &&
                   questionValue.map((option: any, index: any) => {
                     return (
@@ -531,7 +545,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                     );
                   })}
               </Box>
-              </Grid>
+            </Grid>
           </Grid>
         </Box>
       </DialogContent>
@@ -545,7 +559,12 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
       >
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
+            <Grid
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 1 : 2}
+            >
               <Box
                 display="flex"
                 alignItems="center"
@@ -563,7 +582,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       objectFit: "contain",
                       height: "fit-content",
                       maxWidth: "100%",
-                      width:"auto"
+                      width: "auto",
                     }}
                   />
                 ) : (
@@ -586,7 +605,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       objectFit: "contain",
                       height: "fit-content",
                       maxWidth: "100%",
-                       width:"auto"
+                      width: "auto",
                     }}
                   />
                 ) : (
@@ -625,113 +644,118 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         height: "fit-content",
                         objectFit: "contain",
-                        maxWidth:"100%",
-                        width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   );
                 })}
               </Box>
             </Grid>
-            <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}>
-                 <Box
-                  sx={{
+            <Grid
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
+            >
+              <Box
+                sx={{
+                  color: "#7A878D",
+                  fontSize: "15px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                  "& a": {
+                    color: `${theme.palette.primary.main} !important`,
+                    textDecoration: "underline",
+                    textDecorationColor: theme.palette.primary.main,
+                  },
+                  "& p": {
                     color: "#7A878D",
                     fontSize: "15px",
                     lineHeight: "20px",
                     fontWeight: 400,
-                    "& a": {
-                      color: `${theme.palette.primary.main} !important`,
-                      textDecoration: "underline",
-                      textDecorationColor: theme.palette.primary.main,
-                    },
-                    "& p": {
-                      color: "#7A878D",
-                      fontSize: "15px",
-                      lineHeight: "20px",
-                      fontWeight: 400,
-                      mb: "32px",
-                    },
-                  }}
-                >
-                  {/* {removeHtmlTags(
+                    mb: "32px",
+                  },
+                }}
+              >
+                {/* {removeHtmlTags(
                     isCreate ? questionText : questionData?.QuestionText
                   )} */}
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: isCreate ? questionText : questionText,
-                    }}
-                  /> 
-                </Box>
-                 <Box display={"flex"} flexDirection={"column"} gap={"8px"}>
-                  {questionValue &&
-                    questionValue?.map((option: any, index: any) => (
-                      <Stack
-                        gap={"10px"}
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: isCreate ? questionText : questionText,
+                  }}
+                />
+              </Box>
+              <Box display={"flex"} flexDirection={"column"} gap={"8px"}>
+                {questionValue &&
+                  questionValue?.map((option: any, index: any) => (
+                    <Stack
+                      gap={"10px"}
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "20px 25px auto",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <Radio
+                        disabled
+                        // checked={selectedOptions == index}
+                        // value={selectedOptions}
+                        checked={selectedOptions === index}
+                        value={index}
+                        name={`radio-buttons`}
+                        inputProps={{ "aria-label": "A" }}
                         sx={{
-                          display: "grid",
-                          gridTemplateColumns: "20px 25px auto",
+                          ...commonRadioStyle,
+                          p: "0px",
                           alignItems: "flex-start",
+                          mt: "-3px",
+                          "& svg path": {
+                            fill: "#2D363E",
+                          },
+                          "& input:checked + span svg path": {
+                            fill: "#2D363E",
+                          },
+                        }}
+                        onChange={changeRadio}
+                      />
+                      <Typography
+                        variant="body3"
+                        sx={{
+                          width: "40px",
+                          color: "#2D363E",
+                          fontSize: "15px",
+                          lineHeight: "24px",
                         }}
                       >
-                        <Radio
-                          disabled
-                          // checked={selectedOptions == index}
-                          // value={selectedOptions}
-                          checked={selectedOptions === index}
-                          value={index}
-                          name={`radio-buttons`}
-                          inputProps={{ "aria-label": "A" }}
-                          sx={{
-                            ...commonRadioStyle,
-                            p: "0px",
-                            alignItems: "flex-start",
-                            mt: "-3px",
-                            "& svg path": {
-                              fill: "#2D363E",
-                            },
-                            "& input:checked + span svg path": {
-                              fill: "#2D363E",
-                            },
-                          }}
-                          onChange={changeRadio}
-                        />
-                        <Typography
-                          variant="body3"
-                          sx={{
-                            width: "40px",
-                            color: "#2D363E",
-                            fontSize: "15px",
-                            lineHeight: "24px",
-                          }}
-                        >
-                          {`${
-                            isCreate
-                              ? toEnumerationType(index, Createenumeration)
-                              : toEnumerationType(
-                                  index,
-                                  questionData?.QuestionTypeText
-                                    ?.QuestionMCQEnumeration
-                                )
-                          })`}
-                        </Typography>
-                        <Typography
-                          variant="body3"
-                          sx={{
-                            wordBreak: "break-word",
-                            color: "#2D363E",
-                            fontSize: "15px",
-                            lineHeight: "24px",
-                          }}
-                        >
-                          {" "}
-                          {option.OptionText}
-                        </Typography>
-                      </Stack>
-                    ))}
-                </Box>
+                        {`${
+                          isCreate
+                            ? toEnumerationType(index, Createenumeration)
+                            : toEnumerationType(
+                                index,
+                                questionData?.QuestionTypeText
+                                  ?.QuestionMCQEnumeration
+                              )
+                        })`}
+                      </Typography>
+                      <Typography
+                        variant="body3"
+                        sx={{
+                          wordBreak: "break-word",
+                          color: "#2D363E",
+                          fontSize: "15px",
+                          lineHeight: "24px",
+                        }}
+                      >
+                        {" "}
+                        {option.OptionText}
+                      </Typography>
+                    </Stack>
+                  ))}
+              </Box>
             </Grid>
-            </Grid>
+          </Grid>
         </Box>
       </Stack>
     );
@@ -767,183 +791,202 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
         </Grid>
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Grid container spacing={3}>
-            {primaryImage || secondaryImage || viewImage.length > 0 ? <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mt={4}
-                mb={3}
+            {primaryImage || secondaryImage || viewImage.length > 0 ? (
+              <Grid
+                item
+                xs={12}
+                md={caseStudy ? 12 : 6}
+                order={caseStudy ? 1 : 2}
               >
-                {primaryImage ? (
-                  <Image
-                    src={primaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                      width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mt={4}
+                  mb={3}
+                >
+                  {primaryImage ? (
+                    <Image
+                      src={primaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mb={3}
+                >
+                  {secondaryImage ? (
+                    <Image
+                      src={secondaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  gap={3}
+                  sx={{
+                    // color: theme.palette.secondary.fieldText,
+                    [`& label`]: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#F5F7F8",
+                      borderRadius: "7px",
+                      padding: "35px 30px",
+                      cursor: "pointer",
+                      width: "100%",
+                      height: "400px",
+                    },
+                  }}
+                >
+                  {viewImage
+                    ?.flat(Infinity)
+                    .map((imageData: any, index: any) => {
+                      return (
+                        <Image
+                          src={imageData.QuestionImage}
+                          alt={"question-preview123"}
+                          width={406}
+                          height={419}
+                          style={{
+                            height: "fit-content",
+                            objectFit: "contain",
+                            width: "auto",
+                            maxWidth: "100%",
+                          }}
+                        />
+                      );
+                    })}
+                </Box>
+              </Grid>
+            ) : (
+              ""
+            )}
+            <Grid
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
+            >
               <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mb={3}
-              >
-                {secondaryImage ? (
-                  <Image
-                    src={secondaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                       width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                gap={3}
                 sx={{
-                  // color: theme.palette.secondary.fieldText,
-                  [`& label`]: {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#F5F7F8",
-                    borderRadius: "7px",
-                    padding: "35px 30px",
-                    cursor: "pointer",
-                    width: "100%",
-                    height: "400px",
+                  color: "#7A878D",
+                  fontSize: "15px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                  mb: "32px",
+                  "& a": {
+                    color: `${theme.palette.primary.main} !important`,
+                    textDecoration: "underline",
+                    textDecorationColor: theme.palette.primary.main,
                   },
                 }}
               >
-                {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
-                  return (
-                    <Image
-                      src={imageData.QuestionImage}
-                      alt={"question-preview123"}
-                      width={406}
-                      height={419}
-                      style={{
-                        height: "fit-content",
-                        objectFit: "contain",
-                         width:"auto",
-                         maxWidth:"100%"
-                      }}
-                    />
-                  );
-                })}
-              </Box>
-            </Grid> : ''}
-            <Grid
-              item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}
-            >
-               <Box
-                    sx={{
-                      color: "#7A878D",
-                      fontSize: "15px",
-                      lineHeight: "20px",
-                      fontWeight: 400,
-                      mb: "32px",
-                      "& a": {
-                        color: `${theme.palette.primary.main} !important`,
-                        textDecoration: "underline",
-                        textDecorationColor: theme.palette.primary.main,
-                      },
-                    }}
-                  >
-                    {/* {removeHtmlTags(
+                {/* {removeHtmlTags(
                       isCreate ? questionText : questionData?.QuestionText
                     )} */}
-                    {/* <div
+                {/* <div
                       dangerouslySetInnerHTML={{
                         __html: isCreate
                           ? questionText
                           : questionData?.QuestionText,
                       }}
                     /> */}
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: isCreate ? questionText : questionText,
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: isCreate ? questionText : questionText,
+                  }}
+                />
+              </Box>
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                gap={"8px"}
+                pl={"5px"}
+              >
+                {questionValue &&
+                  questionValue.map((option: any, index: any) => (
+                    <Stack
+                      gap={"10px"}
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: "20px 25px auto",
+                        alignItems: "flex-start",
                       }}
-                    /> 
-                  </Box>
-                   <Box display={"flex"} flexDirection={"column"} gap={"8px"} pl={"5px"}>
-                    {questionValue &&
-                      questionValue.map((option: any, index: any) => (
-                        <Stack
-                          gap={"10px"}
-                          sx={{
-                            display: "grid",
-                            gridTemplateColumns: "20px 25px auto",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <Radio
-                            disableRipple
-                            checked={selectedValue === index}
-                            onChange={handleRadioChange}
-                            value={index} // Use a unique identifier for each option
-                            name={`radio-buttons`}
-                            inputProps={{ "aria-label": "A" }}
-                            sx={{
-                              ...commonRadioStyle,
-                              p: "0px",
-                              alignItems: "flex-start",
-                              mt: "-3px",
-                              "& svg path": {
-                                fill: "#2D363E",
-                              },
-                              "& input:checked + span svg path": {
-                                fill: "#2D363E",
-                              },
-                            }}
-                          />
-                          <Typography
-                            variant="body3"
-                            sx={{
-                              width: "40px",
-                              color: "#2D363E",
-                            }}
-                          >
-                            {/* {isCreate
+                    >
+                      <Radio
+                        disableRipple
+                        checked={selectedValue === index}
+                        onChange={handleRadioChange}
+                        value={index} // Use a unique identifier for each option
+                        name={`radio-buttons`}
+                        inputProps={{ "aria-label": "A" }}
+                        sx={{
+                          ...commonRadioStyle,
+                          p: "0px",
+                          alignItems: "flex-start",
+                          mt: "-3px",
+                          "& svg path": {
+                            fill: "#2D363E",
+                          },
+                          "& input:checked + span svg path": {
+                            fill: "#2D363E",
+                          },
+                        }}
+                      />
+                      <Typography
+                        variant="body3"
+                        sx={{
+                          width: "40px",
+                          color: "#2D363E",
+                        }}
+                      >
+                        {/* {isCreate
                           ? toEnumerationType(index, Createenumeration)
                           : toEnumerationType(
                               index,
                               questionData?.QuestionTypeText
                                 ?.QuestionTrueFalseEnumeration
                             )} */}
-                            {`${
-                              isCreate
-                                ? toEnumerationType(index, Createenumeration)
-                                : toEnumerationType(
-                                    index,
-                                    questionData?.QuestionTypeText
-                                      ?.QuestionMCQEnumeration
-                                  )
-                            })`}
-                          </Typography>
-                          {/* <Radio
+                        {`${
+                          isCreate
+                            ? toEnumerationType(index, Createenumeration)
+                            : toEnumerationType(
+                                index,
+                                questionData?.QuestionTypeText
+                                  ?.QuestionMCQEnumeration
+                              )
+                        })`}
+                      </Typography>
+                      {/* <Radio
                         disableRipple
                         checked={selectedValue === index}
                         onChange={handleRadioChange}
@@ -961,18 +1004,18 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                           cursor: "default",
                         }}
                       /> */}
-                          <Typography
-                            variant="body3"
-                            sx={{
-                              wordBreak: "break-word",
-                              color: "#2D363E",
-                            }}
-                          >
-                            {option.OptionText}
-                          </Typography>
-                        </Stack>
-                      ))}
-                  </Box>
+                      <Typography
+                        variant="body3"
+                        sx={{
+                          wordBreak: "break-word",
+                          color: "#2D363E",
+                        }}
+                      >
+                        {option.OptionText}
+                      </Typography>
+                    </Stack>
+                  ))}
+              </Box>
             </Grid>
           </Grid>
         </Box>
@@ -1030,7 +1073,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       objectFit: "contain",
                       height: "fit-content",
                       maxWidth: "100%",
-                       width:"auto"
+                      width: "auto",
                     }}
                   />
                 ) : (
@@ -1053,7 +1096,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       objectFit: "contain",
                       height: "fit-content",
                       maxWidth: "100%",
-                       width:"auto"
+                      width: "auto",
                     }}
                   />
                 ) : (
@@ -1092,8 +1135,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         height: "fit-content",
                         objectFit: "contain",
-                         maxWidth: "100%",
-                       width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   );
@@ -1123,7 +1166,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                   dangerouslySetInnerHTML={{
                     __html: isCreate ? questionText : questionText,
                   }}
-                /> 
+                />
               </Box>
               <Box display={"flex"} flexDirection={"column"} gap={"20px"}>
                 {isCreate
@@ -1316,9 +1359,9 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         height={391}
                         style={{
                           objectFit: "contain",
-                           maxWidth: "100%",
-                          width:"auto",
-                          height:"fit-content"
+                          maxWidth: "100%",
+                          width: "auto",
+                          height: "fit-content",
                         }}
                       />
                     ) : (
@@ -1347,8 +1390,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         objectFit: "contain",
                         height: "fit-content",
-                         maxWidth: "100%",
-                       width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   ) : (
@@ -1380,7 +1423,6 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                 display="flex"
                 alignItems="center"
                 flexDirection="column"
-                
                 sx={{
                   // color: theme.palette.secondary.fieldText,
                   [`& label`]: {
@@ -1400,16 +1442,16 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
               >
                 {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
                   return (
-                      <Image
-                        src={imageData.QuestionImage}
-                        alt={"question-preview123"}
-                        width={406}
-                        height={419}
-                        style={{
-                          height: "fit-content",
-                          objectFit: "contain",
-                        }}
-                      />
+                    <Image
+                      src={imageData.QuestionImage}
+                      alt={"question-preview123"}
+                      width={406}
+                      height={419}
+                      style={{
+                        height: "fit-content",
+                        objectFit: "contain",
+                      }}
+                    />
                   );
                 })}
               </Box>
@@ -1451,97 +1493,110 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
         </Grid>
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Grid container spacing={3}>
-            {primaryImage || secondaryImage || viewImage.length > 0 ? 
-            <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mt={4}
-                mb={3}
+            {primaryImage || secondaryImage || viewImage.length > 0 ? (
+              <Grid
+                item
+                xs={12}
+                md={caseStudy ? 12 : 6}
+                order={caseStudy ? 1 : 2}
               >
-                {primaryImage ? (
-                  <Image
-                    src={primaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                       width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mb={3}
-              >
-                {secondaryImage ? (
-                  <Image
-                    src={secondaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                       maxWidth: "100%",
-                       width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                gap={3}
-                sx={{
-                  // color: theme.palette.secondary.fieldText,
-                  [`& label`]: {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#F5F7F8",
-                    borderRadius: "7px",
-                    padding: "35px 30px",
-                    cursor: "pointer",
-                    width: "100%",
-                    height: "400px",
-                  },
-                }}
-              >
-                {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
-                  return (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mt={4}
+                  mb={3}
+                >
+                  {primaryImage ? (
                     <Image
-                      src={imageData.QuestionImage}
-                      alt={"question-preview123"}
-                      width={406}
-                      height={419}
+                      src={primaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
                       style={{
-                        height: "fit-content",
                         objectFit: "contain",
-                         maxWidth: "100%",
-                       width:"auto"
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
-                  );
-                })}
-              </Box>
-            </Grid> : '' }
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mb={3}
+                >
+                  {secondaryImage ? (
+                    <Image
+                      src={secondaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  gap={3}
+                  sx={{
+                    // color: theme.palette.secondary.fieldText,
+                    [`& label`]: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#F5F7F8",
+                      borderRadius: "7px",
+                      padding: "35px 30px",
+                      cursor: "pointer",
+                      width: "100%",
+                      height: "400px",
+                    },
+                  }}
+                >
+                  {viewImage
+                    ?.flat(Infinity)
+                    .map((imageData: any, index: any) => {
+                      return (
+                        <Image
+                          src={imageData.QuestionImage}
+                          alt={"question-preview123"}
+                          width={406}
+                          height={419}
+                          style={{
+                            height: "fit-content",
+                            objectFit: "contain",
+                            maxWidth: "100%",
+                            width: "auto",
+                          }}
+                        />
+                      );
+                    })}
+                </Box>
+              </Grid>
+            ) : (
+              ""
+            )}
             <Grid
-             item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
             >
               <Box
                 sx={{
@@ -1678,9 +1733,9 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         height={391}
                         style={{
                           objectFit: "contain",
-                          height:"fit-content",
-                           maxWidth: "100%",
-                       width:"auto"
+                          height: "fit-content",
+                          maxWidth: "100%",
+                          width: "auto",
                         }}
                       />
                     ) : (
@@ -1709,8 +1764,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         objectFit: "contain",
                         height: "fit-content",
-                         maxWidth: "100%",
-                       width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   ) : (
@@ -1770,8 +1825,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         style={{
                           height: "fit-content",
                           objectFit: "contain",
-                           maxWidth: "100%",
-                       width:"auto"
+                          maxWidth: "100%",
+                          width: "auto",
                         }}
                       />
                     </Grid>
@@ -1801,146 +1856,159 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
         ></Grid>
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Grid container spacing={3}>
-            {primaryImage || secondaryImage || viewImage.length > 0 ?
-            <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mt={4}
-                mb={3}
+            {primaryImage || secondaryImage || viewImage.length > 0 ? (
+              <Grid
+                item
+                xs={12}
+                md={caseStudy ? 12 : 6}
+                order={caseStudy ? 1 : 2}
               >
-                {primaryImage ? (
-                  <Image
-                    src={primaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                       maxWidth: "100%",
-                       width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mb={3}
-              >
-                {secondaryImage ? (
-                  <Image
-                    src={secondaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                       maxWidth: "100%",
-                       width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                gap={3}
-                sx={{
-                  // color: theme.palette.secondary.fieldText,
-                  [`& label`]: {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#F5F7F8",
-                    borderRadius: "7px",
-                    padding: "35px 30px",
-                    cursor: "pointer",
-                    width: "100%",
-                    height: "400px",
-                  },
-                }}
-              >
-                {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
-                  return (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mt={4}
+                  mb={3}
+                >
+                  {primaryImage ? (
                     <Image
-                      src={imageData.QuestionImage}
-                      alt={"question-preview123"}
-                      width={406}
-                      height={419}
+                      src={primaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
                       style={{
-                        height: "fit-content",
                         objectFit: "contain",
-                         maxWidth: "100%",
-                       width:"auto"
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
-                  );
-                })}
-              </Box>
-            </Grid> :''}
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mb={3}
+                >
+                  {secondaryImage ? (
+                    <Image
+                      src={secondaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  gap={3}
+                  sx={{
+                    // color: theme.palette.secondary.fieldText,
+                    [`& label`]: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#F5F7F8",
+                      borderRadius: "7px",
+                      padding: "35px 30px",
+                      cursor: "pointer",
+                      width: "100%",
+                      height: "400px",
+                    },
+                  }}
+                >
+                  {viewImage
+                    ?.flat(Infinity)
+                    .map((imageData: any, index: any) => {
+                      return (
+                        <Image
+                          src={imageData.QuestionImage}
+                          alt={"question-preview123"}
+                          width={406}
+                          height={419}
+                          style={{
+                            height: "fit-content",
+                            objectFit: "contain",
+                            maxWidth: "100%",
+                            width: "auto",
+                          }}
+                        />
+                      );
+                    })}
+                </Box>
+              </Grid>
+            ) : (
+              ""
+            )}
             <Grid
-              item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
             >
               <Box display={"flex"} flexDirection={"column"} gap={"20px"}>
-                  <Stack>
-                    <Box
-                      sx={{
-                        color: "#7A878D",
-                        fontSize: "15px",
-                        lineHeight: "20px",
-                        fontWeight: 400,
-                        mb: "0px",
-                      }}
-                    >
-                      {/* {removeHtmlTags(
+                <Stack>
+                  <Box
+                    sx={{
+                      color: "#7A878D",
+                      fontSize: "15px",
+                      lineHeight: "20px",
+                      fontWeight: 400,
+                      mb: "0px",
+                    }}
+                  >
+                    {/* {removeHtmlTags(
                         isCreate ? questionText : questionData?.QuestionText
                       )} */}
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: isCreate ? questionText : questionText,
-                        }}
-                      /> 
-                    </Box>
-                  </Stack>
-                  {isCreate
-                    ? questionData.QuestionWrittenResponseOptionsText1
-                        ?.IsCorrect && (
-                        <Paper variant="outlined">
-                          <ReactQuill
-                            placeholder="Type here..."
-                            className="reactquill_editor"
-                          />
-                        </Paper>
-                      )
-                    : (questionData?.QuestionTypeText
-                        ?.QuestionWrittenResponseOptionsText1?.IsCorrect ||
-                        questionData?.QuestionWrittenResponseOptionsText1
-                          ?.IsCorrect) && (
-                        <Paper variant="outlined">
-                          <ReactQuill
-                            value={questionTextWords}
-                            onChange={handleQuestionText}
-                            placeholder="Type here..."
-                            className="reactquill_editor"
-                          />
-                          {error && (
-                            <FormHelperText error>{error}</FormHelperText>
-                          )}
-                        </Paper>
-                      )}
-                  {/* {questionData.QuestionTypeText.QuestionWrittenResponseOptionsText1?.IsCorrect && 
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: isCreate ? questionText : questionText,
+                      }}
+                    />
+                  </Box>
+                </Stack>
+                {isCreate
+                  ? questionData.QuestionWrittenResponseOptionsText1
+                      ?.IsCorrect && (
+                      <Paper variant="outlined">
+                        <ReactQuill
+                          placeholder="Type here..."
+                          className="reactquill_editor"
+                        />
+                      </Paper>
+                    )
+                  : (questionData?.QuestionTypeText
+                      ?.QuestionWrittenResponseOptionsText1?.IsCorrect ||
+                      questionData?.QuestionWrittenResponseOptionsText1
+                        ?.IsCorrect) && (
+                      <Paper variant="outlined">
+                        <ReactQuill
+                          value={questionTextWords}
+                          onChange={handleQuestionText}
+                          placeholder="Type here..."
+                          className="reactquill_editor"
+                        />
+                        {error && (
+                          <FormHelperText error>{error}</FormHelperText>
+                        )}
+                      </Paper>
+                    )}
+                {/* {questionData.QuestionTypeText.QuestionWrittenResponseOptionsText1?.IsCorrect && 
                   <Paper
                  
                   variant="outlined"
@@ -1952,260 +2020,260 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                 </Paper>
                 } */}
 
-                  {isCreate
-                    ? questionData?.QuestionWrittenResponseOptionsText2
-                        ?.IsCorrect && (
-                        <>
-                          <Stack justifyContent={"center"} direction={"row"}>
-                            {imageSrc && (
-                              <Image
-                                src={imageSrc}
-                                alt={"Selected Image"}
-                                width={400}
-                                height={391}
-                                style={{
-                                  objectFit: "contain",
-                                  height: "fit-content",
-                                }}
-                              />
-                            )}
-                          </Stack>
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            sx={{
-                              [`& label`]: {
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "0.5rem",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                backgroundColor: "transparent",
-                                borderRadius: "6px",
-                                border: `1px dashed ${theme.palette.border.dashedBorder}`,
-                                padding: primaryImage ? "0" : "10px",
-                                cursor:
-                                  primaryImage?.length >= 1 ? "" : "pointer",
-                                marginLeft: "auto",
-                                mr: "auto",
-                                width: "248px",
-                                height: "248px",
-                              },
-                              [`& .uploaded-image`]: {
-                                objectFit: "cover",
-                                borderRadius: "5px",
-                              },
-                            }}
-                          >
-                            <label htmlFor="avatar">
-                              <input
-                                style={{ display: "none" }}
-                                id="avatar"
-                                name="avatar"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                              />
+                {isCreate
+                  ? questionData?.QuestionWrittenResponseOptionsText2
+                      ?.IsCorrect && (
+                      <>
+                        <Stack justifyContent={"center"} direction={"row"}>
+                          {imageSrc && (
+                            <Image
+                              src={imageSrc}
+                              alt={"Selected Image"}
+                              width={400}
+                              height={391}
+                              style={{
+                                objectFit: "contain",
+                                height: "fit-content",
+                              }}
+                            />
+                          )}
+                        </Stack>
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          sx={{
+                            [`& label`]: {
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.5rem",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: "transparent",
+                              borderRadius: "6px",
+                              border: `1px dashed ${theme.palette.border.dashedBorder}`,
+                              padding: primaryImage ? "0" : "10px",
+                              cursor:
+                                primaryImage?.length >= 1 ? "" : "pointer",
+                              marginLeft: "auto",
+                              mr: "auto",
+                              width: "248px",
+                              height: "248px",
+                            },
+                            [`& .uploaded-image`]: {
+                              objectFit: "cover",
+                              borderRadius: "5px",
+                            },
+                          }}
+                        >
+                          <label htmlFor="avatar">
+                            <input
+                              style={{ display: "none" }}
+                              id="avatar"
+                              name="avatar"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileChange}
+                            />
 
-                              <Box
-                                sx={{
-                                  textAlign: "center",
-                                  "& svg": {
-                                    width: "48px",
-                                    height: "60px",
-                                    "& path": {
-                                      stroke: theme.palette.text.primary,
-                                    },
+                            <Box
+                              sx={{
+                                textAlign: "center",
+                                "& svg": {
+                                  width: "48px",
+                                  height: "60px",
+                                  "& path": {
+                                    stroke: theme.palette.text.primary,
                                   },
-                                }}
+                                },
+                              }}
+                            >
+                              <Typography
+                                color={theme.palette.text.primary}
+                                fontSize={"18px"}
+                                lineHeight={"21px"}
+                                fontWeight={400}
+                                variant="body1"
+                                component={"div"}
+                                mb={"10px"}
                               >
-                                <Typography
-                                  color={theme.palette.text.primary}
-                                  fontSize={"18px"}
-                                  lineHeight={"21px"}
-                                  fontWeight={400}
-                                  variant="body1"
-                                  component={"div"}
-                                  mb={"10px"}
-                                >
-                                  Media
-                                </Typography>
-                                <FileIcon />
-                                <Typography
-                                  color={theme.palette.text.primary}
-                                  fontSize={"14px"}
-                                  fontWeight={400}
-                                  variant="body1"
-                                  component={"div"}
-                                  mt={"10px"}
-                                  mb={1.25}
-                                  lineHeight={"16px"}
-                                >
-                                  Drag & Drop Image File
-                                </Typography>
-                                <Button
-                                  disabled
-                                  sx={{
+                                Media
+                              </Typography>
+                              <FileIcon />
+                              <Typography
+                                color={theme.palette.text.primary}
+                                fontSize={"14px"}
+                                fontWeight={400}
+                                variant="body1"
+                                component={"div"}
+                                mt={"10px"}
+                                mb={1.25}
+                                lineHeight={"16px"}
+                              >
+                                Drag & Drop Image File
+                              </Typography>
+                              <Button
+                                disabled
+                                sx={{
+                                  color:
+                                    theme.palette.mode === "light"
+                                      ? "#fff"
+                                      : "#000",
+                                  background: theme.palette.primary.light,
+                                  p: "6px 43px",
+                                  "&:disabled": {
                                     color:
                                       theme.palette.mode === "light"
                                         ? "#fff"
                                         : "#000",
-                                    background: theme.palette.primary.light,
-                                    p: "6px 43px",
-                                    "&:disabled": {
-                                      color:
-                                        theme.palette.mode === "light"
-                                          ? "#fff"
-                                          : "#000",
-                                    },
-                                  }}
-                                >
-                                  Browse
-                                </Button>
-                                <Typography
-                                  color={theme.palette.text.primary}
-                                  fontSize={"14px"}
-                                  lineHeight={"21px"}
-                                  fontWeight={400}
-                                  variant="body1"
-                                  component={"div"}
-                                  mt={"10px"}
-                                >
-                                  PNG, JPEG format only
-                                </Typography>
-                              </Box>
-                            </label>
-                          </Box>
-                        </>
-                      )
-                    : (questionData?.QuestionTypeText
-                        ?.QuestionWrittenResponseOptionsText2?.IsCorrect ||
-                        questionData?.QuestionWrittenResponseOptionsText2
-                          ?.IsCorrect) && (
-                        <>
-                          <Stack justifyContent={"center"} direction={"row"}>
-                            {imageSrc && (
-                              <Image
-                                src={imageSrc}
-                                alt={"Selected Image"}
-                                width={400}
-                                height={391}
-                                style={{
-                                  objectFit: "contain",
-                                  height: "fit-content",
-                                }}
-                              />
-                            )}
-                          </Stack>
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            sx={{
-                              [`& label`]: {
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "0.5rem",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                backgroundColor: "transparent",
-                                borderRadius: "6px",
-                                border: `1px dashed ${theme.palette.border.dashedBorder}`,
-                                padding: primaryImage ? "0" : "10px",
-                                cursor:
-                                  primaryImage?.length >= 1 ? "" : "pointer",
-                                mx: "auto",
-                                width: "248px",
-                                height: "248px",
-                              },
-                              [`& .uploaded-image`]: {
-                                objectFit: "cover",
-                                borderRadius: "5px",
-                              },
-                            }}
-                          >
-                            <label htmlFor="avatar">
-                              <input
-                                style={{ display: "none" }}
-                                id="avatar"
-                                name="avatar"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                              />
-
-                              <Box
-                                sx={{
-                                  textAlign: "center",
-                                  "& svg": {
-                                    width: "48px",
-                                    height: "60px",
-                                    "& path": {
-                                      stroke: theme.palette.text.primary,
-                                    },
                                   },
                                 }}
                               >
-                                <Typography
-                                  color={"#67757C"}
-                                  fontSize={"18px"}
-                                  fontWeight={400}
-                                  variant="body1"
-                                  component={"div"}
-                                  mb={1.5}
-                                >
-                                  Media
-                                </Typography>
-                                <FileIcon />
-                                <Typography
-                                  color={theme.palette.text.primary}
-                                  fontSize={"14px"}
-                                  fontWeight={400}
-                                  variant="body1"
-                                  component={"div"}
-                                  mt={"10px"}
-                                  mb={1.25}
-                                  lineHeight={"16px"}
-                                >
-                                  Drag & Drop Image File
-                                </Typography>
-                                <Button
-                                  disabled
-                                  sx={{
+                                Browse
+                              </Button>
+                              <Typography
+                                color={theme.palette.text.primary}
+                                fontSize={"14px"}
+                                lineHeight={"21px"}
+                                fontWeight={400}
+                                variant="body1"
+                                component={"div"}
+                                mt={"10px"}
+                              >
+                                PNG, JPEG format only
+                              </Typography>
+                            </Box>
+                          </label>
+                        </Box>
+                      </>
+                    )
+                  : (questionData?.QuestionTypeText
+                      ?.QuestionWrittenResponseOptionsText2?.IsCorrect ||
+                      questionData?.QuestionWrittenResponseOptionsText2
+                        ?.IsCorrect) && (
+                      <>
+                        <Stack justifyContent={"center"} direction={"row"}>
+                          {imageSrc && (
+                            <Image
+                              src={imageSrc}
+                              alt={"Selected Image"}
+                              width={400}
+                              height={391}
+                              style={{
+                                objectFit: "contain",
+                                height: "fit-content",
+                              }}
+                            />
+                          )}
+                        </Stack>
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          sx={{
+                            [`& label`]: {
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "0.5rem",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: "transparent",
+                              borderRadius: "6px",
+                              border: `1px dashed ${theme.palette.border.dashedBorder}`,
+                              padding: primaryImage ? "0" : "10px",
+                              cursor:
+                                primaryImage?.length >= 1 ? "" : "pointer",
+                              mx: "auto",
+                              width: "248px",
+                              height: "248px",
+                            },
+                            [`& .uploaded-image`]: {
+                              objectFit: "cover",
+                              borderRadius: "5px",
+                            },
+                          }}
+                        >
+                          <label htmlFor="avatar">
+                            <input
+                              style={{ display: "none" }}
+                              id="avatar"
+                              name="avatar"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileChange}
+                            />
+
+                            <Box
+                              sx={{
+                                textAlign: "center",
+                                "& svg": {
+                                  width: "48px",
+                                  height: "60px",
+                                  "& path": {
+                                    stroke: theme.palette.text.primary,
+                                  },
+                                },
+                              }}
+                            >
+                              <Typography
+                                color={"#67757C"}
+                                fontSize={"18px"}
+                                fontWeight={400}
+                                variant="body1"
+                                component={"div"}
+                                mb={1.5}
+                              >
+                                Media
+                              </Typography>
+                              <FileIcon />
+                              <Typography
+                                color={theme.palette.text.primary}
+                                fontSize={"14px"}
+                                fontWeight={400}
+                                variant="body1"
+                                component={"div"}
+                                mt={"10px"}
+                                mb={1.25}
+                                lineHeight={"16px"}
+                              >
+                                Drag & Drop Image File
+                              </Typography>
+                              <Button
+                                disabled
+                                sx={{
+                                  color:
+                                    theme.palette.mode === "light"
+                                      ? "#fff"
+                                      : "#000",
+                                  background: theme.palette.primary.light,
+                                  p: "6px 43px",
+                                  "&:disabled": {
                                     color:
                                       theme.palette.mode === "light"
                                         ? "#fff"
                                         : "#000",
-                                    background: theme.palette.primary.light,
-                                    p: "6px 43px",
-                                    "&:disabled": {
-                                      color:
-                                        theme.palette.mode === "light"
-                                          ? "#fff"
-                                          : "#000",
-                                    },
-                                  }}
-                                >
-                                  Browse
-                                </Button>
-                                <Typography
-                                  color={theme.palette.text.primary}
-                                  fontSize={"14px"}
-                                  lineHeight={"21px"}
-                                  fontWeight={400}
-                                  variant="body1"
-                                  component={"div"}
-                                  mt={"10px"}
-                                >
-                                  PNG, JPEG format only
-                                </Typography>
-                              </Box>
-                            </label>
-                          </Box>
-                        </>
-                      )}
-                  {/* {questionData.QuestionTypeText.QuestionWrittenResponseOptionsText2?.IsCorrect && 
+                                  },
+                                }}
+                              >
+                                Browse
+                              </Button>
+                              <Typography
+                                color={theme.palette.text.primary}
+                                fontSize={"14px"}
+                                lineHeight={"21px"}
+                                fontWeight={400}
+                                variant="body1"
+                                component={"div"}
+                                mt={"10px"}
+                              >
+                                PNG, JPEG format only
+                              </Typography>
+                            </Box>
+                          </label>
+                        </Box>
+                      </>
+                    )}
+                {/* {questionData.QuestionTypeText.QuestionWrittenResponseOptionsText2?.IsCorrect && 
                 <Box
                   display="flex"
                   alignItems="center"
@@ -2384,7 +2452,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                           objectFit: "contain",
                           height: "fit-content",
                           maxWidth: "100%",
-                          width:"auto"
+                          width: "auto",
                         }}
                       />
                     ) : (
@@ -2413,8 +2481,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         objectFit: "contain",
                         height: "fit-content",
-                         maxWidth: "100%",
-                       width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   ) : (
@@ -2474,8 +2542,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         style={{
                           height: "fit-content",
                           objectFit: "contain",
-                           maxWidth: "100%",
-                       width:"auto"
+                          maxWidth: "100%",
+                          width: "auto",
                         }}
                       />
                     </Grid>
@@ -2749,7 +2817,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                           objectFit: "contain",
                           height: "fit-content",
                           maxWidth: "100%",
-                          width:"auto"
+                          width: "auto",
                         }}
                       />
                     ) : (
@@ -3200,7 +3268,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                           objectFit: "contain",
                           height: "fit-content",
                           maxWidth: "100%",
-                          width:"auto"
+                          width: "auto",
                         }}
                       />
                     ) : (
@@ -3465,96 +3533,109 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
       >
         <Box sx={{ width: "100%", typography: "body1" }}>
           <Grid container spacing={3}>
-             {primaryImage || secondaryImage || viewImage.length > 0 ?
-            <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mt={4}
-                mb={3}
+            {primaryImage || secondaryImage || viewImage.length > 0 ? (
+              <Grid
+                item
+                xs={12}
+                md={caseStudy ? 12 : 6}
+                order={caseStudy ? 1 : 2}
               >
-                {primaryImage ? (
-                  <Image
-                    src={primaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                      width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                mb={3}
-              >
-                {secondaryImage ? (
-                  <Image
-                    src={secondaryImage?.QuestionImage}
-                    alt={"question-preview"}
-                    width={400}
-                    height={391}
-                    style={{
-                      objectFit: "contain",
-                      height: "fit-content",
-                      maxWidth: "100%",
-                      width:"auto"
-                    }}
-                  />
-                ) : (
-                  ""
-                )}
-              </Box>
-              <Box
-                display="flex"
-                alignItems="center"
-                flexDirection="column"
-                gap={3}
-                sx={{
-                  [`& label`]: {
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#F5F7F8",
-                    borderRadius: "7px",
-                    padding: "35px 30px",
-                    cursor: "pointer",
-                    width: "100%",
-                    height: "400px",
-                  },
-                }}
-              >
-                {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
-                  return (
-                      <Image
-                        src={imageData.QuestionImage}
-                        alt={"question-preview123"}
-                        width={406}
-                        height={419}
-                        style={{
-                          height: "fit-content",
-                          objectFit: "contain",
-                          width:"auto",
-                          maxWidth:"100%"
-                        }}
-                      />
-                  );
-                })}
-              </Box>
-            </Grid> : ''}
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mt={4}
+                  mb={3}
+                >
+                  {primaryImage ? (
+                    <Image
+                      src={primaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  mb={3}
+                >
+                  {secondaryImage ? (
+                    <Image
+                      src={secondaryImage?.QuestionImage}
+                      alt={"question-preview"}
+                      width={400}
+                      height={391}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flexDirection="column"
+                  gap={3}
+                  sx={{
+                    [`& label`]: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#F5F7F8",
+                      borderRadius: "7px",
+                      padding: "35px 30px",
+                      cursor: "pointer",
+                      width: "100%",
+                      height: "400px",
+                    },
+                  }}
+                >
+                  {viewImage
+                    ?.flat(Infinity)
+                    .map((imageData: any, index: any) => {
+                      return (
+                        <Image
+                          src={imageData.QuestionImage}
+                          alt={"question-preview123"}
+                          width={406}
+                          height={419}
+                          style={{
+                            height: "fit-content",
+                            objectFit: "contain",
+                            width: "auto",
+                            maxWidth: "100%",
+                          }}
+                        />
+                      );
+                    })}
+                </Box>
+              </Grid>
+            ) : (
+              ""
+            )}
             <Grid
-             item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
             >
               <Box
                 sx={{
@@ -3671,9 +3752,9 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         height={391}
                         style={{
                           objectFit: "contain",
-                          height:"fit-content",
-                           maxWidth: "100%",
-                       width:"auto"
+                          height: "fit-content",
+                          maxWidth: "100%",
+                          width: "auto",
                         }}
                       />
                     ) : (
@@ -3691,8 +3772,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         objectFit: "contain",
                         height: "fit-content",
-                         maxWidth: "100%",
-                         width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   ) : (
@@ -3741,8 +3822,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         style={{
                           objectFit: "contain",
                           height: "fit-content",
-                           maxWidth: "100%",
-                           width:"auto"
+                          maxWidth: "100%",
+                          width: "auto",
                         }}
                       />
                     </Grid>
@@ -3823,8 +3904,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                     style={{
                       objectFit: "contain",
                       height: "fit-content",
-                       maxWidth: "100%",
-                       width:"auto"
+                      maxWidth: "100%",
+                      width: "auto",
                     }}
                   />
                 ) : (
@@ -3846,8 +3927,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                     style={{
                       objectFit: "contain",
                       height: "fit-content",
-                       maxWidth: "100%",
-                       width:"auto"
+                      maxWidth: "100%",
+                      width: "auto",
                     }}
                   />
                 ) : (
@@ -3886,8 +3967,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                       style={{
                         height: "fit-content",
                         objectFit: "contain",
-                         maxWidth: "100%",
-                       width:"auto"
+                        maxWidth: "100%",
+                        width: "auto",
                       }}
                     />
                   );
@@ -4370,9 +4451,9 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
       //   </Box>
       // </DialogContent>
       <Stack>
-        <Box sx={{ width: "100%", typography: "body1",p:"0px" }}>
+        <Box sx={{ width: "100%", typography: "body1", p: "0px" }}>
           {/* <TabContext value={tabValue}> */}
-            {/* <Box>
+          {/* <Box>
               <TabList
                 onChange={handleChange}
                 aria-label="lab API tabs example"
@@ -4418,7 +4499,7 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                 )}
               </TabList>
             </Box> */}
-            {/* <TabPanel
+          {/* <TabPanel
               value="1"
               sx={{
                 "&.MuiTabPanel-root": {
@@ -4426,53 +4507,61 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                 },
               }}
             > */}
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 2 : 1}>
-                   <Box
-                        sx={{
-                          color: "#7A878D",
-                          fontSize: "15px",
-                          lineHeight: "20px",
-                          fontWeight: 400,
-                          "& a": {
-                            color: `${theme.palette.primary.main} !important`,
-                            textDecoration: "underline",
-                            textDecorationColor: theme.palette.primary.main,
-                          },
-                          "& p": {
-                            color: "#7A878D",
-                            fontSize: "15px",
-                            lineHeight: "20px",
-                            fontWeight: 400,
-                            mb: "32px",
-                          },
-                        }}
-                        dangerouslySetInnerHTML={{
-                          __html: questionText,
-                        }}
-                      />
-
-                 
-                </Grid>
-                <Grid item xs={12} md={caseStudy ? 12 : 6} order={caseStudy ? 1 : 2}>
-                   <Box mt={2.5} textAlign={"center"}>
-                    {primaryImage ? (
-                      <Image
-                        src={primaryImage?.QuestionImage}
-                        alt={"question-preview"}
-                        width={400}
-                        height={391}
-                        style={{
-                          objectFit: "contain",
-                          height: "fit-content",
-                          maxWidth: "100%",
-                          width:"auto"
-                        }}
-                      />
-                    ) : (
-                      ""
-                    )}
-                    {/* <Image
+          <Grid container spacing={3}>
+            <Grid
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 2 : 1}
+            >
+              <Box
+                sx={{
+                  color: "#7A878D",
+                  fontSize: "15px",
+                  lineHeight: "20px",
+                  fontWeight: 400,
+                  "& a": {
+                    color: `${theme.palette.primary.main} !important`,
+                    textDecoration: "underline",
+                    textDecorationColor: theme.palette.primary.main,
+                  },
+                  "& p": {
+                    color: "#7A878D",
+                    fontSize: "15px",
+                    lineHeight: "20px",
+                    fontWeight: 400,
+                    mb: "32px",
+                  },
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: questionText,
+                }}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={caseStudy ? 12 : 6}
+              order={caseStudy ? 1 : 2}
+            >
+              <Box mt={2.5} textAlign={"center"}>
+                {primaryImage ? (
+                  <Image
+                    src={primaryImage?.QuestionImage}
+                    alt={"question-preview"}
+                    width={400}
+                    height={391}
+                    style={{
+                      objectFit: "contain",
+                      height: "fit-content",
+                      maxWidth: "100%",
+                      width: "auto",
+                    }}
+                  />
+                ) : (
+                  ""
+                )}
+                {/* <Image
                         src={primaryImage?.[0]?.images_url}
                         alt={"question-preview"}
                         width={924}
@@ -4483,28 +4572,27 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                           objectFit: "cover",
                         }}
                       /> */}
-                  </Box>
-                  {secondaryImage ? (
-                  <Box mt={2.5} textAlign={"center"}>
-                    <Image
-                      src={secondaryImage?.QuestionImage}
-                      alt={"question-preview"}
-                      width={406}
-                      height={419}
-                      style={{
-                        objectFit: "contain",
-                        height: "fit-content",
-                         maxWidth: "100%",
-                         width:"auto"
-                      }}
-                    />
-                     </Box>
-                  ) : (
-                    ""
-                  )}
-                 
-                  
-                   <Box
+              </Box>
+              {secondaryImage ? (
+                <Box mt={2.5} textAlign={"center"}>
+                  <Image
+                    src={secondaryImage?.QuestionImage}
+                    alt={"question-preview"}
+                    width={406}
+                    height={419}
+                    style={{
+                      objectFit: "contain",
+                      height: "fit-content",
+                      maxWidth: "100%",
+                      width: "auto",
+                    }}
+                  />
+                </Box>
+              ) : (
+                ""
+              )}
+
+              <Box
                 display="flex"
                 alignItems="center"
                 flexDirection="column"
@@ -4529,22 +4617,22 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
               >
                 {viewImage?.flat(Infinity).map((imageData: any, index: any) => {
                   return (
-                      <Image
-                        src={imageData.QuestionImage}
-                        alt={"question-preview"}
-                        width={406}
-                        height={419}
-                        style={{
-                          objectFit: "contain",
-                          height: "fit-content",
-                           maxWidth: "100%",
-                           width:"auto"
-                        }}
-                      />
+                    <Image
+                      src={imageData.QuestionImage}
+                      alt={"question-preview"}
+                      width={406}
+                      height={419}
+                      style={{
+                        objectFit: "contain",
+                        height: "fit-content",
+                        maxWidth: "100%",
+                        width: "auto",
+                      }}
+                    />
                   );
                 })}
               </Box>
-                  {/* <Image
+              {/* <Image
                       src={secondaryImage?.[0]?.images_url}
                       alt={"question-preview"}
                       width={406}
@@ -4555,10 +4643,10 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                         objectFit: "cover",
                       }}
                     /> */}
-                </Grid>
-              </Grid>
-            {/* </TabPanel> */}
-            {/* <TabPanel
+            </Grid>
+          </Grid>
+          {/* </TabPanel> */}
+          {/* <TabPanel
               value="2"
               sx={{
                 "&.MuiTabPanel-root": {
@@ -4566,8 +4654,8 @@ const QuestionOptions: React.FC<questionOptionsProps> = ({
                 },
               }}
             > */}
-             
-            {/* </TabPanel> */}
+
+          {/* </TabPanel> */}
           {/* </TabContext> */}
         </Box>
       </Stack>

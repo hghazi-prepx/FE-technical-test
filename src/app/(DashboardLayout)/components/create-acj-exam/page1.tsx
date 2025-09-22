@@ -49,14 +49,14 @@ import { getExamTypeList } from "../../../../services/examType/examTypeAPI";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { Autocomplete } from "@mui/material";
-import CustomCheckbox from "../../components/forms/theme-elements/CustomCheckbox";
+import CustomCheckbox from "../forms/theme-elements/CustomCheckbox";
 import moment from "moment-timezone";
-import toast from "../../components/Toast";
+import toast from "../Toast";
 import Loading from "../../loading";
 import { useRouter, useSearchParams } from "next/navigation";
 import CommonPopup from "../../../../utils/commonpopup/index";
 import React from "react";
-import { countries } from "../countryName";
+import { countries } from "../../acj-exam/countryName";
 import {
   CaretupIcon,
   CornerDownArrowIcon,
@@ -94,7 +94,7 @@ import {
   gradeCalculation,
   additionallyDropDown,
   pagingData,
-} from "../dropDowns";
+} from "../../acj-exam/dropDowns";
 import { getCampusList } from "@/services/station/stationAPI";
 import { createNewExam } from "../../../../services/newExamFlow/newExamFlowAPI";
 import { bgcolor, width } from "@mui/system";
@@ -103,12 +103,13 @@ import {
   mockExamSlug,
   quizzExamSlug,
   selfAssessmentExamSlug,
-} from "../constant";
+} from "../../acj-exam/constant";
 import {
   getCourseLmsList,
   getImportInLmscourse,
 } from "@/services/adminCourseDashboard/adminCourseDashboard";
 import { PAGINATION } from "@/utils/Constants";
+import { useExamStore } from "@/store/useExamStore";
 
 const { DEFAULT_PAGE } = PAGINATION;
 
@@ -133,6 +134,7 @@ const MockexamLocationTypeData = [
 
 export default function CreateIMockExam() {
   const searchRouter = useSearchParams();
+  const { setStepOne, stepOne } = useExamStore();
   const examCourse: any = searchRouter.get("examcourse");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
@@ -337,14 +339,7 @@ export default function CreateIMockExam() {
     return yup.object().shape({
       ExamName: yup.string().required("Exam name is required"),
       ExamTypeID: yup.string().required("Exam type is required"),
-      // CountryID:
-      //   examTypeSlug != mockExamSlug
-      //     ? yup.number().required("Coutry is required")
-      //     : yup.number().notRequired(),
-      // TimeZoneID:
-      //   examTypeSlug != mockExamSlug
-      //     ? yup.string().required("Timezone is required")
-      //     : yup.string().notRequired(),
+
       PrepXExamAFKACJOSCECourse: yup
         .number()
         .required("Exam course is required"),
@@ -355,26 +350,7 @@ export default function CreateIMockExam() {
       ExamTimeLimit: yup.string().required("Exam limit is required"),
       ExamQuizStart: yup.string().required("Exam start is required"),
       ExamTimeLimitExpires: yup.string().required("Exam expire is required"),
-      // ExamNumberofAttempts: isUnlimited
-      //   ? yup.string().notRequired()
-      //   : ExamQuizStart == mockExamSlug
-      //     ? yup
-      //       .string()
-      //       .test(
-      //         "is-one-attempt",
-      //         "Only 1 attempt is allowed for mock exams",
-      //         (value) => value === "1"
-      //       )
-      //     : yup
-      //       .string()
-      //       .test(
-      //         "is-positive-integer",
-      //         "Number of attempts must be a positive integer",
-      //         (value) => {
-      //           const numValue = Number(value);
-      //           return numValue > 0 && Number.isInteger(numValue);
-      //         }
-      //       ),
+
       ExamOverallGradeCalculationID: yup
         .string()
         .required("Overall grade is required"),
@@ -400,18 +376,7 @@ export default function CreateIMockExam() {
       ExamBreakDuration:
         examTypeSlug == "mock"
           ? yup.number().required("Break duration is required")
-          : // .test(
-            //   "is-greater-than-zero",
-            //   "Number of questions must be greater than 0",
-            //   (value): boolean => {
-            //     if (value === undefined || value === null) {
-            //       return true; // Required validation will handle empty cases
-            //     }
-            //     const numValue = Number(value);
-            //     return numValue > 0;
-            //   }
-            // )
-            yup.number(),
+          : yup.number(),
 
       ExamNumberofQuestions:
         examTypeSlug == "mock"
@@ -434,47 +399,11 @@ export default function CreateIMockExam() {
       ExamAvailabilityDate: yup
         .string()
         .required("Exam availability is required"),
-
-      // ExamDueDate:
-      //   examTypeSlug != "mock" || examTypeSlug == undefined
-      //     ? yup.string().required("Exam due is required")
-      //     : yup.string(),
     });
   };
 
   const formik = useFormik({
-    initialValues: {
-      ExamName: "",
-      PrepXExamAFKACJOSCECourse: "",
-      ExamTypeID: "",
-      Status: 0,
-      ShortDescription: "",
-      LongDescription: "",
-      ExamBookletDuration: 1,
-      ExamNumberofBookletsID: "",
-      ExamBreakDuration: 1,
-      ExamNumberofQuestions: 1,
-      ExamSetTimeLimit: 0,
-      ExamTimeLimit: 1,
-      ExamQuizStart: 1,
-      ExamTimeLimitExpires: 1,
-      ExamAvailabilityDate: "",
-      ExamDueDate: "",
-      ExamShuffleQuiz: 0,
-      ExamPaging: 0,
-      ExamNumberofAttempts: "",
-      ExamOverallGradeCalculationID: 1,
-      ExamEvaluationFeedback: 0,
-      ExamPublishedDisplayToLearners: 0,
-      ExamAdditionallyID: 0,
-      ExamInstructions: "",
-      PrepXExamAFKACJOSCECampus: [],
-      ExamCourseType: "",
-      CSTimeOfExam: "",
-      CSTimeOfExamDue: "",
-      // CountryID: "",
-      // TimeZoneID: "",
-    },
+    initialValues: { ...stepOne },
     // validationSchema,
     validationSchema: getValidationSchema(examType?.ExamTypeSlug, isUnlimited),
     onSubmit: async (values: any) => {
@@ -486,11 +415,7 @@ export default function CreateIMockExam() {
         values.ExamTimeLimit = 0;
       }
 
-      // const isValid = validateFields(values, rows, examType);
-      // if (!isValid) {
-      //   setIsLoading(false);
-      //   return; // Exit if validation fails
-      // }
+    
       values.CountryID = 32;
       values.TimeZoneID = 248;
       values.ExamCourseType = examCourse;
@@ -634,6 +559,7 @@ export default function CreateIMockExam() {
             type: "success",
             message: "Exam has been created successfully.",
           });
+          setStepOne(values);
           router.push(
             `/acj-exam/question-selection?examid=${result?.data?.ExamID}`
           );
@@ -1463,7 +1389,7 @@ export default function CreateIMockExam() {
                   </Typography>
                   <Autocomplete
                     // loading={searchLoading}
-                    id="country-select-demo"
+                    id="ExamTypeID"
                     fullWidth
                     options={examTypeData ? examTypeData : []}
                     value={examType}
