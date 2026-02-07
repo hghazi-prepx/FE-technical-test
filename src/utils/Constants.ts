@@ -83,7 +83,7 @@ export const MenuNameEnum = {
   SuperAdminManagement: "Super Admin Management",
   AdminManagement: "Admin Management",
   AuditLog: "Audit Log",
-  CsCriteria:"CS Criteria"
+  CsCriteria: "CS Criteria",
 };
 
 export const MenuCodeEnum = {
@@ -146,7 +146,7 @@ export const MenuCodeEnum = {
   StatusManagement: "status-management",
   ExamDelayManagement: "exam-delay-management",
   ExamReports: "exam-reports",
-  ExamAttempts:"exam-attempts",
+  ExamAttempts: "exam-attempts",
   ExamEvaluationRubric: "exam-evaluation-rubric",
   ProjectManagement: "project-management",
   ProjectTopicManagement: "project-topic-management",
@@ -167,27 +167,7 @@ export const MenuCodeEnum = {
   AdminManagement: "admin-management",
   AuditLog: "audit-log",
   StudentCourse: "student-course",
-	CsCriteria:"cs-criteria"
-
-};
-
-export const SocketEvents = {
-  CONNECTION: "connection",
-  DISCONNECT: "disconnect",
-  JOIN_EXAM_ROOM: "join-exam-room",
-  SUBMIT_ANSWER: "submit-answer",
-  BREAK_TIME: "break-time",
-  LEAVE_EXAM_ROOM: "leave-exam-room",
-  EXAM_TIMER_STARTED: "exam-timer-started",
-  EXAM_TIMER_REMAINING: "exam-timer-remaining",
-  BREAK_TIMER_REMAINING: "break-timer-remaining",
-  STOP_TIMER: "stop-timer",
-  RESTART_TIMER: 'restart-timer',
-	EXTEND_EXAM_TIME:'extend-time',
-  RESTART_EXAM_TIMER:'restart-exam-timer',
-  EXAM_CLEARED:"exam-clear",
-  STUDENT_DISABLE: "disable-student"
-
+  CsCriteria: "cs-criteria",
 };
 
 export const toothNumberingSystem = [
@@ -223,14 +203,8 @@ export const toothNumberingSystem = [
   { value: 4.5, label: "4.5" },
   { value: 4.6, label: "4.6" },
   { value: 4.7, label: "4.7" },
-  { value: 4.8, label: "4.8" }
+  { value: 4.8, label: "4.8" },
 ];
-
-
-export const SocketEventsBreakType = {
-  BREAK_IN: "break-in",
-  BREAK_OUT: "break-out",
-};
 
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
@@ -246,8 +220,8 @@ export const COURSE_TYPE: SelectOption[] = [
   { value: "NDECC-SJ", label: "NDECC-SJ" },
   { value: "NDECC-CS", label: "NDECC-CS" },
   { value: "Pharma-EE", label: "Pharma-EE" },
-  { value: "INDBE", label: "INDBE"},
-  { value: "ADAT", label: "ADAT"},
+  { value: "INDBE", label: "INDBE" },
+  { value: "ADAT", label: "ADAT" },
   { value: "Pharma-MCQ", label: "Pharma-MCQ" },
 ];
 
@@ -257,20 +231,20 @@ export const USER_CATEGORY: SelectOption[] = [
   { value: "Instructor", label: "Instructor" },
   { value: "Trainee", label: "Trainee" },
   { value: "Stations", label: "Stations" },
-]
+];
 
 export const USER_STATUS: SelectOption[] = [
   { value: "1", label: "Active" },
   { value: "0", label: "Inactive" },
-]
+];
 export const EXAM_TYPE: SelectOption[] = [
   { value: "mock", label: "MOCK" },
   { value: "CS-MOCK", label: "CS-MOCK" },
   { value: "quiz", label: "QUIZ" },
   { value: "self-assessment", label: "SELF ASSESSMENT" },
   { value: "sjmme", label: "SJ MINI MOCK" },
-  { value: "sje", label: "SJ EXAMINATION" }
-]
+  { value: "sje", label: "SJ EXAMINATION" },
+];
 
 export const EXAM_STATUS: SelectOption[] = [
   { value: "1", label: "Active" },
@@ -321,9 +295,9 @@ export const numOfProjectTopicChoiceList = [
   },
 ];
 
-export const extendTimeValues  = [
+export const extendTimeValues = [
   {
-    value:1,
+    value: 1,
     label: "Booklet 1",
   },
   {
@@ -352,4 +326,13 @@ export const Environment = {
   IsProduction: () => Environment.Is("PROD"),
 };
 
-export const allowedQuestions = ["SJWritten", "mcq", "msq", "truefalse", "SJRoleplay", "drop-down-question", "fill-in-the-blanks", "writtenresponse"]
+export const allowedQuestions = [
+  "SJWritten",
+  "mcq",
+  "msq",
+  "truefalse",
+  "SJRoleplay",
+  "drop-down-question",
+  "fill-in-the-blanks",
+  "writtenresponse",
+];

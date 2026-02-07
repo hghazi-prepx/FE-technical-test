@@ -583,14 +583,7 @@ export const commonTableStyle = {
     maxWidth: "400px",
     overflow: "hidden",
     textOverflow: "ellipsis",
-    "&:last-child": {
-      width: "50px",
-      minWidth: "50px",
-      maxWidth: "50px",
-      "&:has(button)": {
-        textAlign: "right",
-      },
-    },
+   
   },
   "& th": {
     minHeight: "55px",

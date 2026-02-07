@@ -9,8 +9,6 @@ import { AppState } from "@/store/store";
 import ToastProvider from "../toasterProvider";
 import { PaginationProvider } from "../../utils/pagination/index";
 import { usePathname, useRouter } from "next/navigation";
-// Removed authentication wrapper
-// import SocketComponent from "@/components/SocketComponent";
 
 const MainWrapper = styled("div")(() => ({
   // display: "flex",
@@ -57,7 +55,6 @@ const RootLayout: React.FC<Props> = ({ children }) => {
   return (
     <PaginationProvider>
       <ToastProvider>
-        {/* <SocketComponent /> */}
         <MainWrapper>
           <title>PrepX</title>
 

@@ -1,5 +1,6 @@
 import {
   LatestMenuItems,
+  MenuitemsType,
   // Menuitems
   // MenuitemsALL,
   // MenuitemsStationManager,
@@ -139,15 +140,11 @@ const SidebarItems = () => {
   return (
     <Box sx={{ px: 2 }} borderRadius={0}>
       <List sx={{ pt: 4 }} className="sidebarNav">
-        {LatestMenuItems?.map((item: any) => {
+        {LatestMenuItems?.map((item: MenuitemsType) => {
           // {/********SubHeader**********/}
           if (item.subheader) {
             return (
-              <NavGroup
-                item={item}
-                hideMenu={hideMenu}
-                key={item.subheader}
-              />
+              <NavGroup item={item} hideMenu={hideMenu} key={item.subheader} />
             );
 
             // {/********If Sub Menu**********/}
@@ -173,7 +170,7 @@ const SidebarItems = () => {
                 key={item.id}
                 pathDirect={pathDirect}
                 hideMenu={hideMenu}
-                onClick={() => dispatch(toggleMobileSidebar())}
+                onClick={item.onClick}
               />
             );
           }
